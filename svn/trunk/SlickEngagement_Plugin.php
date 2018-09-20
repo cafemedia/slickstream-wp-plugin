@@ -1,9 +1,9 @@
 <?php
 
-include_once 'PoweredBySlick_LifeCycle.php';
-include_once 'PoweredBySlick_Widgets.php';
+include_once 'SlickEngagement_LifeCycle.php';
+include_once 'SlickEngagement_Widgets.php';
 
-class PoweredBySlick_Plugin extends PoweredBySlick_LifeCycle
+class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
 {
     /**
      * See: http://plugin.michael-simpson.com/?page_id=31
@@ -13,23 +13,12 @@ class PoweredBySlick_Plugin extends PoweredBySlick_LifeCycle
     {
         //  http://plugin.michael-simpson.com/?page_id=31
         return array(
-            'SiteCode' => array(__('Site Code', 'powered-by-slick')),
-            'FilmStripCssPosition' => array(__('FilmStrip widget CSS position', 'powered-by-slick'), 'none', 'before selector', 'after selector', 'first child of selector', 'last child of selector'),
-            'FilmStripCss' => array(__('FilmStrip CSS selector', 'powered-by-slick')),
-            'ExplorerCssPosition' => array(__('Explorer widget CSS position', 'powered-by-slick'), 'none', 'before selector', 'after selector', 'first child of selector', 'last child of selector'),
-            'ExplorerCss' => array(__('Explorer CSS selector', 'powered-by-slick')),
-            //'_version' => array('Installed Version'), // Leave this one commented-out. Uncomment to test upgrades.
-            // 'Theme' => array(__('Theme', 'powered-by-slick'), 'dark', 'light'),
-            // 'TabVerticalOffset' => array(__('Tab offset', 'powered-by-slick'), '80'),
-            // 'TabZIndex' => array(__('Tab z-index', 'powered-by-slick'), '10'),
-            // 'ExclusiveCategory' => array(__('Exclusive content category', 'powered-by-slick'), 'Slick Exclusive'),
-            // 'ExclusiveTag' => array(__('Exclusive content tag name', 'powered-by-slick'), 'slick-exclusive'),
-            // 'HandlePages' => array(__('Exclusive page handling', 'powered-by-slick'), 'protect', 'ignore'),
-            // 'HandlePosts' => array(__('Exclusive posts', 'powered-by-slick'), 'protect single post per page', 'protect everywhere', 'ignore'),
-            // 'AdClasses' => array(__('Ad classes', 'powered-by-slick'), 'adsbygoogle'),
-            // 'AdIds' => array(__('Ad IDs', 'powered-by-slick'), ''),
-            // 'AdTags' => array(__('Ad tags', 'powered-by-slick'), ''),
-            'SlickServerUrl' => array(__('Slick server (test-only)', 'powered-by-slick'), ''),
+            'SiteCode' => array(__('Site Code', 'slick-engagement')),
+            'FilmStripCssPosition' => array(__('FilmStrip widget CSS position', 'slick-engagement'), 'none', 'before selector', 'after selector', 'first child of selector', 'last child of selector'),
+            'FilmStripCss' => array(__('FilmStrip CSS selector', 'slick-engagement')),
+            'ExplorerCssPosition' => array(__('Explorer widget CSS position', 'slick-engagement'), 'none', 'before selector', 'after selector', 'first child of selector', 'last child of selector'),
+            'ExplorerCss' => array(__('Explorer CSS selector', 'slick-engagement')),
+            'SlickServerUrl' => array(__('Slick server (support use only)', 'slick-engagement'), ''),
         );
     }
 
@@ -52,12 +41,12 @@ class PoweredBySlick_Plugin extends PoweredBySlick_LifeCycle
 
     public function getPluginDisplayName()
     {
-        return 'Powered By Slick';
+        return 'Slick Engagement';
     }
 
     protected function getMainPluginFileName()
     {
-        return 'powered-by-slick.php';
+        return 'slick-engagement.php';
     }
 
     /**
@@ -141,8 +130,8 @@ class PoweredBySlick_Plugin extends PoweredBySlick_LifeCycle
 
     public function onActionLinks($links)
     {
-        $this->guildLog('onActionLinks ' . admin_url('options-general.php?page=PoweredBySlick_PluginSettings'));
-        $mylinks = array('<a href="' . admin_url('options-general.php?page=PoweredBySlick_PluginSettings') . '">Settings</a>');
+        $this->guildLog('onActionLinks ' . admin_url('options-general.php?page=SlickEngagement_PluginSettings'));
+        $mylinks = array('<a href="' . admin_url('options-general.php?page=SlickEngagement_PluginSettings') . '">Settings</a>');
         return array_merge($links, $mylinks);
     }
 

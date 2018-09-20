@@ -19,9 +19,9 @@
     If not, see http://www.gnu.org/licenses/gpl-3.0.html
 */
 
-include_once('PoweredBySlick_OptionsManager.php');
+include_once('SlickEngagement_OptionsManager.php');
 
-class PoweredBySlick_InstallIndicator extends PoweredBySlick_OptionsManager {
+class SlickEngagement_InstallIndicator extends SlickEngagement_OptionsManager {
 
     const optionInstalled = '_installed';
     const optionVersion = '_version';

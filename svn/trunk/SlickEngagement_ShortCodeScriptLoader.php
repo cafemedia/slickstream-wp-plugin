@@ -19,7 +19,7 @@
     If not, see http://www.gnu.org/licenses/gpl-3.0.html
 */
 
-include_once('PoweredBySlick_ShortCodeLoader.php');
+include_once('SlickEngagement_ShortCodeLoader.php');
 
 /**
  * Adapted from this excellent article:
@@ -28,7 +28,7 @@ include_once('PoweredBySlick_ShortCodeLoader.php');
  * The idea is you have a shortcode that needs a script loaded, but you only
  * want to load it if the shortcode is actually called.
  */
-abstract class PoweredBySlick_ShortCodeScriptLoader extends PoweredBySlick_ShortCodeLoader {
+abstract class SlickEngagement_ShortCodeScriptLoader extends SlickEngagement_ShortCodeLoader {
 
     var $doAddScript;
 

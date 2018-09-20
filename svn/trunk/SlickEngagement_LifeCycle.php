@@ -19,9 +19,9 @@ along with Contact Form to Database Extension.
 If not, see http://www.gnu.org/licenses/gpl-3.0.html
  */
 
-include_once 'PoweredBySlick_InstallIndicator.php';
+include_once 'SlickEngagement_InstallIndicator.php';
 
-class PoweredBySlick_LifeCycle extends PoweredBySlick_InstallIndicator
+class SlickEngagement_LifeCycle extends SlickEngagement_InstallIndicator
 {
 
     public function install()

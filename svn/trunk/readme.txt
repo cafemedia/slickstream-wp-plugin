@@ -1,7 +1,7 @@
-=== Powered By Slick ===
+=== Slick Engagement ===
 Contributors: kduffie
 Donate link:  https://poweredbyslick.com
-Tags: widgets, navigation, engagement, pageviews
+Tags: widgets, navigation, engagement, pageviews, interactive
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Requires at least: 4.0

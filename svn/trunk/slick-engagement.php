@@ -1,12 +1,12 @@
 <?php
 /*
-Plugin Name: Powered By Slick
+Plugin Name: Slick Engagement
 Plugin URI: https://poweredbyslick.com/getting-started
 Version: 0.4.0
 Author: Hivepoint, Inc.
 Author URI: https://poweredbyslick.com
 Description: Use Slick's cloud service and widgets to increase visitor engagement
-Text Domain: powered-by-slick
+Text Domain: slick-engagement
 License: GPLv2 or later
  */
 
@@ -30,28 +30,28 @@ along with Contact Form to Database Extension.
 If not, see http://www.gnu.org/licenses/gpl-3.0.html
  */
 
-$PoweredBySlick_minimalRequiredPhpVersion = '5.0';
+$SlickEngagement_minimalRequiredPhpVersion = '5.0';
 
 /**
  * Check the PHP version and give a useful error message if the user's version is less than the required version
  * @return boolean true if version check passed. If false, triggers an error which WP will handle, by displaying
  * an error message on the Admin page
  */
-function PoweredBySlick_noticePhpVersionWrong()
+function SlickEngagement_noticePhpVersionWrong()
 {
-    global $PoweredBySlick_minimalRequiredPhpVersion;
+    global $SlickEngagement_minimalRequiredPhpVersion;
     echo '<div class="updated fade">' .
-    __('Error: plugin "Powered By Slick" requires a newer version of PHP to be running.', 'powered-by-slick') .
-    '<br/>' . __('Minimal version of PHP required: ', 'powered-by-slick') . '<strong>' . $PoweredBySlick_minimalRequiredPhpVersion . '</strong>' .
-    '<br/>' . __('Your server\'s PHP version: ', 'powered-by-slick') . '<strong>' . phpversion() . '</strong>' .
+    __('Error: plugin "Slick Engagement" requires a newer version of PHP to be running.', 'slick-engagement') .
+    '<br/>' . __('Minimal version of PHP required: ', 'slick-engagement') . '<strong>' . $SlickEngagement_minimalRequiredPhpVersion . '</strong>' .
+    '<br/>' . __('Your server\'s PHP version: ', 'slick-engagement') . '<strong>' . phpversion() . '</strong>' .
         '</div>';
 }
 
-function PoweredBySlick_PhpVersionCheck()
+function SlickEngagement_PhpVersionCheck()
 {
-    global $PoweredBySlick_minimalRequiredPhpVersion;
-    if (version_compare(phpversion(), $PoweredBySlick_minimalRequiredPhpVersion) < 0) {
-        add_action('admin_notices', 'PoweredBySlick_noticePhpVersionWrong');
+    global $SlickEngagement_minimalRequiredPhpVersion;
+    if (version_compare(phpversion(), $SlickEngagement_minimalRequiredPhpVersion) < 0) {
+        add_action('admin_notices', 'SlickEngagement_noticePhpVersionWrong');
         return false;
     }
     return true;
@@ -64,10 +64,10 @@ function PoweredBySlick_PhpVersionCheck()
  *      http://www.wdmac.com/how-to-create-a-po-language-translation#more-631
  * @return void
  */
-function PoweredBySlick_i18n_init()
+function SlickEngagement_i18n_init()
 {
     $pluginDir = dirname(plugin_basename(__FILE__));
-    load_plugin_textdomain('powered-by-slick', false, $pluginDir . '/languages/');
+    load_plugin_textdomain('slick-engagement', false, $pluginDir . '/languages/');
 }
 
 //////////////////////////////////
@@ -75,12 +75,12 @@ function PoweredBySlick_i18n_init()
 /////////////////////////////////
 
 // Initialize i18n
-add_action('plugins_loadedi', 'PoweredBySlick_i18n_init');
+add_action('plugins_loadedi', 'SlickEngagement_i18n_init');
 
 // Run the version check.
 // If it is successful, continue with initialization for this plugin
-if (PoweredBySlick_PhpVersionCheck()) {
+if (SlickEngagement_PhpVersionCheck()) {
     // Only load and run the init function if we know PHP version can parse it
-    include_once 'powered-by-slick_init.php';
-    PoweredBySlick_init(__FILE__);
+    include_once 'slick-engagement_init.php';
+    SlickEngagement_init(__FILE__);
 }

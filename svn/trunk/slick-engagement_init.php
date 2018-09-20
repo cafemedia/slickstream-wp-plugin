@@ -19,10 +19,10 @@
     If not, see http://www.gnu.org/licenses/gpl-3.0.html
 */
 
-function PoweredBySlick_init($file) {
+function SlickEngagement_init($file) {
 
-    require_once('PoweredBySlick_Plugin.php');
-    $aPlugin = new PoweredBySlick_Plugin();
+    require_once('SlickEngagement_Plugin.php');
+    $aPlugin = new SlickEngagement_Plugin();
 
     // Install the plugin
     // NOTE: this file gets run each time you *activate* the plugin.

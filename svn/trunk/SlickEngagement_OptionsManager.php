@@ -19,7 +19,7 @@ along with Contact Form to Database Extension.
 If not, see http://www.gnu.org/licenses/gpl-3.0.html
  */
 
-class PoweredBySlick_OptionsManager
+class SlickEngagement_OptionsManager
 {
 
     public function getOptionNamePrefix()
@@ -282,7 +282,7 @@ class PoweredBySlick_OptionsManager
     public function settingsPage()
     {
         if (!current_user_can('manage_options')) {
-            wp_die(__('You do not have sufficient permissions to access this page.', 'powered-by-slick'));
+            wp_die(__('You do not have sufficient permissions to access this page.', 'slick-engagement'));
         }
 
         $optionMetaData = $this->getOptionMetaData();
@@ -302,7 +302,7 @@ class PoweredBySlick_OptionsManager
         <div class="wrap">
             <h2><?php echo $this->getPluginDisplayName();
         echo ' ';
-        _e('Settings', 'powered-by-slick'); ?></h2>
+        _e('Settings', 'slick-engagement'); ?></h2>
 
             <form method="post" action="">
             <?php settings_fields($settingsGroup);?>
@@ -332,7 +332,7 @@ if ($optionMetaData != null) {
                 </tbody></table>
                 <p class="submit">
                     <input type="submit" class="button-primary"
-                           value="<?php _e('Save Changes', 'powered-by-slick')?>"/>
+                           value="<?php _e('Save Changes', 'slick-engagement')?>"/>
                 </p>
             </form>
 
@@ -411,22 +411,22 @@ foreach ($choices as $aChoice) {
     {
         switch ($optionValue) {
             case 'true':
-                return __('true', 'powered-by-slick');
+                return __('true', 'slick-engagement');
             case 'false':
-                return __('false', 'powered-by-slick');
+                return __('false', 'slick-engagement');
 
             case 'Administrator':
-                return __('Administrator', 'powered-by-slick');
+                return __('Administrator', 'slick-engagement');
             case 'Editor':
-                return __('Editor', 'powered-by-slick');
+                return __('Editor', 'slick-engagement');
             case 'Author':
-                return __('Author', 'powered-by-slick');
+                return __('Author', 'slick-engagement');
             case 'Contributor':
-                return __('Contributor', 'powered-by-slick');
+                return __('Contributor', 'slick-engagement');
             case 'Subscriber':
-                return __('Subscriber', 'powered-by-slick');
+                return __('Subscriber', 'slick-engagement');
             case 'Anyone':
-                return __('Anyone', 'powered-by-slick');
+                return __('Anyone', 'slick-engagement');
         }
         return $optionValue;
     }
