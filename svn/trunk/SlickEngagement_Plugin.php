@@ -18,6 +18,7 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
             'FilmStripCss' => array(__('FilmStrip CSS selector', 'slick-engagement')),
             'ExplorerCssPosition' => array(__('Explorer widget CSS position', 'slick-engagement'), 'none', 'before selector', 'after selector', 'first child of selector', 'last child of selector'),
             'ExplorerCss' => array(__('Explorer CSS selector', 'slick-engagement')),
+            'BaselinePercent' => array(__('Baseline traffic percentage (0 - 100)', 'slick-engagement'), '0'),
             'SlickServerUrl' => array(__('Slick server (support use only)', 'slick-engagement'), ''),
         );
     }
@@ -188,7 +189,7 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
             $postId = $post->ID;
             $siteCode = $this->getOption('SiteCode');
             if ($siteCode) {
-                $serverUrl = 'https://poweredbyslick.com/e1/embed.js';
+                $serverUrl = 'https://poweredbyslick.com/e1/embed-nav.js';
                 $override = $this->getOption('SlickServerUrl', '');
                 if (isset($override) && trim($override) !== '') {
                     $serverUrl = trim($override);
@@ -200,12 +201,16 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
                 $filmStripCssPosition = $this->getOption('FilmStripCssPosition', 'none');
                 $filmStripCss = $this->getOption('FilmStripCss', '');
                 if ($filmStripCssPosition !== 'none' && !empty($filmStripCss)) {
-                    echo 'filmStrip: { position: "' . $filmStripCssPosition . '", selector: "' . $filmStripCss . '" }';
+                    echo 'filmStrip: { position: "' . $filmStripCssPosition . '", selector: "' . $filmStripCss . '" }, ';
                 }
                 $explorerCssPosition = $this->getOption('ExplorerCssPosition', 'none');
                 $explorerCss = $this->getOption('ExplorerCss', '');
                 if ($explorerCssPosition !== 'none' && !empty($explorerCss)) {
-                    echo 'explorer: { position: "' . $explorerCssPosition . '", selector: "' . $explorerCss . '" }';
+                    echo 'explorer: { position: "' . $explorerCssPosition . '", selector: "' . $explorerCss . '" }, ';
+                }
+                $baselinePercent = (float) $this->getOption('BaselinePercent', '0');
+                if ($baselinePercent > 0 && $baselinePercent <= 100) {
+                    echo 'baseline: ' . strval($baselinePercent / 100) . ', ';
                 }
                 echo ' };';
                 echo '</script>' . "\n";
