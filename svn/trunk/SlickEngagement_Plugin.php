@@ -18,7 +18,7 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
             'FilmStripCss' => array(__('FilmStrip CSS selector', 'slick-engagement')),
             'ExplorerCssPosition' => array(__('Explorer widget CSS position', 'slick-engagement'), 'none', 'before selector', 'after selector', 'first child of selector', 'last child of selector'),
             'ExplorerCss' => array(__('Explorer CSS selector', 'slick-engagement')),
-            'BaselinePercent' => array(__('Baseline traffic percentage (0 - 100)', 'slick-engagement'), '0'),
+            'activationPercent' => array(__('Percent of visitors to be shown widgets (0 - 100)', 'slick-engagement'), '100'),
             'SlickServerUrl' => array(__('Slick server (support use only)', 'slick-engagement'), ''),
         );
     }
@@ -189,10 +189,10 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
             $postId = $post->ID;
             $siteCode = $this->getOption('SiteCode');
             if ($siteCode) {
-                $serverUrl = 'https://poweredbyslick.com/e1/embed-nav.js';
+                $serverUrl = 'https://poweredbyslick.com/e1/embed-nav.js?site=' . $siteCode;
                 $override = $this->getOption('SlickServerUrl', '');
                 if (isset($override) && trim($override) !== '') {
-                    $serverUrl = trim($override);
+                    $serverUrl = trim($override) . '?site=' . $siteCode;
                 }
                 echo "\n" . '<script defer src="' . $serverUrl . '"></script>' . "\n";
                 echo '<script>';
@@ -208,9 +208,9 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
                 if ($explorerCssPosition !== 'none' && !empty($explorerCss)) {
                     echo 'explorer: { position: "' . $explorerCssPosition . '", selector: "' . $explorerCss . '" }, ';
                 }
-                $baselinePercent = (float) $this->getOption('BaselinePercent', '0');
-                if ($baselinePercent > 0 && $baselinePercent <= 100) {
-                    echo 'baseline: ' . strval($baselinePercent / 100) . ', ';
+                $activationPercent = (float) $this->getOption('activationPercent', '0');
+                if ($activationPercent > 0 && $activationPercent <= 100) {
+                    echo 'activationRatio: ' . strval($activationPercent / 100) . ', ';
                 }
                 echo ' };';
                 echo '</script>' . "\n";
