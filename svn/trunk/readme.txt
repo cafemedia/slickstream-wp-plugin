@@ -6,7 +6,7 @@ License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Requires at least: 4.0
 Tested up to: 4.9.8
-Stable tag: 0.4.2
+Stable tag: 1.0.0
 
 Increase engagement on your site using [Slick](https://poweredbyslick.com) widgets on your page.  We increase pageviews per visit.
 
@@ -64,8 +64,5 @@ We use a large amount of cloud processing and storage to be able to present the 
 
 == Changelog ==
 
-= 0.1.0 =
-- Initial Revision
-
-= 0.4.2 =
-- Support for activationRatio
+= 1.0.0 =
+- First production release

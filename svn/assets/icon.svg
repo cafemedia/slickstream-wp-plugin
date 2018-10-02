@@ -1,0 +1,14 @@
+<svg class="mainSvg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 150 160">
+  <g id="g1" transform="translate(0,0)">
+    <path id="p00" class="c1" d="M100,50 a50,50 0 1,0 -100,0"></path>
+    <path id="p01" class="c2" d="M100,50 a50,50 0 1,0 -100,0" transform="rotate(180 75 25)"></path>
+  </g>
+  <g id="g2" transform="translate(0,55)">
+    <path id="p10" class="c2" d="M100,50 a50,50 0 1,0 -100,0" transform="translate(50,0)"></path>
+    <path id="p11" class="c3" d="M100,50 a50,50 0 1,0 -100,0" transform="translate(0,-50) rotate(180 50 50)"></path>
+  </g>
+  <g id="g3" transform="translate(0,110)">
+    <path id="p20" class="c3" d="M100,50 a50,50 0 1,0 -100,0"></path>
+    <path id="p21" class="c1" d="M100,50 a50,50 0 1,0 -100,0" transform="rotate(180 75 25)"></path>
+  </g>
+</svg>

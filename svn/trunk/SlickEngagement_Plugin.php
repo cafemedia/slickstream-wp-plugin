@@ -5,20 +5,20 @@ include_once 'SlickEngagement_Widgets.php';
 
 class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
 {
-    /**
-     * See: http://plugin.michael-simpson.com/?page_id=31
-     * @return array of option meta data.
-     */
+/**
+ * See: http://plugin.michael-simpson.com/?page_id=31
+ * @return array of option meta data.
+ */
     public function getOptionMetaData()
     {
-        //  http://plugin.michael-simpson.com/?page_id=31
+//  http://plugin.michael-simpson.com/?page_id=31
         return array(
             'SiteCode' => array(__('Site Code', 'slick-engagement')),
             'FilmStripCssPosition' => array(__('FilmStrip widget CSS position', 'slick-engagement'), 'none', 'before selector', 'after selector', 'first child of selector', 'last child of selector'),
             'FilmStripCss' => array(__('FilmStrip CSS selector', 'slick-engagement')),
             'ExplorerCssPosition' => array(__('Explorer widget CSS position', 'slick-engagement'), 'none', 'before selector', 'after selector', 'first child of selector', 'last child of selector'),
             'ExplorerCss' => array(__('Explorer CSS selector', 'slick-engagement')),
-            'activationPercent' => array(__('Percent of visitors to be shown widgets (0 - 100)', 'slick-engagement'), '100'),
+            'ActivationPercent' => array(__('Percent of visitors to be shown widgets (0 - 100)', 'slick-engagement'), '90'),
             'SlickServerUrl' => array(__('Slick server (support use only)', 'slick-engagement'), ''),
         );
     }
@@ -50,77 +50,77 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
         return 'slick-engagement.php';
     }
 
-    /**
-     * See: http://plugin.michael-simpson.com/?page_id=101
-     * Called by install() to create any database tables if needed.
-     * Best Practice:
-     * (1) Prefix all table names with $wpdb->prefix
-     * (2) make table names lower case only
-     * @return void
-     */
+/**
+ * See: http://plugin.michael-simpson.com/?page_id=101
+ * Called by install() to create any database tables if needed.
+ * Best Practice:
+ * (1) Prefix all table names with $wpdb->prefix
+ * (2) make table names lower case only
+ * @return void
+ */
     protected function installDatabaseTables()
     {
-        //        global $wpdb;
+//        global $wpdb;
         //        $tableName = $this->prefixTableName('mytable');
         //        $wpdb->query("CREATE TABLE IF NOT EXISTS `$tableName` (
         //            `id` INTEGER NOT NULL");
     }
 
-    /**
-     * See: http://plugin.michael-simpson.com/?page_id=101
-     * Drop plugin-created tables on uninstall.
-     * @return void
-     */
+/**
+ * See: http://plugin.michael-simpson.com/?page_id=101
+ * Drop plugin-created tables on uninstall.
+ * @return void
+ */
     protected function unInstallDatabaseTables()
     {
-        //        global $wpdb;
+//        global $wpdb;
         //        $tableName = $this->prefixTableName('mytable');
         //        $wpdb->query("DROP TABLE IF EXISTS `$tableName`");
     }
 
-    /**
-     * Perform actions when upgrading from version X to version Y
-     * See: http://plugin.michael-simpson.com/?page_id=35
-     * @return void
-     */
+/**
+ * Perform actions when upgrading from version X to version Y
+ * See: http://plugin.michael-simpson.com/?page_id=35
+ * @return void
+ */
     public function upgrade()
     {
     }
 
     public function addActionsAndFilters()
     {
-        // Add options administration page
+// Add options administration page
         // http://plugin.michael-simpson.com/?page_id=47
         add_action('admin_menu', array(&$this, 'addSettingsSubMenuPage'));
 
-        // Example adding a script & style just for the options administration page
+// Example adding a script & style just for the options administration page
         // http://plugin.michael-simpson.com/?page_id=47
         //        if (strpos($_SERVER['REQUEST_URI'], $this->getSettingsSlug()) !== false) {
         //            wp_enqueue_script('my-script', plugins_url('/js/my-script.js', __FILE__));
         //            wp_enqueue_style('my-style', plugins_url('/css/my-style.css', __FILE__));
         //        }
 
-        // Add Actions & Filters
+// Add Actions & Filters
         // http://plugin.michael-simpson.com/?page_id=37
 
         add_action('wp_head', array(&$this, 'addSlickPageHeader'));
 
-        // Adding scripts & styles to all pages
+// Adding scripts & styles to all pages
         // Examples:
         //        wp_enqueue_script('jquery');
         //        wp_enqueue_style('my-style', plugins_url('/css/my-style.css', __FILE__));
         //        wp_enqueue_script('my-script', plugins_url('/js/my-script.js', __FILE__));
 
-        // Register short codes
+// Register short codes
         // http://plugin.michael-simpson.com/?page_id=39
 
         add_shortcode('slick-film-strip', array($this, 'doFilmStripShortcode'));
         add_shortcode('slick-explorer', array($this, 'doExplorerShortcode'));
 
-        // Register AJAX hooks
+// Register AJAX hooks
         // http://plugin.michael-simpson.com/?page_id=41
 
-        // Ensure pages can be configured with categories and tags
+// Ensure pages can be configured with categories and tags
         add_action('init', array(&$this, 'add_taxonomies_to_pages'));
 
         $prefix = is_network_admin() ? 'network_admin_' : '';
@@ -152,15 +152,15 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
         register_taxonomy_for_object_type('category', 'page');
     }
 
-    /* determine whether post has a featured image, if not, find the first image inside the post content, $size passes the thumbnail size, $url determines whether to return a URL or a full image tag*/
-    /* adapted from http://www.amberweinberg.com/wordpress-find-featured-image-or-first-image-in-post-find-dimensions-id-by-url/ */
+/* determine whether post has a featured image, if not, find the first image inside the post content, $size passes the thumbnail size, $url determines whether to return a URL or a full image tag*/
+/* adapted from http://www.amberweinberg.com/wordpress-find-featured-image-or-first-image-in-post-find-dimensions-id-by-url/ */
 
     public function getPostImage($post)
     {
         ob_start();
         ob_end_clean();
 
-        /*If there's a featured image, show it*/
+/*If there's a featured image, show it*/
 
         if (has_post_thumbnail($post)) {
             $images = wp_get_attachment_image_src(get_post_thumbnail_id($post), 'single-post-thumbnail');
@@ -183,38 +183,28 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
 
     public function addSlickPageHeader()
     {
-        global $page;
-        global $post;
-        if ($post) {
-            $postId = $post->ID;
-            $siteCode = $this->getOption('SiteCode');
-            if ($siteCode) {
-                $serverUrl = 'https://poweredbyslick.com/e1/embed-nav.js?site=' . $siteCode;
-                $override = $this->getOption('SlickServerUrl', '');
-                if (isset($override) && trim($override) !== '') {
-                    $serverUrl = trim($override) . '?site=' . $siteCode;
-                }
-                echo "\n" . '<script defer src="' . $serverUrl . '"></script>' . "\n";
-                echo '<script>';
-                echo '  window.slick = { ';
-                echo 'site: \'' . $siteCode . '\', ';
-                $filmStripCssPosition = $this->getOption('FilmStripCssPosition', 'none');
-                $filmStripCss = $this->getOption('FilmStripCss', '');
-                if ($filmStripCssPosition !== 'none' && !empty($filmStripCss)) {
-                    echo 'filmStrip: { position: "' . $filmStripCssPosition . '", selector: "' . $filmStripCss . '" }, ';
-                }
-                $explorerCssPosition = $this->getOption('ExplorerCssPosition', 'none');
-                $explorerCss = $this->getOption('ExplorerCss', '');
-                if ($explorerCssPosition !== 'none' && !empty($explorerCss)) {
-                    echo 'explorer: { position: "' . $explorerCssPosition . '", selector: "' . $explorerCss . '" }, ';
-                }
-                $activationPercent = (float) $this->getOption('activationPercent', '0');
-                if ($activationPercent > 0 && $activationPercent <= 100) {
-                    echo 'activationRatio: ' . strval($activationPercent / 100) . ', ';
-                }
-                echo ' };';
-                echo '</script>' . "\n";
+        $siteCode = $this->getOption('SiteCode');
+        if ($siteCode) {
+            $serverUrl = $this->getOption('SlickServerUrl', 'https://poweredbyslick.com/e2/embed-nav.js');
+            $serverUrl = $serverUrl . '?site=' . $siteCode;
+            $filmStripCssPosition = $this->getOption('FilmStripCssPosition', 'none');
+            $filmStripCss = $this->getOption('FilmStripCss', '');
+            if ($filmStripCssPosition !== 'none' && !empty($filmStripCss)) {
+                $serverUrl = $serverUrl . '&fss=' . urlencode($filmStripCss) . '&fsp=' . urlencode($filmStripCssPosition);
             }
+            $explorerCssPosition = $this->getOption('ExplorerCssPosition', 'none');
+            $explorerCss = $this->getOption('ExplorerCss', '');
+            if ($explorerCssPosition !== 'none' && !empty($explorerCss)) {
+                $serverUrl = $serverUrl . '&es=' . urlencode($explorerCss) . '&ep=' . urlencode($explorerCssPosition);
+            }
+            $activationString = $this->getOption('ActivationPercent', '');
+            if (!empty($activationString)) {
+                $activationPercent = (float) $activationString;
+                if ($activationPercent >= 0 && $activationPercent <= 100) {
+                    $serverUrl = $serverUrl . '&ar=' . strval($activationPercent / 100);
+                }
+            }
+            echo "\n" . '<script async src="' . $serverUrl . '"></script>' . "\n";
         }
     }
 }
