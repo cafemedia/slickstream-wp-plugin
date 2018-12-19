@@ -2,7 +2,7 @@
 /*
 Plugin Name: Slick Engagement
 Plugin URI: https://poweredbyslick.com/getting-started
-Version: 1.0.1
+Version: 1.0.2
 Author: Hivepoint, Inc.
 Author URI: https://poweredbyslick.com
 Description: Use Slick's cloud service and widgets to increase visitor engagement

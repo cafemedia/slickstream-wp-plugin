@@ -16,9 +16,11 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
             'SiteCode' => array(__('Site Code', 'slick-engagement')),
             'FilmStripCssPosition' => array(__('FilmStrip widget CSS position', 'slick-engagement'), 'none', 'before selector', 'after selector', 'first child of selector', 'last child of selector'),
             'FilmStripCss' => array(__('FilmStrip CSS selector', 'slick-engagement')),
+            'FilmStripToolbar' => array(__('FilmStrip in toolbar', 'slick-engagement'), 'enabled', 'disabled'),
             'ExplorerCssPosition' => array(__('Explorer widget CSS position', 'slick-engagement'), 'none', 'before selector', 'after selector', 'first child of selector', 'last child of selector'),
             'ExplorerCss' => array(__('Explorer CSS selector', 'slick-engagement')),
-            'ActivationPercent' => array(__('Percent of visitors to be shown widgets (0 - 100)', 'slick-engagement'), '90'),
+            'LinkHighlighter' => array(__('Link highlighter', 'slick-engagement'), 'enabled', 'disabled'),
+            'ActivationPercent' => array(__('Percent of visitors to be shown widgets (0 - 100)', 'slick-engagement'), '100'),
             'SlickServerUrl' => array(__('Slick server (support use only)', 'slick-engagement'), ''),
         );
     }
@@ -187,23 +189,35 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
         if ($siteCode) {
             $serverUrl = $this->getOption('SlickServerUrl', 'https://poweredbyslick.com/e2/embed-nav.js');
             $serverUrl = $serverUrl . '?site=' . $siteCode;
+            $slickInfo = '{site:"' . $siteCode . '",';
             $filmStripCssPosition = $this->getOption('FilmStripCssPosition', 'none');
             $filmStripCss = $this->getOption('FilmStripCss', '');
             if ($filmStripCssPosition !== 'none' && !empty($filmStripCss)) {
-                $serverUrl = $serverUrl . '&fss=' . urlencode($filmStripCss) . '&fsp=' . urlencode($filmStripCssPosition);
+                $slickInfo = $slickInfo . 'filmStrip: {position:"' . $filmStripCssPosition . '", selector:"' . $filmStripCss . '"},';
             }
             $explorerCssPosition = $this->getOption('ExplorerCssPosition', 'none');
             $explorerCss = $this->getOption('ExplorerCss', '');
             if ($explorerCssPosition !== 'none' && !empty($explorerCss)) {
-                $serverUrl = $serverUrl . '&es=' . urlencode($explorerCss) . '&ep=' . urlencode($explorerCssPosition);
+                $slickInfo = $slickInfo . 'explorer: {position:"' . $explorerCssPosition . '", selector:"' . $explorerCss . '"},';
+            }
+            if ($this->getOption('FilmStripToolbar', 'enabled') == 'enabled') {
+                $slickInfo = $slickInfo . 'filmStripToolbar: {state:"enabled"},';
+            }
+            if ($this->getOption('LinkHighlighter', 'enabled') == 'enabled') {
+                $slickInfo = $slickInfo . 'linkHighlighter: {state:"enabled"},';
             }
             $activationString = $this->getOption('ActivationPercent', '');
             if (!empty($activationString)) {
                 $activationPercent = (float) $activationString;
-                if ($activationPercent >= 0 && $activationPercent <= 100) {
-                    $serverUrl = $serverUrl . '&ar=' . strval($activationPercent / 100);
+                if ($activationPercent >= 0 && $activationPercent < 100) {
+                    $slickInfo = $slickInfo . 'activationRatio:' . strval($activationPercent / 100) . ',';
                 }
             }
+            $slickInfo = $slickInfo . '}';
+            echo "\n" . '<script type="text/javascript">';
+            echo "\n" . '   function setSlick(i){window.slick=Object.assign?Object.assign(window.slick||{},i):(window.slick||i)}';
+            echo "\n" . '   setSlick(' . $slickInfo . ');';
+            echo "\n" . '</script>';
             echo "\n" . '<script async src="' . $serverUrl . '"></script>' . "\n";
         }
     }
