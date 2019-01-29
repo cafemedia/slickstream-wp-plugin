@@ -5,10 +5,10 @@ Tags: widgets, navigation, engagement, pageviews, interactive
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Requires at least: 4.0
-Tested up to: 4.9.8
-Stable tag: 1.0.2
+Tested up to: 5.0.3
+Stable tag: 1.0.4
 
-Increase engagement on your site using [Slick](https://poweredbyslick.com) widgets on your page.  We increase pageviews per visit.
+Measure and increase engagement on your site using [Slick](https://poweredbyslick.com) widgets on your page.  We increase pageviews per visit.
 
 == Description ==
 
@@ -18,11 +18,11 @@ As a cloud service, we create and maintain a full index of all of the content on
 
 This plugin adds widgets that you can place anywhere on your pages that help visitors discover content on your site.  These widgets provide visitors with a simple interactive way to see all of the content available on your site in a highly engaging way.  We use contextual information to maximize the liklihood that a visitor will see another page that will interest them.
 
-We currently support two widgets:  Filmstrip and Explorer.
+We currently support two widgets:  Filmstrip and Pilot.
 
-Filmstrip is very simple.  It is typically placed immediately below your page banner.  It shown a horizontal array of thumbnails for every post/page on your site, arranged based on the current page so that the reader is likely to see other pages that interest them.
+Filmstrip is simple.  It is typically placed immediately below your page banner.  It shown a horizontal array of thumbnails for every post/page on your site, arranged based on the current page so that the reader is likely to see other pages that interest them.
 
-Explorer is typically placed in a sidebar and/or below the post content.  This replaces the conventional "page recommendations" widget with something that is much more engaging to readers.  A large tile is shown for another page on your site that we believe is most likely to be interesting to the reader based on the current context.  In addition, we show an interactive "tree map" of the whole site organized by topics and keywords.  Readers can tap on topics to discover the corresponding content.  There is also a textbox where as a reader types, the list of matching pages is updated in real-time.
+Pilot adds a small tab on the right side of your pages near the top.  Based on the context, pilot will occasionally provide a unobtrusive messages to the visitor with information or suggestions that pop out of the pilot tab.  At any time, the visitor can tap on the pilot tab to review these messages and to quickly search all of the content on the site.
 
 To learn more, visit [Slick](https://poweredbyslick.com).
 
@@ -31,8 +31,7 @@ To learn more, visit [Slick](https://poweredbyslick.com).
 1. Visit [https://poweredbyslick.com](https://poweredbyslick.com) and submit your site.
 2. Once you have your alphanumeric site code assigned, install and activate this plugin.  
 3. On the settings page ("Slick" under Settings), enter the site code and click Save.
-4. Place widgets on your pages using Appearance/Widgets, shortcodes ([slick-film-strip] or [slick-explorer]), or using CSS selector settings.
-5. Use CSS Styles to customize widgets to match the look-and-feel of your site.
+4. Optionally, you can visit our site to further configure and customize widgets and to review analytics.
 
 == Frequently Asked Questions ==
 
@@ -59,10 +58,15 @@ We use a large amount of cloud processing and storage to be able to present the 
 
 1. A sample website showing the Filmstrip widget added just below the banner
 2. The filmstrip widget by itself.  Scroll horizontally through EVERY page in the site.
-3. The explorer widget as it might appear in a sidebar.  Use the treemap to explore pages by topics and keywords.
-4. The explorer widget is responsive and will switch to landscape if the width is sufficient.
 
 == Changelog ==
 
 = 1.0.0 =
 - First production release
+
+= 1.0.3 =
+- Revised for configuration on poweredbyslick
+- Meta tag for featured image
+
+= 1.0.4 =
+- Tested on WP 5.0.3
