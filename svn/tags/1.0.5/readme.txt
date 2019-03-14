@@ -6,7 +6,7 @@ License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Requires at least: 4.0
 Tested up to: 5.0.3
-Stable tag: 1.0.7
+Stable tag: 1.0.5
 
 Measure and increase engagement on your site using [Slick](https://slickstream.com) widgets on your page.  We increase pageviews per visit and, more importantly, increase the value to visitors so that they will return again later.
 
@@ -56,8 +56,8 @@ We use a large amount of cloud processing and storage to be able to present the 
 
 == Screenshots ==
 
-1. A website showing the Filmstrip widget added just below the banner
-2. Slick supports as-you-type realtime search
+1. A sample website showing the Filmstrip widget added just below the banner
+2. The filmstrip widget by itself.  Scroll horizontally through EVERY page in the site.
 3. The explorer widget, a heatmap of all content on the site
 
 == Changelog ==
@@ -74,6 +74,3 @@ We use a large amount of cloud processing and storage to be able to present the 
 
 = 1.0.5 =
 - Moved to Slickstream.com
-
-= 1.0.6 =
-- Improved image assets

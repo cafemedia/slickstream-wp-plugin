@@ -6,7 +6,7 @@ License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Requires at least: 4.0
 Tested up to: 5.0.3
-Stable tag: 1.0.7
+Stable tag: 1.0.6
 
 Measure and increase engagement on your site using [Slick](https://slickstream.com) widgets on your page.  We increase pageviews per visit and, more importantly, increase the value to visitors so that they will return again later.
 
