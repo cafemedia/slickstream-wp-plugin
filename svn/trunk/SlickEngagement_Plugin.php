@@ -14,7 +14,7 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
 //  http://plugin.michael-simpson.com/?page_id=31
         return array(
             'SiteCode' => array(__('Site Code', 'slick-engagement')),
-            // 'SlickServerUrl' => array(__('Slick Server URL (optional)', 'slick-engagement')),
+            'SlickServerUrl' => array(__('Support code (support use only)', 'slick-engagement')),
         );
     }
 
@@ -110,6 +110,7 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
         // http://plugin.michael-simpson.com/?page_id=39
 
         add_shortcode('slick-film-strip', array($this, 'doFilmStripShortcode'));
+        add_shortcode('slick-next-up', array($this, 'doNextUpShortcode'));
 
 // Register AJAX hooks
         // http://plugin.michael-simpson.com/?page_id=41
@@ -133,6 +134,11 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
     public function doFilmStripShortcode()
     {
         return '<div class="slick-widget slick-film-strip slick-shortcode"></div>';
+    }
+
+    public function doNextUpShortcode()
+    {
+        return '<div class="slick-widget slick-next-up slick-shortcode"></div>';
     }
 
     public function add_taxonomies_to_pages()

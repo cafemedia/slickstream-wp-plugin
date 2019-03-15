@@ -2,7 +2,7 @@
 /*
 Plugin Name: Slick Engagement
 Plugin URI: https://slickstream.com/getting-started
-Version: 1.0.7
+Version: 1.0.8
 Author: Slickstream
 Author URI: https://slickstream.com
 Description: Use Slick's cloud service and widgets to increase visitor engagement

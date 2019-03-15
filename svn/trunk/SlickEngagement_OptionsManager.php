@@ -335,27 +335,10 @@ if ($optionMetaData != null) {
                            value="<?php _e('Save Changes', 'slick-engagement')?>"/>
                 </p>
             </form>
-
-            <h3>Instructions</h3>
-            <p>This plugin works in conjunction with Slickstream's cloud service.  Submit your site at <a href="http://slickstream.com">slickstream.com</a> to get your site code.</p>
-            <p>Once the plugin is activated and configured with a valid site code, it will register new widgets and shortcodes.  This provides an easy way to position Slick widgets in many places on your pages.</p>
-            <p>In cases where your theme does not provide slots for the places where you'd like to position the Slick widgets (e.g., placing the filmstrip just below the banner), you can use the CSS Selector settings above to position a widget near an existing element on your page.</p>
-            <p>Slick widgets are designed to integrate seamlessly into your site.  Configure styles at Appearance / Customize / Additional CSS.  Use normal CSS styles to affect how the widgets are positioned on the page.  Slick uses custom properties to allow you to affect styling that is internal to each widget.</p>
-            <p>In addition to standard styles affecting position, etc., following are custom CSS properties that affect the internal styling of the widgets:
-              <ul>
-                  <li>--slick-card-font</li>
-                  <li>--slick-tile-font</li>
-                  <li>--slick-tile-color</li>
-                  <li>--slick-tile-highlight-color</li>
-                  <li>--slick-tile-text-color</li>
-                  <li>--slick-tile-highlight-text-color</li>
-                  <li>--slick-border-color</li>
-                  <li>--slick-slider-color</li>
-                  <li>--slick-slider-cursor-color</li>
-                  <li>--slick-icon-color</li>
-              </ul>
-            </p>
-            <p>If you have any problems installing, configuring, or styling your widgets, please <a href="mailto:support@slickstream.com">contact us</a>.  We're happy to help!</p>
+            <p>To activate your site on Slickstream, fill in the Site Code above using the code you received from Slickstream and save.</p>
+            <p>The Support code should be left blank.  It is only used for special cases to support troubleshooting.</p>
+            <p>Any configuration or customization you wish to do can be done on your site Widgets page at slickstream.com.</p>
+            <p>Problems?  <a href="mailto:support@slickstream.com">Contact us</a>.</p>
         </div>
         <?php
 }

@@ -5,8 +5,8 @@ Tags: widgets, navigation, engagement, pageviews, interactive
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Requires at least: 4.0
-Tested up to: 5.0.3
-Stable tag: 1.0.7
+Tested up to: 5.1.1
+Stable tag: 1.0.8
 
 Measure and increase engagement on your site using [Slick](https://slickstream.com) widgets on your page.  We increase pageviews per visit and, more importantly, increase the value to visitors so that they will return again later.
 
@@ -16,7 +16,7 @@ Slickstream is a cloud service that helps you increase engagement on your site, 
 
 As a cloud service, we create and maintain a full index of all of the content on your site.  We combine that with analytics and viewing behavior patterns.
 
-This plugin adds widgets that you can place anywhere on your pages that help visitors discover content on your site.  These widgets provide visitors with a simple interactive way to see all of the content available on your site in a highly engaging way.  We use contextual information to maximize the liklihood that a visitor will see another page that will interest them.
+This plugin adds the Slickstream embed code to your pages and registers widgets that you can place anywhere on your pages that help visitors discover content on your site.  These widgets provide visitors with a simple interactive way to see all of the content available on your site in a highly engaging way.  We use contextual information to maximize the liklihood that a visitor will see another page that will interest them.
 
 Our most popular widget is Filmstrip.  It is typically placed immediately below your page banner.  It shown a horizontal array of thumbnails for every post/page on your site, arranged based on the current page so that the reader is likely to see other pages that interest them.
 
@@ -77,3 +77,7 @@ We use a large amount of cloud processing and storage to be able to present the 
 
 = 1.0.6 =
 - Improved image assets
+
+= 1.0.8 =
+- Tested with WP 5.1.1
+- Cleaned up documentation
