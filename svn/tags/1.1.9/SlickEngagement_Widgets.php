@@ -298,8 +298,8 @@ class Slick_Story_Carousel_Widget extends WP_Widget
         if ($title) {
             echo $before_title . $title . $after_title;
         }
-        echo '<style>.slick-story-carousel {min-height: 324px;} @media (max-width: 600px) {.slick-story-carousel {min-height: 224px;}}</style>' . "\n";
-        echo '<div class="slick-story-carousel"></div>' . "\n";
+        echo '<style>.slick-story-carousel {min-height: 365px;} @media (max-width: 600px) {.slick-story-carousel {min-height: 265px;}}</style>' . "\n";
+        echo '<div class="slick-story-carousel" style="min-height: 365px;"></div>' . "\n";
         echo $after_widget;
     }
 }

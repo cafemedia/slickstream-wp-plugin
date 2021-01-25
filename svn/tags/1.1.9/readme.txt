@@ -6,7 +6,7 @@ License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Requires at least: 4.0
 Tested up to: 5.5.3
-Stable tag: 1.1.10
+Stable tag: 1.1.9
 
 Increase pageviews and delight visitors with fast and responsive site search, beautiful content discovery tools and more.
 
@@ -111,7 +111,3 @@ You have several tools and options to choose from, including Responsive Search, 
 - Added widgets and shortcodes for story-carousel and story-explorer
 - Revised shortcode for story-viewer to use new embed code style
 - Added option for Genesis-based filmstrip container reservation
-
-= 1.1.10
-- More options for Genesis-based container reservation
-- Internal testing option added

@@ -15,9 +15,7 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
         return array(
             'SiteCode' => array(__('Site Code', 'slick-engagement')),
             'SlickServerUrl' => array(__('Support code (support use only)', 'slick-engagement')),
-            'ReserveFilmstrip' => array(__('Reserve filmstrip space', 'slick-engagement'), 'None', 'After header on posts (for Genesis themes)', 'Before content on posts (for Genesis themes)'),
-            'ReserveFilmstripMargin' => array(__('Reserved filmstrip: margin', 'slick-engagement')),
-            'ReserveFilmstripPriority' => array(__('Reserved filmstrip: priority', 'slick-engagement')),
+            'ReserveFilmstrip' => array(__('Reserve filmstrip space', 'slick-engagement'), 'None', 'After header on posts (for Genesis themes)'),
         );
     }
 
@@ -132,11 +130,8 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
         add_filter("{$prefix}plugin_action_links_{$plugin_file}", array(&$this, 'onActionLinks'));
 
         $reserveFilmstripSpace = $this->getOption('ReserveFilmstrip', 'None');
-        $reserveFilmstripPriority = intval($this->getOption('ReserveFilmstripPriority', '15'));
         if ($reserveFilmstripSpace === 'After header on posts (for Genesis themes)') {
-            add_action('genesis_after_header', array(&$this, 'np_slickstream_space_genesis'), $reserveFilmstripPriority);
-        } else if ($reserveFilmstripSpace === 'Before content on posts (for Genesis themes)') {
-            add_action('genesis_before_content', array(&$this, 'np_slickstream_space_genesis'), $reserveFilmstripPriority);
+            add_action('genesis_after_header', array(&$this, 'np_slickstream_space_genesis'), 15);
         }
     }
 
@@ -150,11 +145,7 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
     public function np_slickstream_space_genesis()
     {
         if (is_singular('post')) {
-            $reserveFilmstripMargin = $this->getOption('ReserveFilmstripMargin', '');
-            if (empty($reserveFilmstripMargin)) {
-                $reserveFilmstripMargin = '10px auto';
-            }
-            echo '<div style="min-height:72px;margin:' . $reserveFilmstripMargin . '" class="slick-film-strip"></div>';
+            echo '<div style="min-height:72px;margin:8px auto" class="slick-film-strip"></div>';
         }
     }
 
@@ -185,7 +176,7 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
 
     public function doSlickStoryCarouselShortcode()
     {
-        return '<style>.slick-story-carousel {min-height: 324px;} @media (max-width: 600px) {.slick-story-carousel {min-height: 224px;}}</style>' . "\n" . '<div class="slick-widget slick-story-carousel slick-shortcode"></div>';
+        return '<style>.slick-story-carousel {min-height: 365px;} @media (max-width: 600px) {.slick-story-carousel {min-height: 265px;}}</style>' . "\n" . '<div class="slick-widget slick-story-carousel slick-shortcode"></div>';
     }
 
     public function doSlickStoryExplorerShortcode()
@@ -216,21 +207,21 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
             $domain = $matches[1][0];
             $channelid = $matches[2][0];
             $storyid = $matches[3][0];
-            $webStoryUrl = $this->getSlickstreamWebStoryUrl($domain, $channelid, $storyid);
+            $webStoryUrl = $this->getSlickstreamWebStoryUrl($domain, $channelId, $storyid);
         } else if (preg_match_all($revisedStyleRegex, $src, $matches)) {
             $domain = $matches[1][0];
             $channelid = $matches[2][0];
             $storyid = $matches[3][0];
-            $webStoryUrl = $this->getSlickstreamWebStoryUrl($domain, $channelid, $storyid);
+            $webStoryUrl = $this->getSlickstreamWebStoryUrl($domain, $channelId, $storyid);
         } else if (preg_match_all($storyPageRegex, $src, $matches)) {
             $domain = $matches[1][0];
             $channelid = $matches[2][0];
             $storyid = $matches[3][0];
-            $webStoryUrl = $this->getSlickstreamWebStoryUrl($domain, $channelid, $storyid);
+            $webStoryUrl = $this->getSlickstreamWebStoryUrl($domain, $channelId, $storyid);
         } else if (preg_match_all($newStyleRegex, $src, $matches)) {
             $channelid = $matches[1][0];
             $storyid = $matches[2][0];
-            $webStoryUrl = $this->getSlickstreamWebStoryUrl($domain, $channelid, $storyid);
+            $webStoryUrl = $this->getSlickstreamWebStoryUrl($domain, $channelId, $storyid);
         } else {
             $webStoryUrl = $src;
         }
@@ -261,7 +252,7 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
 
     public function getSlickstreamWebStoryUrl($domain, $channelId, $storyId)
     {
-        return 'https://' . $domain . '/' . $channelId . '/d/webstory/' . $storyId;
+        return 'https://' . $domain . '/' . $channelid . '/d/webstory/' . $storyid;
     }
 
     public function add_taxonomies_to_pages()
@@ -308,57 +299,18 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
     {
         global $post;
         echo "\n";
-        echo '<meta property="slick:wpversion" content="1.1.10" />' . "\n";
+        echo '<meta property="slick:wpversion" content="1.1.9" />' . "\n";
         $siteCode = trim($this->getOption('SiteCode'));
         if ($siteCode) {
-            $adThriveAbTest = false;
-            $adThriveAbFraction = 0.9;
             $serverUrl = trim($this->getOption('SlickServerUrl', 'https://app.slickstream.com'));
-            if (substr($serverUrl, 0, 11) === 'adthrive-ab') {
-                $pieces = explode(" ", $serverUrl);
-                $serverUrl = 'https://app.slickstream.com';
-                $adThriveAbTest = true;
-                if (count($pieces) > 1) {
-                    $fractionValue = intval($pieces[1]);
-                    if ($fractionValue > 0 && $fractionValue < 100) {
-                        $adThriveAbFraction = $fractionValue / 100;
-                    }
-                }
-            }
             echo '<script>' . "\n";
-            echo '"use strict";' . "\n";
-            if ($adThriveAbTest) {
-                echo '(() => {' . "\n";
-                echo '  window.adthrive = window.adthrive || {};' . "\n";
-                echo '  window.adthrive.cmd = window.adthrive.cmd || [];' . "\n";
-                echo '  let slickParams = new URLSearchParams(document.location.search.substring(1));' . "\n";
-                echo '  let slickAbParam = slickParams.get("abEnabled");' . "\n";
-                echo '  if (slickAbParam && ["on","off"].indexOf(slickAbParam) >= 0) {' . "\n";
-                echo '    window.adthrive_AB_enabled = slickAbParam;' . "\n";
-                echo '    if (window.localStorage) { window.localStorage.setItem("adthrive_AB_enabled", window.adthrive_AB_enabled); }' . "\n";
-                echo '  } else {' . "\n";
-                echo '    window.adthrive_AB_enabled = (window.localStorage ? window.localStorage.getItem("adthrive_AB_enabled") : undefined);' . "\n";
-                echo '    if (!window.adthrive_AB_enabled) {' . "\n";
-                echo '      window.adthrive_AB_enabled = Math.random() < ' . $adThriveAbFraction . ' ? "on" : "off";' . "\n";
-                echo '      if (window.localStorage) { window.localStorage.setItem("adthrive_AB_enabled", window.adthrive_AB_enabled); }' . "\n";
-                echo '    }' . "\n";
-                echo '  }' . "\n";
-                echo '  window.adthrive.cmd.push(function() {' . "\n";
-                echo '    window.adthrive.config.abGroup.set("slkstm", window.adthrive_AB_enabled);' . "\n";
-                echo '  });' . "\n";
-                echo '})();' . "\n";
-                echo 'if (window.adthrive_AB_enabled === "on") {' . "\n";
-            }
             echo '/* Slickstream Engagement Suite Embedder */' . "\n";
-            echo '((e,t,c)=>{const i=window;i.slickSnippetVersion="1.18.0";i.slickSnippetTime=(performance||Date).now();i.slickEmbedRoot=e;i.slickSiteCode=c;let a;const n=async e=>{if(!a&&"caches"in self){try{a=await caches.open("slickstream1")}catch(e){console.log(e)}}let t;if(a){try{const c=new Request(e);t=await a.match(c);if(!t){await a.add(c);t=await a.match(c);if(t&&!t.ok){t=undefined;void a.delete(c)}}}catch(e){console.warn("Slick: ",e)}}const c=document.createElement("script");if(t){c.type="application/javascript";c.appendChild(document.createTextNode(await t.text()))}else{c.src=e}(document.head||document.body).appendChild(c);return c};n(new URL(`${t}?site=${c}`,e).href)})' . "\n";
+            echo '"use strict";((e,t,c)=>{const i=window;i.slickSnippetVersion="1.18.0";i.slickSnippetTime=(performance||Date).now();i.slickEmbedRoot=e;i.slickSiteCode=c;let a;const n=async e=>{if(!a&&"caches"in self){try{a=await caches.open("slickstream1")}catch(e){console.log(e)}}let t;if(a){try{const c=new Request(e);t=await a.match(c);if(!t){await a.add(c);t=await a.match(c);if(t&&!t.ok){t=undefined;void a.delete(c)}}}catch(e){console.warn("Slick: ",e)}}const c=document.createElement("script");if(t){c.type="application/javascript";c.appendChild(document.createTextNode(await t.text()))}else{c.src=e}(document.head||document.body).appendChild(c);return c};n(new URL(`${t}?site=${c}`,e).href)})' . "\n";
             echo '(' . "\n";
             echo '  "' . $serverUrl . '",' . "\n";
             echo '  "' . $serverUrl . '/e3/embed.js",' . "\n";
             echo '  "' . $siteCode . '",' . "\n";
             echo ');' . "\n";
-            if ($adThriveAbTest) {
-                echo '}' . "\n";
-            }
             echo '</script>' . "\n";
         }
         if (is_category()) {
