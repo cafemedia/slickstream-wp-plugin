@@ -1,0 +1,416 @@
+<?php
+
+include_once 'SlickEngagement_LifeCycle.php';
+include_once 'SlickEngagement_Widgets.php';
+
+class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
+{
+/**
+ * See: http://plugin.michael-simpson.com/?page_id=31
+ * @return array of option meta data.
+ */
+    public function getOptionMetaData()
+    {
+//  http://plugin.michael-simpson.com/?page_id=31
+        return array(
+            'SiteCode' => array(__('Site Code', 'slick-engagement')),
+            'SlickServerUrl' => array(__('Support code (support use only)', 'slick-engagement')),
+            'ReserveFilmstrip' => array(__('Reserve filmstrip space', 'slick-engagement'), 'None', 'After header on posts (for Genesis themes)', 'Before content on posts (for Genesis themes)'),
+            'ReserveFilmstripMargin' => array(__('Reserved filmstrip: margin', 'slick-engagement')),
+            'ReserveFilmstripPriority' => array(__('Reserved filmstrip: priority', 'slick-engagement')),
+        );
+    }
+
+//    protected function getOptionValueI18nString($optionValue) {
+    //        $i18nValue = parent::getOptionValueI18nString($optionValue);
+    //        return $i18nValue;
+    //    }
+
+    protected function initOptions()
+    {
+        $options = $this->getOptionMetaData();
+        if (!empty($options)) {
+            foreach ($options as $key => $arr) {
+                if (is_array($arr) && count($arr) > 1) {
+                    $this->addOption($key, $arr[1]);
+                }
+            }
+        }
+    }
+
+    public function getPluginDisplayName()
+    {
+        return 'Slick Engagement';
+    }
+
+    protected function getMainPluginFileName()
+    {
+        return 'slick-engagement.php';
+    }
+
+/**
+ * See: http://plugin.michael-simpson.com/?page_id=101
+ * Called by install() to create any database tables if needed.
+ * Best Practice:
+ * (1) Prefix all table names with $wpdb->prefix
+ * (2) make table names lower case only
+ * @return void
+ */
+    protected function installDatabaseTables()
+    {
+//        global $wpdb;
+        //        $tableName = $this->prefixTableName('mytable');
+        //        $wpdb->query("CREATE TABLE IF NOT EXISTS `$tableName` (
+        //            `id` INTEGER NOT NULL");
+    }
+
+/**
+ * See: http://plugin.michael-simpson.com/?page_id=101
+ * Drop plugin-created tables on uninstall.
+ * @return void
+ */
+    protected function unInstallDatabaseTables()
+    {
+//        global $wpdb;
+        //        $tableName = $this->prefixTableName('mytable');
+        //        $wpdb->query("DROP TABLE IF EXISTS `$tableName`");
+    }
+
+/**
+ * Perform actions when upgrading from version X to version Y
+ * See: http://plugin.michael-simpson.com/?page_id=35
+ * @return void
+ */
+    public function upgrade()
+    {
+    }
+
+    public function addActionsAndFilters()
+    {
+// Add options administration page
+        // http://plugin.michael-simpson.com/?page_id=47
+        add_action('admin_menu', array(&$this, 'addSettingsSubMenuPage'));
+
+// Example adding a script & style just for the options administration page
+        // http://plugin.michael-simpson.com/?page_id=47
+        //        if (strpos($_SERVER['REQUEST_URI'], $this->getSettingsSlug()) !== false) {
+        //            wp_enqueue_script('my-script', plugins_url('/js/my-script.js', __FILE__));
+        //            wp_enqueue_style('my-style', plugins_url('/css/my-style.css', __FILE__));
+        //        }
+
+// Add Actions & Filters
+        // http://plugin.michael-simpson.com/?page_id=37
+
+        add_action('wp_head', array(&$this, 'addSlickPageHeader'));
+
+// Adding scripts & styles to all pages
+        // Examples:
+        //        wp_enqueue_script('jquery');
+        //        wp_enqueue_style('my-style', plugins_url('/css/my-style.css', __FILE__));
+        //        wp_enqueue_script('my-script', plugins_url('/js/my-script.js', __FILE__));
+
+// Register short codes
+        // http://plugin.michael-simpson.com/?page_id=39
+
+        add_shortcode('slick-film-strip', array($this, 'doFilmStripShortcode'));
+        add_shortcode('slick-game', array($this, 'doGameShortcode'));
+        // add_shortcode('slick-next-up', array($this, 'doNextUpShortcode'));
+        add_shortcode('slick-grid', array($this, 'doSlickGridShortcode'));
+        add_shortcode('slick-story', array($this, 'doSlickStoryShortcode'));
+        add_shortcode('slick-story-carousel', array($this, 'doSlickStoryCarouselShortcode'));
+        add_shortcode('slick-story-explorer', array($this, 'doSlickStoryExplorerShortcode'));
+
+// Register AJAX hooks
+        // http://plugin.michael-simpson.com/?page_id=41
+
+// Ensure pages can be configured with categories and tags
+        add_action('init', array(&$this, 'add_taxonomies_to_pages'));
+
+        $prefix = is_network_admin() ? 'network_admin_' : '';
+        $plugin_file = plugin_basename($this->getPluginDir() . DIRECTORY_SEPARATOR . $this->getMainPluginFileName()); //plugin_basename( $this->getMainPluginFileName() );
+        $this->guildLog('Adding filter ' . "{$prefix}plugin_action_links_{$plugin_file}");
+        add_filter("{$prefix}plugin_action_links_{$plugin_file}", array(&$this, 'onActionLinks'));
+
+        $reserveFilmstripSpace = $this->getOption('ReserveFilmstrip', 'None');
+        $reserveFilmstripPriority = intval($this->getOption('ReserveFilmstripPriority', '15'));
+        if ($reserveFilmstripSpace === 'After header on posts (for Genesis themes)') {
+            add_action('genesis_after_header', array(&$this, 'np_slickstream_space_genesis'), $reserveFilmstripPriority);
+        } else if ($reserveFilmstripSpace === 'Before content on posts (for Genesis themes)') {
+            add_action('genesis_before_content', array(&$this, 'np_slickstream_space_genesis'), $reserveFilmstripPriority);
+        }
+    }
+
+    public function onActionLinks($links)
+    {
+        $this->guildLog('onActionLinks ' . admin_url('options-general.php?page=SlickEngagement_PluginSettings'));
+        $mylinks = array('<a href="' . admin_url('options-general.php?page=SlickEngagement_PluginSettings') . '">Settings</a>');
+        return array_merge($links, $mylinks);
+    }
+
+    public function np_slickstream_space_genesis()
+    {
+        if (is_singular('post')) {
+            $reserveFilmstripMargin = $this->getOption('ReserveFilmstripMargin', '');
+            if (empty($reserveFilmstripMargin)) {
+                $reserveFilmstripMargin = '10px auto';
+            }
+            echo '<div style="min-height:72px;margin:' . $reserveFilmstripMargin . '" class="slick-film-strip"></div>';
+        }
+    }
+
+    public function doFilmStripShortcode()
+    {
+        return '<div class="slick-widget slick-film-strip slick-shortcode"></div>';
+    }
+
+    public function doGameShortcode()
+    {
+        return '<div class="slick-widget slick-game-panel slick-shortcode"></div>';
+    }
+
+    // public function doNextUpShortcode()
+    // {
+    //     return '<div class="slick-widget slick-next-up slick-shortcode"></div>';
+    // }
+
+    public function doSlickGridShortcode($attrs, $content, $tag)
+    {
+        extract(shortcode_atts(array('id' => ''), $attrs));
+        if (isset($id)) {
+            return '<div class="slick-content-grid" data-config="' . trim($id) . '"></div>' . "\n";
+        } else {
+            return '<div class="slick-content-grid"></div>' . "\n";
+        }
+    }
+
+    public function doSlickStoryCarouselShortcode()
+    {
+        return '<style>.slick-story-carousel {min-height: 324px;} @media (max-width: 600px) {.slick-story-carousel {min-height: 224px;}}</style>' . "\n" . '<div class="slick-widget slick-story-carousel slick-shortcode"></div>';
+    }
+
+    public function doSlickStoryExplorerShortcode()
+    {
+        return '<div class="slick-widget slick-story-explorer slick-shortcode"></div>';
+    }
+
+    public function doSlickStoryShortcode($attrs, $content, $tag)
+    {
+        extract(shortcode_atts(array('src' => ''), $attrs));
+        // We want to support different styles of short-code arguments:
+        //   old-style: https://:channelid.stories.slickstream.com/d/story/:channelid/:storyid
+        //   story page URL: https://stories.slickstream.com/:channelid/story/:storyid
+        //   new-style: :channelid/:storyid
+        $oldStyleRegex = '/^https\:\/\/([^\/]+)\/d\/story\/([^\/]+)\/([^\/]+)$/i';
+        $revisedStyleRegex = '/^https\:\/\/([^\/]+)\/([^\/]+)\/d\/story\/([^\/]+)$/i';
+        $storyPageRegex = '/^https\:\/\/([^\/]+)\/([^\/]+)\/story\/([^\/]+)$/i';
+        $newStyleRegex = '/^([^\/]+)\/([^\/]+)$/i';
+        $domain = "stories.slickstream.com";
+        $slickServerUrl = $this->getOption('SlickServerUrl', 'https://app.slickstream.com');
+        if (preg_match('/\-staging\.slickstream/', $slickServerUrl)) {
+            $domain = "stories-staging.slickstream.com";
+        }
+        $channelid = "nochannel";
+        $storyid = "";
+        $webStoryUrl = "";
+        if (preg_match_all($oldStyleRegex, $src, $matches)) {
+            $domain = $matches[1][0];
+            $channelid = $matches[2][0];
+            $storyid = $matches[3][0];
+            $webStoryUrl = $this->getSlickstreamWebStoryUrl($domain, $channelid, $storyid);
+        } else if (preg_match_all($revisedStyleRegex, $src, $matches)) {
+            $domain = $matches[1][0];
+            $channelid = $matches[2][0];
+            $storyid = $matches[3][0];
+            $webStoryUrl = $this->getSlickstreamWebStoryUrl($domain, $channelid, $storyid);
+        } else if (preg_match_all($storyPageRegex, $src, $matches)) {
+            $domain = $matches[1][0];
+            $channelid = $matches[2][0];
+            $storyid = $matches[3][0];
+            $webStoryUrl = $this->getSlickstreamWebStoryUrl($domain, $channelid, $storyid);
+        } else if (preg_match_all($newStyleRegex, $src, $matches)) {
+            $channelid = $matches[1][0];
+            $storyid = $matches[2][0];
+            $webStoryUrl = $this->getSlickstreamWebStoryUrl($domain, $channelid, $storyid);
+        } else {
+            $webStoryUrl = $src;
+        }
+        $output = '';
+        if (!empty($webStoryUrl)) {
+            if (empty($storyId)) {
+                $storyId = $this->getStoryIdFromUrl($webStoryUrl);
+            }
+            $output .= '<slick-webstory-player id="story-' . $storyId . '">' . "\n";
+            $output .= '  <a href="' . $webStoryUrl . '"></a>' . "\n";
+            $output .= '</slick-webstory-player>' . "\n";
+        }
+        return $output;
+    }
+
+    public function getStoryIdFromUrl($url)
+    {
+        if (strpos($url, 'slickstream.com') !== false && strpos($url, '/d/webstory') !== false) {
+            $parts = explode('/', $url);
+            if (count($parts) > 1) {
+                if (!empty($parts[count($parts) - 1])) {
+                    return $parts[count($parts) - 1];
+                }
+            }
+        }
+        return substr(hash('md5', $url), 0, 5);
+    }
+
+    public function getSlickstreamWebStoryUrl($domain, $channelId, $storyId)
+    {
+        return 'https://' . $domain . '/' . $channelId . '/d/webstory/' . $storyId;
+    }
+
+    public function add_taxonomies_to_pages()
+    {
+        register_taxonomy_for_object_type('post_tag', 'page');
+        register_taxonomy_for_object_type('category', 'page');
+    }
+
+/* determine whether post has a featured image, if not, find the first image inside the post content, $size passes the thumbnail size, $url determines whether to return a URL or a full image tag*/
+/* adapted from http://www.amberweinberg.com/wordpress-find-featured-image-or-first-image-in-post-find-dimensions-id-by-url/ */
+
+    public function getPostImage($post)
+    {
+        ob_start();
+        ob_end_clean();
+
+/*If there's a featured image, show it*/
+
+        if (has_post_thumbnail($post)) {
+            $images = wp_get_attachment_image_src(get_post_thumbnail_id($post), 'single-post-thumbnail');
+            return $images[0];
+        } else {
+            $content = $post->post_content;
+            $first_img = '';
+            $output = preg_match_all('/<img.+src=[\'"]([^\'"]+)[\'"].*>/i', $content, $matches);
+            $first_img = $matches[1][0];
+
+            /*No featured image, so we get the first image inside the post content*/
+
+            if ($first_img) {
+                return $first_img;
+            } else {
+                return null;
+            }
+        }
+    }
+
+    public function removeSemicolons($value)
+    {
+        return str_replace(';', ' ', $value);
+    }
+
+    public function addSlickPageHeader()
+    {
+        global $post;
+        echo "\n";
+        echo '<meta property="slick:wpversion" content="1.1.10" />' . "\n";
+        $siteCode = trim($this->getOption('SiteCode'));
+        if ($siteCode) {
+            $adThriveAbTest = false;
+            $adThriveAbFraction = 0.9;
+            $serverUrl = trim($this->getOption('SlickServerUrl', 'https://app.slickstream.com'));
+            if (substr($serverUrl, 0, 11) === 'adthrive-ab') {
+                $pieces = explode(" ", $serverUrl);
+                $serverUrl = 'https://app.slickstream.com';
+                $adThriveAbTest = true;
+                if (count($pieces) > 1) {
+                    $fractionValue = intval($pieces[1]);
+                    if ($fractionValue > 0 && $fractionValue < 100) {
+                        $adThriveAbFraction = $fractionValue / 100;
+                    }
+                }
+            }
+            echo '<script>' . "\n";
+            echo '"use strict";' . "\n";
+            if ($adThriveAbTest) {
+                echo '(() => {' . "\n";
+                echo '  window.adthrive = window.adthrive || {};' . "\n";
+                echo '  window.adthrive.cmd = window.adthrive.cmd || [];' . "\n";
+                echo '  let slickParams = new URLSearchParams(document.location.search.substring(1));' . "\n";
+                echo '  let slickAbParam = slickParams.get("abEnabled");' . "\n";
+                echo '  if (slickAbParam && ["on","off"].indexOf(slickAbParam) >= 0) {' . "\n";
+                echo '    window.adthrive_AB_enabled = slickAbParam;' . "\n";
+                echo '    if (window.localStorage) { window.localStorage.setItem("adthrive_AB_enabled", window.adthrive_AB_enabled); }' . "\n";
+                echo '  } else {' . "\n";
+                echo '    window.adthrive_AB_enabled = (window.localStorage ? window.localStorage.getItem("adthrive_AB_enabled") : undefined);' . "\n";
+                echo '    if (!window.adthrive_AB_enabled) {' . "\n";
+                echo '      window.adthrive_AB_enabled = Math.random() < ' . $adThriveAbFraction . ' ? "on" : "off";' . "\n";
+                echo '      if (window.localStorage) { window.localStorage.setItem("adthrive_AB_enabled", window.adthrive_AB_enabled); }' . "\n";
+                echo '    }' . "\n";
+                echo '  }' . "\n";
+                echo '  window.adthrive.cmd.push(function() {' . "\n";
+                echo '    window.adthrive.config.abGroup.set("slkstm", window.adthrive_AB_enabled);' . "\n";
+                echo '  });' . "\n";
+                echo '})();' . "\n";
+                echo 'if (window.adthrive_AB_enabled === "on") {' . "\n";
+            }
+            echo '/* Slickstream Engagement Suite Embedder */' . "\n";
+            echo '((e,t,c)=>{const i=window;i.slickSnippetVersion="1.18.0";i.slickSnippetTime=(performance||Date).now();i.slickEmbedRoot=e;i.slickSiteCode=c;let a;const n=async e=>{if(!a&&"caches"in self){try{a=await caches.open("slickstream1")}catch(e){console.log(e)}}let t;if(a){try{const c=new Request(e);t=await a.match(c);if(!t){await a.add(c);t=await a.match(c);if(t&&!t.ok){t=undefined;void a.delete(c)}}}catch(e){console.warn("Slick: ",e)}}const c=document.createElement("script");if(t){c.type="application/javascript";c.appendChild(document.createTextNode(await t.text()))}else{c.src=e}(document.head||document.body).appendChild(c);return c};n(new URL(`${t}?site=${c}`,e).href)})' . "\n";
+            echo '(' . "\n";
+            echo '  "' . $serverUrl . '",' . "\n";
+            echo '  "' . $serverUrl . '/e3/embed.js",' . "\n";
+            echo '  "' . $siteCode . '",' . "\n";
+            echo ');' . "\n";
+            if ($adThriveAbTest) {
+                echo '}' . "\n";
+            }
+            echo '</script>' . "\n";
+        }
+        if (is_category()) {
+            echo '<meta property="slick:group" content="category" />' . "\n";
+            $term = get_queried_object();
+            if (isset($term->slug)) {
+                echo '<meta property="slick:category" content="' . $term->slug . ':' . $term->name . '" />' . "\n";
+            }
+        } else if (is_tag()) {
+            echo '<meta property="slick:group" content="tag" />' . "\n";
+            $term = get_queried_object();
+            if (isset($term->slug)) {
+                echo '<meta property="slick:tag" content="' . $term->slug . ':' . $term->name . '" />' . "\n";
+            }
+        } else {
+            if (is_singular('post')) {
+                echo '<meta property="slick:group" content="post" />' . "\n";
+            }
+            $categories = get_the_category(get_query_var('cat'), false);
+            foreach ($categories as $category) {
+                if (isset($category->slug) && $category->slug !== 'uncategorized') {
+                    echo '<meta property="slick:category" content="' . $category->slug . ':' . $this->removeSemicolons($category->name);
+                    $used = [$category->cat_ID];
+                    $count = 0;
+                    $parentCatId = $category->category_parent;
+                    while ($parentCatId && $count < 8 && !in_array($parentCatId, $used)) {
+                        $parentCat = get_category($parentCatId);
+                        if (isset($parentCat->slug) && $parentCat->slug !== 'uncategorized') {
+                            echo ';' . $parentCat->slug . ':' . $this->removeSemicolons($parentCat->name);
+                            $parentCatId = $parentCat->cat_ID;
+                        } else {
+                            break;
+                        }
+                        array_push($used, $parentCatId);
+                        $count = $count + 1;
+                    }
+                    echo '" />' . "\n";
+                }
+            }
+        }
+        $currentUser = wp_get_current_user();
+        if (!empty($currentUser->user_email)) {
+            echo '<meta property="slick:wpuser" content="' . $currentUser->user_email . '" />' . "\n";
+        }
+        if (!empty($post)) {
+            echo '<meta property="slick:wppostid" content="' . $post->ID . '" />' . "\n";
+            if (has_post_thumbnail($post)) {
+                $images = wp_get_attachment_image_src(get_post_thumbnail_id($post), 'single-post-thumbnail');
+                if (!empty($images)) {
+                    echo '<meta property="slick:featured_image" content="' . $images[0] . '" />' . "\n";
+                }
+            }
+        }
+    }
+}
