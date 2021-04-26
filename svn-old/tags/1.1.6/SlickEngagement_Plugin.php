@@ -232,7 +232,7 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
             if (is_singular('post')) {
                 echo '<meta property="slick:group" content="post" />' . "\n";
             }
-            $categories = get_the_category(get_query_var('cat'), false);
+            $categories = get_the_category();
             foreach ($categories as $category) {
                 if (isset($category->slug) && $category->slug !== 'uncategorized') {
                     echo '<meta property="slick:category" content="' . $category->slug . ':' . $this->removeSemicolons($category->name);
