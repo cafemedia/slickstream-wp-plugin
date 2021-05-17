@@ -6,7 +6,7 @@ License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Requires at least: 4.0
 Tested up to: 5.7.1
-Stable tag: 1.1.14
+Stable tag: 1.1.12
 
 Increase pageviews and delight visitors with fast and responsive site search, beautiful content discovery tools and more.
 
@@ -126,6 +126,3 @@ You have several tools and options to choose from, including Responsive Search, 
 
 = 1.1.13
 - Removing Slickstream LD_JSON
-
-= 1.1.14
-- Bumping stable version
