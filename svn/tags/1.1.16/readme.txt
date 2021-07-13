@@ -6,7 +6,7 @@ License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Requires at least: 4.0
 Tested up to: 5.7.2
-Stable tag: 1.1.17
+Stable tag: 1.1.16
 
 Increase pageviews and delight visitors with fast and responsive site search, beautiful content discovery tools and more.
 
@@ -135,7 +135,3 @@ You have several tools and options to choose from, including Responsive Search, 
 
 = 1.1.16
 - Slickstream JSON metadata
-
-= 1.1.17
-- Remove extraneous logging
-- Add support for custom injection hook

@@ -338,8 +338,7 @@ if ($optionMetaData != null) {
             <div style="max-width: 600px;">
               <p>To activate your site on Slickstream, fill in the Site Code above using the code you received from Slickstream and save.</p>
               <p>The Support code should be left blank.  It is only used for special cases to support troubleshooting.</p>
-              <p>For sites using a supported theme, you can avoid Cumulative Layout Shift (CLS) issues by reserving space for Slickstream's filmstrip widget.  Choose one of the predefined hooks, or choose "custom" and enter the name (e.g., "xxx-after-header") of a hook supported by your site's theme.</p>
-              <p>In these cases, you can also customize the margin for the filmstrip by populating the "Reserved filmstrip: margin" property.  This sets the CSS margin style for that container.  If empty, a value of "10px auto" is used by default.</p>
+              <p>For sites using a Genesis-basis, Thesis-based, or THA-compliant theme, you can avoid Cumulative Layout Shift (CLS) issues by reserving space for Slickstream's filmstrip widget.  In these cases, you can also customize the margin for the filmstrip by populating the "Reserved filmstrip: margin" property.  This sets the CSS margin style for that container.  If empty, a value of "10px auto" is used by default.</p>
               <p>If other plugins are also contributing into the page based on the same event, you can control the order by changing the "Reserved filmstrip: priority" value which is "15" by default.</p>
               <p>Problems or customization?  <a href="mailto:support@slickstream.com">Contact us</a>.</p>
             </div>

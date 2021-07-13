@@ -7,7 +7,6 @@ define("AFTER_HEADER_GENESIS", "After header on posts (for Genesis themes)");
 define("BEFORE_CONTENT_GENESIS", "Before content on posts (for Genesis themes)");
 define("AFTER_HEADER_GENESIS_TLA", "After header on posts (for Genesis/THA/Thesis themes)");
 define("BEFORE_CONTENT_GENESIS_TLA", "Before content on posts (for Genesis/THA/Thesis themes)");
-define("CUSTOM", "custom");
 
 class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
 {
@@ -21,8 +20,7 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
         return array(
             'SiteCode' => array(__('Site Code', 'slick-engagement')),
             'SlickServerUrl' => array(__('Support code (support use only)', 'slick-engagement')),
-            'ReserveFilmstrip' => array(__('Reserve filmstrip space', 'slick-engagement'), 'None', AFTER_HEADER_GENESIS_TLA, BEFORE_CONTENT_GENESIS_TLA, AFTER_HEADER_GENESIS, BEFORE_CONTENT_GENESIS, CUSTOM),
-            'ReserveFilmstripCustom' => array(__('Reserve filmstrip: custom hook', 'slick-engagement')),
+            'ReserveFilmstrip' => array(__('Reserve filmstrip space', 'slick-engagement'), 'None', AFTER_HEADER_GENESIS_TLA, BEFORE_CONTENT_GENESIS_TLA, AFTER_HEADER_GENESIS, BEFORE_CONTENT_GENESIS),
             'ReserveFilmstripMargin' => array(__('Reserved filmstrip: margin', 'slick-engagement')),
             'ReserveFilmstripPriority' => array(__('Reserved filmstrip: priority', 'slick-engagement')),
         );
@@ -135,34 +133,31 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
 
         $prefix = is_network_admin() ? 'network_admin_' : '';
         $plugin_file = plugin_basename($this->getPluginDir() . DIRECTORY_SEPARATOR . $this->getMainPluginFileName()); //plugin_basename( $this->getMainPluginFileName() );
-        // $this->guildLog('Adding filter ' . "{$prefix}plugin_action_links_{$plugin_file}");
+        $this->guildLog('Adding filter ' . "{$prefix}plugin_action_links_{$plugin_file}");
         add_filter("{$prefix}plugin_action_links_{$plugin_file}", array(&$this, 'onActionLinks'));
 
         $reserveFilmstripSpace = $this->getOption('ReserveFilmstrip', 'None');
         $reserveFilmstripPriority = intval($this->getOption('ReserveFilmstripPriority', '15'));
-        $reserveFilmstripCustom = $this->getOption('ReserveFilmstripCustom', '');
         if ($reserveFilmstripSpace === AFTER_HEADER_GENESIS_TLA || $reserveFilmstripSpace === AFTER_HEADER_GENESIS) {
-            // $this->guildLog('Adding after-header filmstrip injection');
+            $this->guildLog('Adding after-header filmstrip injection');
             add_action('genesis_after_header', array(&$this, 'np_slickstream_space_genesis'), $reserveFilmstripPriority);
             add_action('tha_header_after', array(&$this, 'np_slickstream_space_genesis'), $reserveFilmstripPriority);
             add_action('tha_after_header', array(&$this, 'np_slickstream_space_genesis'), $reserveFilmstripPriority);
             add_action('thesis_hook_after_header', array(&$this, 'np_slickstream_space_genesis'), $reserveFilmstripPriority);
             add_action('kadence_after_header', array(&$this, 'np_slickstream_space_genesis'), $reserveFilmstripPriority);
         } else if ($reserveFilmstripSpace === BEFORE_CONTENT_GENESIS_TLA || $reserveFilmstripSpace === BEFORE_CONTENT_GENESIS) {
-            // $this->guildLog('Adding before-content filmstrip injection');
+            $this->guildLog('Adding before-content filmstrip injection');
             add_action('genesis_before_content', array(&$this, 'np_slickstream_space_genesis'), $reserveFilmstripPriority);
             add_action('tha_content_before', array(&$this, 'np_slickstream_space_genesis'), $reserveFilmstripPriority);
             add_action('tha_before_content', array(&$this, 'np_slickstream_space_genesis'), $reserveFilmstripPriority);
             add_action('thesis_hook_before_content', array(&$this, 'np_slickstream_space_genesis'), $reserveFilmstripPriority);
             add_action('kadence_before_content', array(&$this, 'np_slickstream_space_genesis'), $reserveFilmstripPriority);
-        } else if ($reserveFilmstripSpace === CUSTOM && !empty($reserveFilmstripCustom)) {
-            add_action($reserveFilmstripCustom, array(&$this, 'np_slickstream_space_genesis'), $reserveFilmstripPriority);
         }
     }
 
     public function onActionLinks($links)
     {
-        // $this->guildLog('onActionLinks ' . admin_url('options-general.php?page=SlickEngagement_PluginSettings'));
+        $this->guildLog('onActionLinks ' . admin_url('options-general.php?page=SlickEngagement_PluginSettings'));
         $mylinks = array('<a href="' . admin_url('options-general.php?page=SlickEngagement_PluginSettings') . '">Settings</a>');
         return array_merge($links, $mylinks);
     }
@@ -329,7 +324,7 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
     {
         global $post;
         echo "\n";
-        echo '<meta property="slick:wpversion" content="1.1.17" />' . "\n";
+        echo '<meta property="slick:wpversion" content="1.1.16" />' . "\n";
         $siteCode = trim($this->getOption('SiteCode'));
         if ($siteCode) {
             $adThriveAbTest = false;
@@ -386,7 +381,7 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
 
         $ldJsonPlugin = (object) [
             '@type' => 'Plugin',
-            'version' => '1.1.17',
+            'version' => '1.1.16',
         ];
         array_push($ldJsonElements, $ldJsonPlugin);
 
