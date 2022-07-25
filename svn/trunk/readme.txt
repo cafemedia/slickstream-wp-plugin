@@ -9,7 +9,7 @@ Requires PHP: 5.6
 Tested up to: 5.9.3
 Stable tag: 1.2.2
 
-Use Slickstream to upgrade your site search. Use Navu to view journeys and increase website conversions.  Get beautiful as-you-type search, relevant content recommendations, user favorites and more!
+Use Slickstream to upgrade your site search.  Get beautiful as-you-type search, relevant content recommendations, user favorites and more!
 
 == Description ==
 

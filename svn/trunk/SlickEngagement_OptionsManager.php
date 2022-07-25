@@ -304,9 +304,9 @@ class SlickEngagement_OptionsManager
         echo ' ';
         _e('Settings', 'slick-engagement'); ?></h2>
             <div style="max-width: 600px;">
-              <p>This plugin adds the embed code needed to use <a href="https://www.slickstream.com">Slickstream</a> and/or <a href="https://navu.app">Navu</a>.
-                To use either of these services, you need to sign up and get a site code.  Enter that code below in the Site Code field.</p>
-              <p>The remaining settings are optional and apply only to Slickstream customers.</p>
+              <p>This plugin adds the embed code needed to use <a href="https://www.slickstream.com">Slickstream</a>.
+                To use this service, you need to sign up and get a site code.  Enter that code below in the Site Code field.</p>
+              <p>The remaining settings are optional.</p>
             </div>
             <form method="post" action="">
             <?php settings_fields($settingsGroup);?>
