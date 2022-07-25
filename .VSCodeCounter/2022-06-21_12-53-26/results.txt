@@ -1,0 +1,33 @@
+Date : 2022-06-21 12:53:26
+Directory : /Users/kduffie/projects/slick-wp-plugin/svn/trunk
+Total : 9 files,  1339 codes, 646 comments, 203 blanks, all 2188 lines
+
+Languages
++----------+------------+------------+------------+------------+------------+
+| language | files      | code       | comment    | blank      | total      |
++----------+------------+------------+------------+------------+------------+
+| PHP      |          9 |      1,339 |        646 |        203 |      2,188 |
++----------+------------+------------+------------+------------+------------+
+
+Directories
++---------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                                        | files      | code       | comment    | blank      | total      |
++---------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                                           |          9 |      1,339 |        646 |        203 |      2,188 |
++---------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++---------------------------------------------------------------------------------------------+----------+------------+------------+------------+------------+
+| filename                                                                                    | language | code       | comment    | blank      | total      |
++---------------------------------------------------------------------------------------------+----------+------------+------------+------------+------------+
+| /Users/kduffie/projects/slick-wp-plugin/svn/trunk/SlickEngagement_InstallIndicator.php      | PHP      |         57 |        107 |         22 |        186 |
+| /Users/kduffie/projects/slick-wp-plugin/svn/trunk/SlickEngagement_LifeCycle.php             | PHP      |        100 |         99 |         28 |        227 |
+| /Users/kduffie/projects/slick-wp-plugin/svn/trunk/SlickEngagement_OptionsManager.php        | PHP      |        263 |        161 |         32 |        456 |
+| /Users/kduffie/projects/slick-wp-plugin/svn/trunk/SlickEngagement_Plugin.php                | PHP      |        535 |         89 |         53 |        677 |
+| /Users/kduffie/projects/slick-wp-plugin/svn/trunk/SlickEngagement_ShortCodeLoader.php       | PHP      |         17 |         40 |          6 |         63 |
+| /Users/kduffie/projects/slick-wp-plugin/svn/trunk/SlickEngagement_ShortCodeScriptLoader.php | PHP      |         19 |         37 |         11 |         67 |
+| /Users/kduffie/projects/slick-wp-plugin/svn/trunk/SlickEngagement_Widgets.php               | PHP      |        301 |         36 |         34 |        371 |
+| /Users/kduffie/projects/slick-wp-plugin/svn/trunk/slick-engagement.php                      | PHP      |         30 |         48 |          9 |         87 |
+| /Users/kduffie/projects/slick-wp-plugin/svn/trunk/slick-engagement_init.php                 | PHP      |         17 |         29 |          8 |         54 |
+| Total                                                                                       |          |      1,339 |        646 |        203 |      2,188 |
++---------------------------------------------------------------------------------------------+----------+------------+------------+------------+------------+

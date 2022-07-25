@@ -1,4 +1,4 @@
-=== Slickstream: Engagement and Conversions ===
+=== Slickstream + Navu: Engagement and Conversions ===
 Contributors: kduffie
 Donate link:  https://slickstream.com
 Tags: search,recommendations,favorites,navigation,engagement,better search,advanced search,category search,relevant search,carousel,bookmarks,stories
@@ -7,20 +7,23 @@ License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Requires at least: 5.0
 Requires PHP: 5.6
 Tested up to: 5.9.3
-Stable tag: 1.2.2
+Stable tag: 1.2.1
 
 Use Slickstream to upgrade your site search. Use Navu to view journeys and increase website conversions.  Get beautiful as-you-type search, relevant content recommendations, user favorites and more!
 
 == Description ==
 
-This plugin is for [Slickstream](https://www.slickstream.com) customers.  It adds our embed code and key metadata into
-your webpages without affecting site speed or performance.
+This plugin is for [Slickstream](https://www.slickstream.com) and [Navu](https://navu.app) customers.  It adds our embed code and key metadata into
+your webpages without affecting site speed or performance.  Slickstream and Navu are sister services that use the same plugin but with different missions.
 
 Slickstream users get unlimited access to all of our tools, including:
 - Responsive *as-you-type search* with a heap of advanced features that your visitors will love
 - Customizable *recommendation carousels and grids* backed by real data
 - Hassle-free *content favoriting* to keep your visitors coming back
 - A robust *analytics portal* with engagement insights you can actually use
+
+Navu is designed for businesses who want to increase lead conversions on their websites.  Get started by reviewing visitor journeys where you can
+see the complete experience of each visitor to your site.  Then use Navu to add personalized navigation that will increase lead conversions.
 
 ## The Slickstream Difference
 
@@ -223,7 +226,5 @@ It’s simple: [sign up for your free trial here](https://bloggers.slickstream.c
 
 = 1.2.1
 - New options for injecting DCM
-
-= 1.2.2
-- Revised to clarify support option
+- Navu support
 

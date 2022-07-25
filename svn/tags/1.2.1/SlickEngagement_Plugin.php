@@ -23,7 +23,7 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
 //  http://plugin.michael-simpson.com/?page_id=31
         return array(
             'SiteCode' => array(__('Site Code', 'slick-engagement')),
-            'SlickServerUrl' => array(__('Service URL (optional)', 'slick-engagement')),
+            'SlickServerUrl' => array(__('Support code (support use only)', 'slick-engagement')),
             'ReserveFilmstrip' => array(__('Reserve filmstrip space', 'slick-engagement'), 'None', AFTER_HEADER_GENESIS_TLA, BEFORE_CONTENT_GENESIS_TLA, AFTER_HEADER_GENESIS, BEFORE_CONTENT_GENESIS, CUSTOM),
             'ReserveFilmstripCustom' => array(__('Filmstrip: custom hook', 'slick-engagement')),
             'ReserveFilmstripPriority' => array(__('Filmstrip: priority', 'slick-engagement')),
@@ -395,7 +395,7 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
     {
         global $post;
         echo "\n";
-        echo '<meta property="slick:wpversion" content="1.2.2" />' . "\n";
+        echo '<meta property="slick:wpversion" content="1.2.1" />' . "\n";
         $siteCode = trim($this->getOption('SiteCode'));
         if ($siteCode) {
             $adThriveAbTest = false;
@@ -448,7 +448,7 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
 
         $ldJsonPlugin = (object) [
             '@type' => 'Plugin',
-            'version' => '1.2.2',
+            'version' => '1.2.1',
         ];
         array_push($ldJsonElements, $ldJsonPlugin);
 
