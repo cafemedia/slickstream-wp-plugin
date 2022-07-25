@@ -340,7 +340,7 @@ if ($optionMetaData != null) {
                 </p>
             </form>
             <div style="max-width: 600px;">
-              <p>The Support code should be left blank.  It is only used for special cases to support troubleshooting.</p>
+              <p>The Service URL should be left blank unless directed otherwise when setting up your service.</p>
               <p>Reserve space for Slickstream's filmstrip widget by choosing one of the predefined hooks, or choose "custom" and enter the name (e.g., "xxx-after-header") of a hook supported by your site's theme.</p>
               <p>In these cases, you can also customize the margin for the filmstrip by populating the "Reserved filmstrip: margin" property.  This sets the CSS margin style for that container.  If empty, a value of "10px auto" is used by default.</p>
               <p>If other plugins are also contributing into the page based on the same event, you can control the order by changing the "Reserved filmstrip: priority" value which is "15" by default.</p>
