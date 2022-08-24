@@ -395,7 +395,7 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
     {
         global $post;
         echo "\n";
-        echo '<meta property="slick:wpversion" content="1.2.4" />' . "\n";
+        echo '<meta property="slick:wpversion" content="1.2.3" />' . "\n";
         $siteCode = trim($this->getOption('SiteCode'));
         if ($siteCode) {
             $adThriveAbTest = false;
@@ -448,19 +448,19 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
 
         $ldJsonPlugin = (object) [
             '@type' => 'Plugin',
-            'version' => '1.2.4',
+            'version' => '1.2.3',
         ];
         array_push($ldJsonElements, $ldJsonPlugin);
 
-        // $currentUser = wp_get_current_user();
-        // if (!empty($currentUser->user_email)) {
-        //     echo '<meta property="slick:wpuser" content="' . $currentUser->user_email . '" />' . "\n";
-        //     $ldJsonUser = (object) [
-        //         '@type' => 'User',
-        //         'email' => $currentUser->user_email,
-        //     ];
-        //     array_push($ldJsonElements, $ldJsonUser);
-        // }
+        $currentUser = wp_get_current_user();
+        if (!empty($currentUser->user_email)) {
+            echo '<meta property="slick:wpuser" content="' . $currentUser->user_email . '" />' . "\n";
+            $ldJsonUser = (object) [
+                '@type' => 'User',
+                'email' => $currentUser->user_email,
+            ];
+            array_push($ldJsonElements, $ldJsonUser);
+        }
 
         $ldJsonSite = (object) [
             '@type' => 'Site',
