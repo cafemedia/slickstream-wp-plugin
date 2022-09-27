@@ -395,7 +395,7 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
     {
         global $post;
         echo "\n";
-        echo '<meta property="slick:wpversion" content="1.2.4" />' . "\n";
+        echo '<meta property="slick:wpversion" content="1.2.5" />' . "\n";
         $siteCode = trim($this->getOption('SiteCode'));
         if ($siteCode) {
             $adThriveAbTest = false;
@@ -412,6 +412,9 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
                     }
                 }
             }
+            echo '<style>' . "\n";
+            echo '  .category-slickstream-exclusive { visibility: hidden; }' . "\n";
+            echo '</style>' . "\n";
             echo '<script>' . "\n";
             echo '"use strict";' . "\n";
             if ($adThriveAbTest) {
@@ -448,7 +451,7 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
 
         $ldJsonPlugin = (object) [
             '@type' => 'Plugin',
-            'version' => '1.2.4',
+            'version' => '1.2.5',
         ];
         array_push($ldJsonElements, $ldJsonPlugin);
 
