@@ -1,5 +1,5 @@
 === Slickstream: Engagement and Conversions ===
-Contributors: kduffie
+Contributors: kduffie, wpslickstream
 Donate link:  https://slickstream.com
 Tags: search,recommendations,favorites,navigation,engagement,better search,advanced search,category search,relevant search,carousel,bookmarks,stories
 License: GPLv2 or later
