@@ -394,62 +394,76 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
     public function addSlickPageHeader()
     {
         global $post;
+
         echo "\n";
-        echo '<meta property="slick:wpversion" content="1.2.4" />' . "\n";
+        echo '<meta property="slick:wpversion" content="1.2.5" />' . "\n";
         $siteCode = trim($this->getOption('SiteCode'));
+
         if ($siteCode) {
             $adThriveAbTest = false;
-            $adThriveAbFraction = 0.9;
-            $serverUrl = trim($this->getOption('SlickServerUrl', 'https://app.slickstream.com'));
+            $defaultServerUrl = 'https://app.slickstream.com';
+            $serverUrl = trim($this->getOption('SlickServerUrl', $defaultServerUrl));
             if (substr($serverUrl, 0, 11) === 'adthrive-ab') {
                 $pieces = explode(" ", $serverUrl);
-                $serverUrl = 'https://app.slickstream.com';
+                $serverUrl = $defaultServerUrl;
                 $adThriveAbTest = true;
-                if (count($pieces) > 1) {
-                    $fractionValue = intval($pieces[1]);
-                    if ($fractionValue > 0 && $fractionValue < 100) {
-                        $adThriveAbFraction = $fractionValue / 100;
-                    }
+                $enabledPercent = (count($pieces) > 1) ? intval($pieces[1]) : 100;
+            }
+
+            $jsBlock = <<<JSBLOCK
+            window.slickAbTestResult = function(percentEnabled, forceEnable = false, testName = 'On') {
+                const win = window;
+                const storage = win.localStorage;
+                const targetPercentEnabled = parseInt(percentEnabled);
+                
+                if (isNaN(targetPercentEnabled)) {
+                    return new Error("Invalid enabled percentage");
                 }
-            }
-            echo '<script>' . "\n";
-            echo '"use strict";' . "\n";
+
+                let enableSlickFeature = 1;
+
+                const abGroupVal = `slk\${testName}\${targetPercentEnabled}`;
+                const storedOnOffVal = storage.getItem(abGroupVal);
+                const percentKey = `slickAbTestPercent-\${testName}`;
+                const storedPercentVal = parseInt(storage.getItem(percentKey));
+                
+                if (forceEnable !== true || !storedOnOffVal || storedPercentVal !== targetPercentEnabled) {
+                    enableSlickFeature = (Math.random() * 100) <= targetPercentEnabled ? 1 : 0;
+                }
+
+                storage.setItem(abGroupVal, enableSlickFeature);
+                storage.setItem(percentKey, targetPercentEnabled);
+
+                win.adthrive = win.adthrive || {};
+                win.adthrive.cmd = win.adthrive.cmd || [];
+                win.adthrive.cmd.push(() => { win.adthrive.config.abGroup.set(abGroupVal, enableSlickFeature); });
+
+                return !!enableSlickFeature;
+            };
+            JSBLOCK;
+
+            echo "<script>\n";
+            echo "'use strict';\n";
             if ($adThriveAbTest) {
-                echo '(() => {' . "\n";
-                echo '  window.adthrive = window.adthrive || {};' . "\n";
-                echo '  window.adthrive.cmd = window.adthrive.cmd || [];' . "\n";
-                echo '  let slickParams = new URLSearchParams(document.location.search.substring(1));' . "\n";
-                echo '  let slickAbParam = slickParams.get("abEnabled");' . "\n";
-                echo '  if (slickAbParam && ["on","off"].indexOf(slickAbParam) >= 0) {' . "\n";
-                echo '    window.adthrive_AB_enabled = slickAbParam;' . "\n";
-                echo '    if (window.localStorage) { window.localStorage.setItem("adthrive_AB_enabled", window.adthrive_AB_enabled); }' . "\n";
-                echo '  } else {' . "\n";
-                echo '    window.adthrive_AB_enabled = (window.localStorage ? window.localStorage.getItem("adthrive_AB_enabled") : undefined);' . "\n";
-                echo '    if (!window.adthrive_AB_enabled) {' . "\n";
-                echo '      window.adthrive_AB_enabled = Math.random() < ' . $adThriveAbFraction . ' ? "on" : "off";' . "\n";
-                echo '      if (window.localStorage) { window.localStorage.setItem("adthrive_AB_enabled", window.adthrive_AB_enabled); }' . "\n";
-                echo '    }' . "\n";
-                echo '  }' . "\n";
-                echo '  window.adthrive.cmd.push(function() {' . "\n";
-                echo '    window.adthrive.config.abGroup.set("slkstm", window.adthrive_AB_enabled);' . "\n";
-                echo '  });' . "\n";
-                echo '})();' . "\n";
-                echo 'if (window.adthrive_AB_enabled === "on") {' . "\n";
+                echo $jsBlock;
+                echo "if (window.slickAbTestResult(" + $enabledPercent + ")) {\n";
             }
-            echo '/* Slickstream Engagement Suite Embedder */' . "\n";
+            echo "/* Slickstream Engagement Suite Embedder */\n";
             echo '"use strict";(async(e,t)=>{if(location.search.indexOf("no-slick")>=0){return}let o;const a=()=>(performance||Date).now();const i=window.$slickBoot={rt:e,_es:a(),ev:"2.0.0",l:async(e,t)=>{try{let i=0;if(!o&&"caches"in self){o=await caches.open("slickstream-code")}if(o){let n=await o.match(e);if(!n){i=a();await o.add(e);n=await o.match(e);if(n&&!n.ok){n=undefined;o.delete(e)}}if(n){return{t:i,d:t?await n.blob():await n.json()}}}}catch(e){console.log(e)}return{}}};const n=e=>new Request(e,{cache:"no-store"});const c=n(`${e}/d/page-boot-data?${innerWidth<=600?"mobile&":""}site=${t}&url=${encodeURIComponent(location.href.split("#")[0])}`);let{t:s,d:l}=await i.l(c);if(l){if(l.bestBy<Date.now()){l=undefined}else if(s){i._bd=s}}if(!l){i._bd=a();l=await(await fetch(c)).json()}if(l){i.d=l;let e=l.bootUrl;const{t:t,d:o}=await i.l(n(e),true);if(o){i.bo=e=URL.createObjectURL(o);if(t){i._bf=t}}else{i._bf=a()}const c=document.createElement("script");c.src=e;document.head.appendChild(c)}else{console.log("[Slick] Boot failed")}})' . "\n";
             echo '("' . $serverUrl . '","' . $siteCode . '");' . "\n";
             if ($adThriveAbTest) {
-                echo '}' . "\n";
+                echo "}\n";
             }
-            echo '</script>' . "\n";
+            echo "</script>\n";
         }
+
         $ldJsonElements = array();
 
         $ldJsonPlugin = (object) [
             '@type' => 'Plugin',
-            'version' => '1.2.4',
+            'version' => '1.2.5',
         ];
+        
         array_push($ldJsonElements, $ldJsonPlugin);
 
         // $currentUser = wp_get_current_user();
