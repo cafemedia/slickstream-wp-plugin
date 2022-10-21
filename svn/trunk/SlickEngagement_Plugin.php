@@ -422,17 +422,18 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
 
                 let enableSlickFeature = 1;
 
-                const abGroupVal = `slick\${testName}\${targetPercentEnabled}`;
-                const storedOnOffVal = storage.getItem(abGroupVal);
+                const testStorageKey = `slick\${testName}\${targetPercentEnabled}`;
+                const storedOnOffVal = storage.getItem(testStorageKey);
                 const percentKey = `slickAbTestPercent-\${testName}`;
                 const storedPercentVal = parseInt(storage.getItem(percentKey));
+                const abGroupVal = `slk\${testName}\${targetPercentEnabled}`;
                 
                 if (forceEnable !== true || !storedOnOffVal || storedPercentVal !== targetPercentEnabled) {
                     enableSlickFeature = (Math.random() * 100) <= targetPercentEnabled;
                 }
 
                 const featureOnOff = enableSlickFeature ? "on" : "off";
-                storage.setItem(abGroupVal, featureOnOff);
+                storage.setItem(testStorageKey, featureOnOff);
                 storage.setItem(percentKey, targetPercentEnabled);
 
                 win.adthrive = win.adthrive || {};
