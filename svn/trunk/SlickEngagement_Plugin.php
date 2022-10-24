@@ -411,7 +411,7 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
             }
 
             $jsBlock = <<<JSBLOCK
-            window.slickAbTestResult = function(percentEnabled, forceEnable = false, testName = 'On') {
+            window.slickAbTestResult = function(percentEnabled, forceEnable = false, testName = 'embed') {
                 const win = window;
                 const storage = win.localStorage;
                 const targetPercentEnabled = parseInt(percentEnabled);
