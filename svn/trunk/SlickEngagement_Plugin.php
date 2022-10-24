@@ -411,7 +411,7 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
             }
 
             $jsBlock = <<<JSBLOCK
-            window.slickAbTestResult = function(percentEnabled, forceEnable = false, testName = 'embed') {
+            window.slickAbTestResult = function(percentEnabled, recalculate = false, testName = 'embed') {
                 const win = window;
                 const storage = win.localStorage;
                 const targetPercentEnabled = parseInt(percentEnabled);
@@ -420,20 +420,19 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
                     return new Error("Invalid enabled percentage");
                 }
 
-                let enableSlickFeature = 1;
-
-                const testStorageKey = `slick\${testName}\${targetPercentEnabled}`;
-                const storedOnOffVal = storage.getItem(testStorageKey);
+                let enableSlickFeature = true;
+                const abTestStorageKey = `slick\${testName}\${targetPercentEnabled}`;
+                const storedOnOffVal = storage.getItem(abTestStorageKey);
                 const percentKey = `slickAbTestPercent-\${testName}`;
                 const storedPercentVal = parseInt(storage.getItem(percentKey));
                 const abGroupVal = `slk\${testName}\${targetPercentEnabled}`;
                 
-                if (forceEnable !== true || !storedOnOffVal || storedPercentVal !== targetPercentEnabled) {
+                if (recalculate === true || !storedOnOffVal || storedPercentVal !== targetPercentEnabled) {
                     enableSlickFeature = (Math.random() * 100) <= targetPercentEnabled;
                 }
 
                 const featureOnOff = enableSlickFeature ? "on" : "off";
-                storage.setItem(testStorageKey, featureOnOff);
+                storage.setItem(abTestStorageKey, featureOnOff);
                 storage.setItem(percentKey, targetPercentEnabled);
 
                 win.adthrive = win.adthrive || {};
