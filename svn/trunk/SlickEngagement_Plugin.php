@@ -420,21 +420,23 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
                     return new Error("Invalid enabled percentage");
                 }
 
-                let enableSlickFeature = true;
-                const abTestStorageKey = `slick\${testName}\${targetPercentEnabled}`;
+                let enableSlickFeature;
+                const abTestStorageKey = `slickab-\${testName}-\${targetPercentEnabled}`;
                 const storedOnOffVal = storage.getItem(abTestStorageKey);
+                
                 const percentKey = `slickAbTestPercent-\${testName}`;
                 const storedPercentVal = parseInt(storage.getItem(percentKey));
-                const abGroupVal = `slk\${testName}\${targetPercentEnabled}`;
                 
                 if (recalculate === true || !storedOnOffVal || storedPercentVal !== targetPercentEnabled) {
                     enableSlickFeature = (Math.random() * 100) <= targetPercentEnabled;
+                    storage.setItem(abTestStorageKey, enableSlickFeature);
+                    storage.setItem(percentKey, targetPercentEnabled);
+                } else {
+                    enableSlickFeature = storage.getItem(abTestStorageKey) === 'true';
                 }
 
+                const abGroupVal = `slk\${testName}\${targetPercentEnabled}`;
                 const featureOnOff = enableSlickFeature ? "on" : "off";
-                storage.setItem(abTestStorageKey, featureOnOff);
-                storage.setItem(percentKey, targetPercentEnabled);
-
                 win.adthrive = win.adthrive || {};
                 win.adthrive.cmd = win.adthrive.cmd || [];
                 win.adthrive.cmd.push(() => { win.adthrive.config.abGroup.set(abGroupVal, featureOnOff); });
