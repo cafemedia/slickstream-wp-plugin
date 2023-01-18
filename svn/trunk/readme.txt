@@ -235,6 +235,3 @@ It’s simple: [sign up for your free trial here](https://bloggers.slickstream.c
 
 = 1.2.5
 - Enhanced A/B testing
-
-= 1.2.6
-- Improved page boot process
