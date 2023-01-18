@@ -237,4 +237,4 @@ It’s simple: [sign up for your free trial here](https://bloggers.slickstream.c
 - Enhanced A/B testing
 
 = 1.2.6
-- Removes extra page boot call
+- Improved page boot process
