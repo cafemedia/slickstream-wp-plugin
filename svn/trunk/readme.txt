@@ -241,4 +241,4 @@ You can find more information about Slickstream here on Slickstream.com.
 - Enhanced A/B testing
 
 = 1.3.0
-- Automatically reduces CLS. No other adjustments or settings changes are required.
+- Automatically reduces CLS without adjustments or setting changes from admin
