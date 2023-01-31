@@ -300,7 +300,10 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
 
         $page_url = "$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
         $remote = self::defaultServerUrl . '/d/page-boot-data?site=' . $siteCode . '&url=' . rawurlencode($page_url);
-        $response = wp_remote_get( $remote , array( 'timeout' => 3 ) );
+        $response = wp_remote_get( $remote , array( 'timeout' => 3, 'headers' => array(
+                                                                        'referer' => home_url()
+                                                                    ) 
+        ) );
 
         if ( is_array($response) ) {
           $response_text = wp_remote_retrieve_body( $response );
