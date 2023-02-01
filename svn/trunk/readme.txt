@@ -6,7 +6,7 @@ License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Requires at least: 5.0
 Requires PHP: 5.6
-Tested up to: 6.0.1
+Tested up to: 6.1.1
 Stable tag: 1.3.0
 
 Use Slickstream to upgrade your site search.  Get beautiful as-you-type search, relevant content recommendations, user favorites and more!

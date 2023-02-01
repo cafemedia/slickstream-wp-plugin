@@ -299,7 +299,7 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
         global $wp;
 
         $page_url = "$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
-        $remote = self::defaultServerUrl . '/d/page-boot-data?site=' . $siteCode . '&url=' . rawurlencode($page_url);
+        $remote = self::defaultServerUrl . '/d/page-boot-data?site=' . $siteCode . '&url=' . rawurlencode($page_url) . '&ts=' . mktime(date('G'),0,0,date('n'),date('j'),date('Y'));
         $response = wp_remote_get( $remote , array( 'timeout' => 3 ) );
 
         if ( is_array($response) ) {
