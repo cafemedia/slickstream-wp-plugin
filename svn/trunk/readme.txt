@@ -6,8 +6,8 @@ License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Requires at least: 5.0
 Requires PHP: 5.6
-Tested up to: 6.0.1
-Stable tag: 1.3.0
+Tested up to: 6.1.1
+Stable tag: 1.3.1
 
 Use Slickstream to upgrade your site search.  Get beautiful as-you-type search, relevant content recommendations, user favorites and more!
 
@@ -242,3 +242,6 @@ You can find more information about Slickstream here on Slickstream.com.
 
 = 1.3.0
 - Automatically reduces CLS without adjustments or setting changes from admin
+
+= 1.3.1
+- Security enhancements, ability to customize min heights

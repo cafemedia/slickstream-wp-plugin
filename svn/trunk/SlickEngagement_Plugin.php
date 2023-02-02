@@ -339,7 +339,7 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
         $this->getPageBootData();
 
         echo "\n";
-        echo '<meta property="slick:wpversion" content="1.3.0" />' . "\n";
+        echo '<meta property="slick:wpversion" content="1.3.1" />' . "\n";
         $siteCode = trim($this->getOption('SiteCode'));
 
         if ($siteCode) {
@@ -406,7 +406,7 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
 
         $ldJsonPlugin = (object) [
             '@type' => 'Plugin',
-            'version' => '1.3.0',
+            'version' => '1.3.1',
         ];
         
         array_push($ldJsonElements, $ldJsonPlugin);

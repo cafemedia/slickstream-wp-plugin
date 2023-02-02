@@ -2,7 +2,7 @@
 /*
 Plugin Name: Slickstream Search and Engagement
 Plugin URI: https://slickstream.com/getting-started
-Version: 1.3.0
+Version: 1.3.1
 Author: Slickstream
 Author URI: https://slickstream.com
 Description: Use Slickstreams's cloud service and widgets to increase visitor engagement
