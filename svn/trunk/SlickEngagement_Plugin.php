@@ -298,7 +298,8 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
       if ($siteCode) {
         global $wp;
 
-        $page_url = "$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
+        $protocol = ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off') || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
+        $page_url = $protocol . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
         $remote = self::defaultServerUrl . '/d/page-boot-data?site=' . $siteCode . '&url=' . rawurlencode($page_url);
         $headers = array( 'referer' => home_url() );
         $response = wp_remote_get( $remote , array( 'timeout' => 3, 'headers' => $headers ) );
