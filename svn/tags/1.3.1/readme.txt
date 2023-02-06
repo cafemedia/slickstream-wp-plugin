@@ -244,4 +244,4 @@ You can find more information about Slickstream here on Slickstream.com.
 - Automatically reduces CLS without adjustments or setting changes from admin
 
 = 1.3.1
-- Security enhancements, ability to customize min heights
+- Security enhancements
