@@ -235,7 +235,7 @@ You can find more information about Slickstream here on Slickstream.com.
 - Verified compatibility with WP 6.0.1
 
 = 1.2.4
-- Remove rendering of sensitive information 
+- Security enhancements
 
 = 1.2.5
 - Enhanced A/B testing
