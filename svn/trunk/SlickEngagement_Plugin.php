@@ -33,7 +33,7 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
 
     public function getPluginDisplayName()
     {
-        return 'Slicktream Engagement';
+        return 'Slickstream Engagement';
     }
 
     protected function getMainPluginFileName()
@@ -263,7 +263,7 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
     }
 
     // Fetches the Page Boot Data from the server
-    //TODO: if we find that `/page-boot-data` requests are reduced enough to always use origin, we can add headers to avoid hitting CloudFront
+    //TODO: if we find that `/page-boot-data` requests are reduced enough to always use origin, we can add headers to avoid hitting CloudFlare
     private function fetchBootData($siteCode) 
     {
         $protocol = ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off') || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
@@ -342,14 +342,19 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
         
         $transient_name = $this->getTransientName(); //Name for WP Transient Cache API Key
 
+        // If `slick-boot=1` is passed as a query param, force a re-fetch of the boot data from the server
+        $force_update_param_name = 'slick-boot';
+        $force_update_param = $_GET[$force_update_param_name];
+        $force_fetch_boot_data = isset($force_update_param) && $force_update_param == '1';
+
         // Check for existing data in transient cache. If none, then fetch data from server.
-        if (false === ($boot_data_obj = get_transient($transient_name))) {
+        if ($force_fetch_boot_data || false === ($boot_data_obj = get_transient($transient_name))) {
             $this->echoSlickstreamComment("Fetching page boot data from server");
             $boot_data_obj = $this->fetchBootData($siteCode);
 
             //TODO: store cache hits and cache misses in a transient or option?
 
-	        // Put the results in transient storage; expire after 15 minutes
+            // Put the results in transient storage; expire after 15 minutes
             if ($boot_data_obj) {
                 set_transient($transient_name, $boot_data_obj, 15 * MINUTE_IN_SECONDS);
             } else {
@@ -411,7 +416,7 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
     {
         global $post;
 
-        $this->echoSlickstreamComment("Page Generated at " . $this->getCurrentTimeStampByTimeZone('America/New York') . " EST");
+        $this->echoSlickstreamComment("Page Generated at " . $this->getCurrentTimeStampByTimeZone('America/New_York') . " EST");
         $this->echoPageBootData();
 
         echo "\n" . '<meta property="slick:wpversion" content="' . PLUGIN_VERSION . '" />' . "\n";
