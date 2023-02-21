@@ -281,10 +281,17 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
     }
 
     private function echoSlickBootJs($boot_data_obj) {
-      echo <<<JSBLOCK
+        $boot_data_json = json_encode($boot_data_obj);
+
+        if (false === $boot_data_json) {
+            $this->echoSlickstreamComment('Error encoding boot data JSON');
+            return;
+        }
+
+        echo <<<JSBLOCK
         <script>
         window.\$slickBoot = window.\$slickBoot || {};
-        window.\$slickBoot.d = ' . json_encode($boot_data_obj) . ';
+        window.\$slickBoot.d = ${boot_data_json};
         window.\$slickBoot.s = 'plugin';
         window.\$slickBoot._bd = performance.now();
         </script>
