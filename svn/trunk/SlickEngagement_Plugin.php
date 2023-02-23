@@ -3,7 +3,7 @@
 include_once 'SlickEngagement_LifeCycle.php';
 include_once 'SlickEngagement_Widgets.php';
 
-define('PLUGIN_VERSION', '1.3.2');
+define('PLUGIN_VERSION', '1.4.0');
 
 class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
 {
@@ -378,7 +378,7 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
         global $wp;
         
         $transient_name = $this->getTransientName(); //Name for WP Transient Cache API Key
-        
+
         // If `delete-boot=1` is passed as a query param, delete the stored page boot data
         $this->handleDeleteBootData();
 
