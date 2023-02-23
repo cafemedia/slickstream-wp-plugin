@@ -245,3 +245,6 @@ You can find more information about Slickstream here on Slickstream.com.
 
 = 1.3.1
 - Security enhancements
+
+= 1.3.2
+- Speed enhancements

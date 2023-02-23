@@ -288,14 +288,18 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
             return;
         }
 
+        $this->echoSlickstreamComment('Page Boot Data:');
+
         echo <<<JSBLOCK
         <script>
         window.\$slickBoot = window.\$slickBoot || {};
         window.\$slickBoot.d = ${boot_data_json};
         window.\$slickBoot.s = 'plugin';
         window.\$slickBoot._bd = performance.now();
-        </script>
+        </script>\n
         JSBLOCK;
+
+        $this->echoSlickstreamComment('END Page Boot Data');
     }
 
     private function echoClsData($boot_data_obj)
@@ -306,12 +310,15 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
         if (!empty($filmstrip_config) || !empty($dcm_config)) {
             $filmstrip_str = empty($filmstrip_config) ? '' :  json_encode($filmstrip_config);
             $dcm_str = empty($dcm_config) ? '' :  json_encode($dcm_config);
-            
-            echo "\n<script>\n";
-            echo "/* Slickstream CLS Insertion */\n";
+
+            $this->echoSlickstreamComment('CLS Insertion:');
+
+            echo "<script>\n";
             echo '"use strict";(async(e,t)=>{const n=e?JSON.parse(e):null;const r=t?JSON.parse(t):null;if(n||r){const e=async()=>{if(document.body){if(n){o(n.selector,n.position||"after selector","slick-film-strip",n.minHeight||72)}if(r){r.forEach((e=>{if(e.selector){o(e.selector,e.position||"after selector","slick-inline-search-panel",e.minHeight||350,e.id)}}))}return}window.requestAnimationFrame(e)};window.requestAnimationFrame(e)}const c=async(e,t)=>{const n=Date.now();while(true){const r=document.querySelector(e);if(r){return r}const c=Date.now();if(c-n>=t){throw new Error("Timeout")}await i(200)}};const i=async e=>new Promise((t=>{setTimeout(t,e)}));const o=async(e,t,n,r,i)=>{try{const o=await c(e,5e3);const s=i?document.querySelector(`.${n}[data-config="${i}"]`):document.querySelector(`.${n}`);if(o&&!s){const e=document.createElement("div");e.style.minHeight=r+"px";e.classList.add(n);if(i){e.dataset.config=i}switch(t){case"after selector":o.insertAdjacentElement("afterend",e);break;case"before selector":o.insertAdjacentElement("beforebegin",e);break;case"first child of selector":o.insertAdjacentElement("afterbegin",e);break;case"last child of selector":o.insertAdjacentElement("beforeend",e);break}return e}}catch(t){console.log("plugin","error",`Failed to inject ${n} for selector ${e}`)}return false}})' . "\n";
             echo "('" . addslashes($filmstrip_str) . "','" . addslashes($dcm_str) . "');" . "\n";
             echo "\n</script>\n";
+
+            $this->echoSlickstreamComment('END CLS Insertion');
         }
     }
 
@@ -325,7 +332,7 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
 
     private function echoSlickstreamComment($comment)
     {
-        echo "\n<!-- [Slickstream] " . $comment . " -->\n";
+        echo "<!-- [Slickstream] " . $comment . " -->\n";
     }
 
     private function getCurrentTimestampByTimeZone($tz_name)
@@ -334,6 +341,29 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
         $dt = new DateTime('now', new DateTimeZone($tz_name));
         $dt->setTimestamp($timestamp);
         return $dt->format('Y-m-d H:i:s');
+    }
+
+    // Delete transient boot data if `&delete-boot=1` is passed in
+    private function handleDeleteBootData()
+    {
+        $delete_transient_param = $this->getQueryParamByName('delete-boot');
+        $delete_transient_data = ($delete_transient_param === '1');
+
+        if (!$delete_transient_data) {
+            return;
+        }
+
+        $this->echoSlickstreamComment("Deleting page boot data from cache");
+        $comment = (false === delete_transient($this->getTransientName())) ? 
+            "Nothing to do--page not found in cache" :
+            "Page boot data deleted successfully";
+        $this->echoSlickstreamComment($comment);
+    }
+
+    private function getQueryParamByName($param_name)
+    {
+        $param_val = isset($_GET[$param_name]) ? $_GET[$param_name] : null;
+        return $param_val;
     }
 
     private function echoPageBootData() 
@@ -348,26 +378,36 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
         global $wp;
         
         $transient_name = $this->getTransientName(); //Name for WP Transient Cache API Key
+        
+        // If `delete-boot=1` is passed as a query param, delete the stored page boot data
+        $this->handleDeleteBootData();
+
+        $no_transient_data = false === ($boot_data_obj = get_transient($transient_name)); //get_transient returns `false` if the key doesn't exist
 
         // If `slick-boot=1` is passed as a query param, force a re-fetch of the boot data from the server
-        $force_update_param_name = 'slick-boot';
-        $force_update_param = $_GET[$force_update_param_name];
-        $force_fetch_boot_data = isset($force_update_param) && $force_update_param == '1';
-
+        // If `slick-boot=0` is passed as a query param, skip fetching boot data from the server
+        $slick_boot_param = $this->getQueryParamByName('slick-boot');
+        $force_fetch_boot_data = ($slick_boot_param === '1');
+        $dont_load_boot_data = ($slick_boot_param === '0');
+        $slick_boot_param_not_set = ($slick_boot_param === null);
+    
         // Check for existing data in transient cache. If none, then fetch data from server.
-        if ($force_fetch_boot_data || false === ($boot_data_obj = get_transient($transient_name))) {
+        //TODO: store cache hits and cache misses in a transient or option?
+        if ($force_fetch_boot_data || ($no_transient_data && $slick_boot_param_not_set)) {
             $this->echoSlickstreamComment("Fetching page boot data from server");
             $boot_data_obj = $this->fetchBootData($siteCode);
-
-            //TODO: store cache hits and cache misses in a transient or option?
 
             // Put the results in transient storage; expire after 15 minutes
             if ($boot_data_obj) {
                 set_transient($transient_name, $boot_data_obj, 15 * MINUTE_IN_SECONDS);
+                $this->echoSlickstreamComment("Storing page boot data in transient cache");
             } else {
                 $this->echoSlickstreamComment("Error Fetching page boot data from server");
                 return;
             }
+        } else if ($dont_load_boot_data) {
+            $this->echoSlickstreamComment("Skipping page boot data and CLS output");
+            return;
         } else {
             $this->echoSlickstreamComment("Using cached page boot data");
         }
@@ -442,22 +482,25 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
 
             $jsBlock = $this->getAbTestJs();
 
+            $this->echoSlickstreamComment("Bootloader:");
             echo "<script>\n";
             echo "'use strict';\n";
             if ($adThriveAbTest) {
                 echo $jsBlock;
                 echo "if (window.slickAbTestResult(" . $enabledPercent . ")) {\n";
             }
-            echo "\n/* Slickstream Engagement Suite Embedder */\n";
             echo '"use strict";(async(e,t)=>{if(location.search.indexOf("no-slick")>=0){return}let o;const c=()=>performance.now();let a=window.$slickBoot=window.$slickBoot||{};a.rt=e;a._es=c();a.ev="2.0.1";a.l=async(e,t)=>{try{let a=0;if(!o&&"caches"in self){o=await caches.open("slickstream-code")}if(o){let i=await o.match(e);if(!i){a=c();await o.add(e);i=await o.match(e);if(i&&!i.ok){i=undefined;o.delete(e)}}if(i){const e=i.headers.get("x-slickstream-consent");return{t:a,d:t?await i.blob():await i.json(),c:e||"na"}}}}catch(e){console.log(e)}return{}};const i=e=>new Request(e,{cache:"no-store"});if(!a.d){const o=i(`${e}/d/page-boot-data?site=${t}&url=${encodeURIComponent(location.href.split("#")[0])}`);let{t:n,d:s,c:l}=await a.l(o);if(s){if(s.bestBy<Date.now()){s=undefined}else if(n){a._bd=n;a.c=l}}if(!s){a._bd=c();const e=await fetch(o);const t=e.headers.get("x-slickstream-consent");a.c=t||"na";s=await e.json()}if(s){a.d=s;a.s="embed"}}if(a.d){let e=a.d.bootUrl;const{t:t,d:o}=await a.l(i(e),true);if(o){a.bo=e=URL.createObjectURL(o);if(t){a._bf=t}}else{a._bf=c()}const n=document.createElement("script");n.src=e;document.head.appendChild(n)}else{console.log("[Slick] Boot failed")}})' . "\n";
             echo '("' . $serverUrl . '","' . $siteCode . '");' . "\n";
             if ($adThriveAbTest) {
                 echo "}\n";
             }
             echo "</script>\n";
+            $this->echoSlickstreamComment("END Bootloader");
         }
+
+        $this->echoSlickstreamComment("Page Metadata:");
         
-        //TODO: Move this out into SR function and cache the output
+        //TODO: Move this out into SR functions and cache the output
         $ldJsonElements = array();
 
         $ldJsonPlugin = (object) [
@@ -677,5 +720,6 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
             '@graph' => $ldJsonElements,
         ];
         echo '<script type="application/x-slickstream+json">' . json_encode($ldJson, JSON_UNESCAPED_SLASHES) . '</script>' . "\n";
+        $this->echoSlickstreamComment("END Page Metadata");
     }
 }
