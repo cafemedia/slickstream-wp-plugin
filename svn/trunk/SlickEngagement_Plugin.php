@@ -3,26 +3,21 @@
 include_once 'SlickEngagement_LifeCycle.php';
 include_once 'SlickEngagement_Widgets.php';
 
+define('PLUGIN_VERSION', '1.4.0');
+
 class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
 {
   const defaultServerUrl = 'https://app.slickstream.com';
-/**
- * See: http://plugin.michael-simpson.com/?page_id=31
- * @return array of option meta data.
- */
+    /**
+     * @return array of option meta data.
+     */
     public function getOptionMetaData()
     {
-//  http://plugin.michael-simpson.com/?page_id=31
         return array(
             'SiteCode' => array(__('Site Code', 'slick-engagement')),
             'SlickServerUrl' => array(__('Service URL (optional)', 'slick-engagement')),
         );
     }
-
-//    protected function getOptionValueI18nString($optionValue) {
-    //        $i18nValue = parent::getOptionValueI18nString($optionValue);
-    //        return $i18nValue;
-    //    }
 
     protected function initOptions()
     {
@@ -38,7 +33,7 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
 
     public function getPluginDisplayName()
     {
-        return 'Slick Engagement';
+        return 'Slickstream Engagement';
     }
 
     protected function getMainPluginFileName()
@@ -47,7 +42,6 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
     }
 
 /**
- * See: http://plugin.michael-simpson.com/?page_id=101
  * Called by install() to create any database tables if needed.
  * Best Practice:
  * (1) Prefix all table names with $wpdb->prefix
@@ -56,27 +50,18 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
  */
     protected function installDatabaseTables()
     {
-//        global $wpdb;
-        //        $tableName = $this->prefixTableName('mytable');
-        //        $wpdb->query("CREATE TABLE IF NOT EXISTS `$tableName` (
-        //            `id` INTEGER NOT NULL");
     }
 
 /**
- * See: http://plugin.michael-simpson.com/?page_id=101
  * Drop plugin-created tables on uninstall.
  * @return void
  */
     protected function unInstallDatabaseTables()
     {
-//        global $wpdb;
-        //        $tableName = $this->prefixTableName('mytable');
-        //        $wpdb->query("DROP TABLE IF EXISTS `$tableName`");
     }
 
 /**
  * Perform actions when upgrading from version X to version Y
- * See: http://plugin.michael-simpson.com/?page_id=35
  * @return void
  */
     public function upgrade()
@@ -85,31 +70,20 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
 
     public function addActionsAndFilters()
     {
-// Add options administration page
-        // http://plugin.michael-simpson.com/?page_id=47
+        // Add options administration page
         add_action('admin_menu', array(&$this, 'addSettingsSubMenuPage'));
 
-// Example adding a script & style just for the options administration page
-        // http://plugin.michael-simpson.com/?page_id=47
-        //        if (strpos($_SERVER['REQUEST_URI'], $this->getSettingsSlug()) !== false) {
-        //            wp_enqueue_script('my-script', plugins_url('/js/my-script.js', __FILE__));
-        //            wp_enqueue_style('my-style', plugins_url('/css/my-style.css', __FILE__));
-        //        }
 
-// Add Actions & Filters
-        // http://plugin.michael-simpson.com/?page_id=37
-
+        // Add Actions & Filters
         add_action('wp_head', array(&$this, 'addSlickPageHeader'));
 
-// Adding scripts & styles to all pages
+        // Adding scripts & styles to all pages
         // Examples:
         //        wp_enqueue_script('jquery');
         //        wp_enqueue_style('my-style', plugins_url('/css/my-style.css', __FILE__));
         //        wp_enqueue_script('my-script', plugins_url('/js/my-script.js', __FILE__));
 
-// Register short codes
-        // http://plugin.michael-simpson.com/?page_id=39
-
+        // Register short codes
         add_shortcode('slick-film-strip', array($this, 'doFilmStripShortcode'));
         add_shortcode('slick-game', array($this, 'doGameShortcode'));
         // add_shortcode('slick-next-up', array($this, 'doNextUpShortcode'));
@@ -118,9 +92,7 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
         add_shortcode('slick-story-carousel', array($this, 'doSlickStoryCarouselShortcode'));
         add_shortcode('slick-story-explorer', array($this, 'doSlickStoryExplorerShortcode'));
 
-// Register AJAX hooks
-        // http://plugin.michael-simpson.com/?page_id=41
-
+        // Register AJAX hooks
         // Ensure pages can be configured with categories and tags
         add_action('init', array(&$this, 'add_taxonomies_to_pages'));
 
@@ -259,16 +231,14 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
         register_taxonomy_for_object_type('category', 'page');
     }
 
-/* determine whether post has a featured image, if not, find the first image inside the post content, $size passes the thumbnail size, $url determines whether to return a URL or a full image tag*/
-/* adapted from http://www.amberweinberg.com/wordpress-find-featured-image-or-first-image-in-post-find-dimensions-id-by-url/ */
-
+    /* determine whether post has a featured image, if not, find the first image inside the post content, $size passes the thumbnail size, $url determines whether to return a URL or a full image tag*/
+    /* adapted from http://www.amberweinberg.com/wordpress-find-featured-image-or-first-image-in-post-find-dimensions-id-by-url/ */
     public function getPostImage($post)
     {
         ob_start();
         ob_end_clean();
 
-/*If there's a featured image, show it*/
-
+        //If there's a featured image, show it
         if (has_post_thumbnail($post)) {
             $images = wp_get_attachment_image_src(get_post_thumbnail_id($post), 'single-post-thumbnail');
             return $images[0];
@@ -278,8 +248,7 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
             $output = preg_match_all('/<img.+src=[\'"]([^\'"]+)[\'"].*>/i', $content, $matches);
             $first_img = $matches[1][0];
 
-            /*No featured image, so we get the first image inside the post content*/
-
+            //No featured image, so we get the first image inside the post content
             if ($first_img) {
                 return $first_img;
             } else {
@@ -293,59 +262,217 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
         return str_replace(';', ' ', $value);
     }
 
-    public function getPageBootData() {
-      $siteCode = trim($this->getOption('SiteCode'));
-      if ($siteCode) {
-        global $wp;
-
+    // Fetches the Page Boot Data from the server
+    //TODO: if we find that `/page-boot-data` requests are reduced enough to always use origin, we can add headers to avoid hitting CloudFlare
+    private function fetchBootData($siteCode) 
+    {
         $protocol = ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off') || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
         $page_url = $protocol . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
         $remote = self::defaultServerUrl . '/d/page-boot-data?site=' . $siteCode . '&url=' . rawurlencode($page_url);
-        $headers = array( 'referer' => home_url() );
-        $response = wp_remote_get( $remote , array( 'timeout' => 3, 'headers' => $headers ) );
-
-        if ( is_array($response) ) {
-          $response_text = wp_remote_retrieve_body( $response );
-          
-          if (!empty($response_text)) {
-            $boot_data = json_decode($response_text);
-
-            echo "<script>";
-            echo "window.\$slickBoot = window.\$slickBoot || {};";
-            echo "window.\$slickBoot.d = " . $response_text . ";";
-            echo "window.\$slickBoot.s = 'plugin';";
-            echo "window.\$slickBoot._bd = performance.now();";
-            echo "</script>";
-
-            $filmstrip_config = isset($boot_data->filmstrip) ? $boot_data->filmstrip : '';
-            $dcm_config = isset($boot_data->inlineSearch) ? $boot_data->inlineSearch : '';
-            if ( !empty($filmstrip_config) || !empty($dcm_config) ) {
-              $filmstrip_str = empty($filmstrip_config) ? '' :  json_encode($filmstrip_config);
-              $dcm_str = empty($dcm_config) ? '' :  json_encode($dcm_config);
-              echo "<script>\n";
-              echo "/* Slickstream CLS Insertion */\n";
-              echo '"use strict";(async(e,t)=>{const n=e?JSON.parse(e):null;const r=t?JSON.parse(t):null;if(n||r){const e=async()=>{if(document.body){if(n){o(n.selector,n.position||"after selector","slick-film-strip",n.minHeight||72)}if(r){r.forEach((e=>{if(e.selector){o(e.selector,e.position||"after selector","slick-inline-search-panel",e.minHeight||350,e.id)}}))}return}window.requestAnimationFrame(e)};window.requestAnimationFrame(e)}const c=async(e,t)=>{const n=Date.now();while(true){const r=document.querySelector(e);if(r){return r}const c=Date.now();if(c-n>=t){throw new Error("Timeout")}await i(200)}};const i=async e=>new Promise((t=>{setTimeout(t,e)}));const o=async(e,t,n,r,i)=>{try{const o=await c(e,5e3);const s=i?document.querySelector(`.${n}[data-config="${i}"]`):document.querySelector(`.${n}`);if(o&&!s){const e=document.createElement("div");e.style.minHeight=r+"px";e.classList.add(n);if(i){e.dataset.config=i}switch(t){case"after selector":o.insertAdjacentElement("afterend",e);break;case"before selector":o.insertAdjacentElement("beforebegin",e);break;case"first child of selector":o.insertAdjacentElement("afterbegin",e);break;case"last child of selector":o.insertAdjacentElement("beforeend",e);break}return e}}catch(t){console.log("plugin","error",`Failed to inject ${n} for selector ${e}`)}return false}})' . "\n";
-              echo "('" . addslashes($filmstrip_str) . "','" . addslashes($dcm_str) . "');" . "\n";
-              echo "</script>\n";
-            }
-          }
+        $headers = array('referer' => home_url());
+        $response = wp_remote_get($remote , array('timeout' => 2, 'headers' => $headers));
+        
+        if (is_array($response)) {
+            $response_text = wp_remote_retrieve_body($response);
+            return json_decode($response_text);
+        } else {
+            return null;
         }
-      }
     }
 
+    private function echoSlickBootJs($boot_data_obj) {
+        $boot_data_json = json_encode($boot_data_obj);
+
+        if (false === $boot_data_json) {
+            $this->echoSlickstreamComment('Error encoding boot data JSON');
+            return;
+        }
+
+        $this->echoSlickstreamComment('Page Boot Data:');
+
+        echo <<<JSBLOCK
+        <script>
+        window.\$slickBoot = window.\$slickBoot || {};
+        window.\$slickBoot.d = ${boot_data_json};
+        window.\$slickBoot.s = 'plugin';
+        window.\$slickBoot._bd = performance.now();
+        </script>\n
+        JSBLOCK;
+
+        $this->echoSlickstreamComment('END Page Boot Data');
+    }
+
+    private function echoClsData($boot_data_obj)
+    {
+        $filmstrip_config = isset($boot_data_obj->filmstrip) ? $boot_data_obj->filmstrip : '';
+        $dcm_config = isset($boot_data_obj->inlineSearch) ? $boot_data_obj->inlineSearch : '';
+
+        if (!empty($filmstrip_config) || !empty($dcm_config)) {
+            $filmstrip_str = empty($filmstrip_config) ? '' :  json_encode($filmstrip_config);
+            $dcm_str = empty($dcm_config) ? '' :  json_encode($dcm_config);
+
+            $this->echoSlickstreamComment('CLS Insertion:');
+
+            echo "<script>\n";
+            echo '"use strict";(async(e,t)=>{const n=e?JSON.parse(e):null;const r=t?JSON.parse(t):null;if(n||r){const e=async()=>{if(document.body){if(n){s(n.selector,n.position||"after selector","slick-film-strip",n.minHeight||72,"10px auto")}if(r){r.forEach((e=>{if(e.selector){s(e.selector,e.position||"after selector","slick-inline-search-panel",e.minHeight||350,"50px 15px",e.id)}}))}return}window.requestAnimationFrame(e)};window.requestAnimationFrame(e)}const i=async(e,t)=>{const n=Date.now();while(true){const r=document.querySelector(e);if(r){return r}const i=Date.now();if(i-n>=t){throw new Error("Timeout")}await o(200)}};const o=async e=>new Promise((t=>{setTimeout(t,e)}));const s=async(e,t,n,r,o,s)=>{try{const c=await i(e,5e3);const a=s?document.querySelector(`.${n}[data-config="${s}"]`):document.querySelector(`.${n}`);if(c&&!a){const e=document.createElement("div");e.style.minHeight=r+"px";e.style.margin=o;e.classList.add(n);if(s){e.dataset.config=s}switch(t){case"after selector":c.insertAdjacentElement("afterend",e);break;case"before selector":c.insertAdjacentElement("beforebegin",e);break;case"first child of selector":c.insertAdjacentElement("afterbegin",e);break;case"last child of selector":c.insertAdjacentElement("beforeend",e);break}return e}}catch(t){console.log("plugin","error",`Failed to inject ${n} for selector ${e}`)}return false}})' . "\n";
+            echo "('" . addslashes($filmstrip_str) . "','" . addslashes($dcm_str) . "');" . "\n";
+            echo "\n</script>\n";
+
+            $this->echoSlickstreamComment('END CLS Insertion');
+        }
+    }
+
+    //Returns a name for the "page boot data" transient 
+    private function getTransientName()
+    {
+        DEFINE('PAGE_BOOT_DATA_TRANSIENT_PREFIX', 'slick_page_boot_');
+        $normalized_url = $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+        return PAGE_BOOT_DATA_TRANSIENT_PREFIX . md5($normalized_url);
+    }
+
+    private function echoSlickstreamComment($comment)
+    {
+        echo "<!-- [Slickstream] " . $comment . " -->\n";
+    }
+
+    private function getCurrentTimestampByTimeZone($tz_name)
+    {
+        $timestamp = time();
+        $dt = new DateTime('now', new DateTimeZone($tz_name));
+        $dt->setTimestamp($timestamp);
+        return $dt->format('Y-m-d H:i:s');
+    }
+
+    // Delete transient boot data if `&delete-boot=1` is passed in
+    private function handleDeleteBootData()
+    {
+        $delete_transient_param = $this->getQueryParamByName('delete-boot');
+        $delete_transient_data = ($delete_transient_param === '1');
+
+        if (!$delete_transient_data) {
+            return;
+        }
+
+        $this->echoSlickstreamComment("Deleting page boot data from cache");
+        $comment = (false === delete_transient($this->getTransientName())) ? 
+            "Nothing to do--page not found in cache" :
+            "Page boot data deleted successfully";
+        $this->echoSlickstreamComment($comment);
+    }
+
+    private function getQueryParamByName($param_name)
+    {
+        $param_val = isset($_GET[$param_name]) ? $_GET[$param_name] : null;
+        return $param_val;
+    }
+
+    private function echoPageBootData() 
+    {
+        $siteCode = substr(trim($this->getOption('SiteCode')), 0, 9);
+
+        if (!$siteCode) {
+            $this->echoSlickstreamComment("ERROR: Site Code missing from Plugin Settings; Slickstream services are disabled");
+            return;
+        }
+
+        global $wp;
+        
+        $transient_name = $this->getTransientName(); //Name for WP Transient Cache API Key
+
+        // If `delete-boot=1` is passed as a query param, delete the stored page boot data
+        $this->handleDeleteBootData();
+
+        $no_transient_data = false === ($boot_data_obj = get_transient($transient_name)); //get_transient returns `false` if the key doesn't exist
+
+        // If `slick-boot=1` is passed as a query param, force a re-fetch of the boot data from the server
+        // If `slick-boot=0` is passed as a query param, skip fetching boot data from the server
+        $slick_boot_param = $this->getQueryParamByName('slick-boot');
+        $force_fetch_boot_data = ($slick_boot_param === '1');
+        $dont_load_boot_data = ($slick_boot_param === '0');
+        $slick_boot_param_not_set = ($slick_boot_param === null);
+    
+        // Check for existing data in transient cache. If none, then fetch data from server.
+        //TODO: store cache hits and cache misses in a transient or option?
+        if ($force_fetch_boot_data || ($no_transient_data && $slick_boot_param_not_set)) {
+            $this->echoSlickstreamComment("Fetching page boot data from server");
+            $boot_data_obj = $this->fetchBootData($siteCode);
+
+            // Put the results in transient storage; expire after 15 minutes
+            if ($boot_data_obj) {
+                set_transient($transient_name, $boot_data_obj, 15 * MINUTE_IN_SECONDS);
+                $this->echoSlickstreamComment("Storing page boot data in transient cache");
+            } else {
+                $this->echoSlickstreamComment("Error Fetching page boot data from server");
+                return;
+            }
+        } else if ($dont_load_boot_data) {
+            $this->echoSlickstreamComment("Skipping page boot data and CLS output");
+            return;
+        } else {
+            $this->echoSlickstreamComment("Using cached page boot data");
+        }
+
+        $this->echoSlickBootJs($boot_data_obj);
+        $this->echoClsData($boot_data_obj);
+    }
+
+    //Plugin-based A/B Testing JS Logic
+    private function getAbTestJs()
+    {
+        
+        $jsBlock = <<<JSBLOCK
+        window.slickAbTestResult = function(percentEnabled, recalculate = false, testName = 'embed') {
+        const win = window;
+        const storage = win.localStorage;
+        const targetPercentEnabled = parseInt(percentEnabled);
+        
+        if (isNaN(targetPercentEnabled)) {
+            return new Error("Invalid enabled percentage");
+        }
+
+        let enableSlickFeature;
+        const abTestStorageKey = `slickab-\${testName}-\${targetPercentEnabled}`;
+        const storedOnOffVal = storage.getItem(abTestStorageKey);
+        
+        const percentKey = `slickAbTestPercent-\${testName}`;
+        const storedPercentVal = parseInt(storage.getItem(percentKey));
+        
+        if (recalculate === true || !storedOnOffVal || storedPercentVal !== targetPercentEnabled) {
+            enableSlickFeature = (Math.random() * 100) <= targetPercentEnabled;
+            storage.setItem(abTestStorageKey, enableSlickFeature);
+            storage.setItem(percentKey, targetPercentEnabled);
+        } else {
+            enableSlickFeature = storage.getItem(abTestStorageKey) === 'true';
+        }
+
+        const abGroupVal = `slk\${testName}\${targetPercentEnabled}`;
+        const featureOnOff = enableSlickFeature ? "on" : "off";
+        win.adthrive = win.adthrive || {};
+        win.adthrive.cmd = win.adthrive.cmd || [];
+        win.adthrive.cmd.push(() => { win.adthrive.config.abGroup.set(abGroupVal, featureOnOff); });
+
+        return enableSlickFeature;
+        };
+        JSBLOCK;
+        
+        return $jsBlock;
+    }
+
+    //TODO: Clean this up / migrate to SR functions
     public function addSlickPageHeader()
     {
         global $post;
 
-        $this->getPageBootData();
+        $this->echoSlickstreamComment("Page Generated at " . $this->getCurrentTimeStampByTimeZone('America/New_York') . " EST");
+        $this->echoPageBootData();
 
-        echo "\n";
-        echo '<meta property="slick:wpversion" content="1.3.1" />' . "\n";
-        $siteCode = trim($this->getOption('SiteCode'));
+        echo "\n" . '<meta property="slick:wpversion" content="' . PLUGIN_VERSION . '" />' . "\n";
+        $siteCode = substr(trim($this->getOption('SiteCode')), 0, 9);
 
         if ($siteCode) {
             $adThriveAbTest = false;
             $serverUrl = trim($this->getOption('SlickServerUrl', self::defaultServerUrl));
+            //NOTE: for WP Plugin-based A/B Tests, the SlickServerUrl option is overloaded, hence the weird usage here
             if (substr($serverUrl, 0, 11) === 'adthrive-ab') {
                 $pieces = explode(" ", $serverUrl);
                 $serverUrl = self::defaultServerUrl;
@@ -353,74 +480,35 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
                 $enabledPercent = (count($pieces) > 1) ? intval($pieces[1]) : 100;
             }
 
-            $jsBlock = <<<JSBLOCK
-            window.slickAbTestResult = function(percentEnabled, recalculate = false, testName = 'embed') {
-                const win = window;
-                const storage = win.localStorage;
-                const targetPercentEnabled = parseInt(percentEnabled);
-                
-                if (isNaN(targetPercentEnabled)) {
-                    return new Error("Invalid enabled percentage");
-                }
+            $jsBlock = $this->getAbTestJs();
 
-                let enableSlickFeature;
-                const abTestStorageKey = `slickab-\${testName}-\${targetPercentEnabled}`;
-                const storedOnOffVal = storage.getItem(abTestStorageKey);
-                
-                const percentKey = `slickAbTestPercent-\${testName}`;
-                const storedPercentVal = parseInt(storage.getItem(percentKey));
-                
-                if (recalculate === true || !storedOnOffVal || storedPercentVal !== targetPercentEnabled) {
-                    enableSlickFeature = (Math.random() * 100) <= targetPercentEnabled;
-                    storage.setItem(abTestStorageKey, enableSlickFeature);
-                    storage.setItem(percentKey, targetPercentEnabled);
-                } else {
-                    enableSlickFeature = storage.getItem(abTestStorageKey) === 'true';
-                }
-
-                const abGroupVal = `slk\${testName}\${targetPercentEnabled}`;
-                const featureOnOff = enableSlickFeature ? "on" : "off";
-                win.adthrive = win.adthrive || {};
-                win.adthrive.cmd = win.adthrive.cmd || [];
-                win.adthrive.cmd.push(() => { win.adthrive.config.abGroup.set(abGroupVal, featureOnOff); });
-
-                return enableSlickFeature;
-            };
-            JSBLOCK;
-
+            $this->echoSlickstreamComment("Bootloader:");
             echo "<script>\n";
             echo "'use strict';\n";
             if ($adThriveAbTest) {
                 echo $jsBlock;
                 echo "if (window.slickAbTestResult(" . $enabledPercent . ")) {\n";
             }
-            echo "/* Slickstream Engagement Suite Embedder */\n";
-            echo '"use strict";(async(e,t)=>{if(location.search.indexOf("no-slick")>=0){return}let o;const c=()=>performance.now();let a=window.$slickBoot=window.$slickBoot||{};a.rt=e;a._es=c();a.ev="2.0.1";a.l=async(e,t)=>{try{let a=0;if(!o&&"caches"in self){o=await caches.open("slickstream-code")}if(o){let i=await o.match(e);if(!i){a=c();await o.add(e);i=await o.match(e);if(i&&!i.ok){i=undefined;o.delete(e)}}if(i){const e=i.headers.get("x-slickstream-consent");return{t:a,d:t?await i.blob():await i.json(),c:e||"na"}}}}catch(e){console.log(e)}return{}};const i=e=>new Request(e,{cache:"no-store"});if(!a.d){const o=i(`${e}/d/page-boot-data?site=${t}&url=${encodeURIComponent(location.href.split("#")[0])}`);let{t:n,d:s,c:l}=await a.l(o);if(s){if(s.bestBy<Date.now()){s=undefined}else if(n){a._bd=n;a.c=l}}if(!s){a._bd=c();const e=await fetch(o);const t=e.headers.get("x-slickstream-consent");a.c=t||"na";s=await e.json()}if(s){a.d=s;a.s="embed"}}if(a.d){let e=a.d.bootUrl;const{t:t,d:o}=await a.l(i(e),true);if(o){a.bo=e=URL.createObjectURL(o);if(t){a._bf=t}}else{a._bf=c()}const n=document.createElement("script");n.src=e;document.head.appendChild(n)}else{console.log("[Slick] Boot failed")}})' . "\n";
+            echo '"use strict";(async(e,t)=>{if(location.search.indexOf("no-slick")>=0){return}let o;const c=()=>performance.now();let a=window.$slickBoot=window.$slickBoot||{};a.rt=e;a._es=c();a.ev="2.0.1";a.l=async(e,t)=>{try{let a=0;if(!o&&"caches"in self){o=await caches.open("slickstream-code")}if(o){let n=await o.match(e);if(!n){a=c();await o.add(e);n=await o.match(e);if(n&&!n.ok){n=undefined;o.delete(e)}}if(n){const e=n.headers.get("x-slickstream-consent");return{t:a,d:t?await n.blob():await n.json(),c:e||"na"}}}}catch(e){console.log(e)}return{}};const n=e=>new Request(e,{cache:"no-store"});if(!a.d||a.d.bestBy<Date.now()){const o=n(`${e}/d/page-boot-data?site=${t}&url=${encodeURIComponent(location.href.split("#")[0])}`);let{t:s,d:i,c:d}=await a.l(o);if(i){if(i.bestBy<Date.now()){i=undefined}else if(s){a._bd=s;a.c=d}}if(!i){a._bd=c();const e=await fetch(o);const t=e.headers.get("x-slickstream-consent");a.c=t||"na";i=await e.json()}if(i){a.d=i;a.s="embed"}}if(a.d){let e=a.d.bootUrl;const{t:t,d:o}=await a.l(n(e),true);if(o){a.bo=e=URL.createObjectURL(o);if(t){a._bf=t}}else{a._bf=c()}const s=document.createElement("script");s.src=e;document.head.appendChild(s)}else{console.log("[Slick] Boot failed")}})' . "\n";
             echo '("' . $serverUrl . '","' . $siteCode . '");' . "\n";
             if ($adThriveAbTest) {
                 echo "}\n";
             }
             echo "</script>\n";
+            $this->echoSlickstreamComment("END Bootloader");
         }
 
+        $this->echoSlickstreamComment("Page Metadata:");
+        
+        //TODO: Move this out into SR functions and cache the output
         $ldJsonElements = array();
 
         $ldJsonPlugin = (object) [
             '@type' => 'Plugin',
-            'version' => '1.3.1',
+            'version' => PLUGIN_VERSION,
         ];
         
         array_push($ldJsonElements, $ldJsonPlugin);
-
-        // $currentUser = wp_get_current_user();
-        // if (!empty($currentUser->user_email)) {
-        //     echo '<meta property="slick:wpuser" content="' . $currentUser->user_email . '" />' . "\n";
-        //     $ldJsonUser = (object) [
-        //         '@type' => 'User',
-        //         'email' => $currentUser->user_email,
-        //     ];
-        //     array_push($ldJsonElements, $ldJsonUser);
-        // }
 
         $ldJsonSite = (object) [
             '@type' => 'Site',
@@ -632,5 +720,6 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
             '@graph' => $ldJsonElements,
         ];
         echo '<script type="application/x-slickstream+json">' . json_encode($ldJson, JSON_UNESCAPED_SLASHES) . '</script>' . "\n";
+        $this->echoSlickstreamComment("END Page Metadata");
     }
 }

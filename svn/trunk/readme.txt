@@ -3,11 +3,11 @@ Contributors: kduffie
 Donate link:  https://slickstream.com
 Tags: search,recommendations,favorites,navigation,engagement,better search,advanced search,category search,relevant search,carousel,bookmarks,stories
 License: GPLv2 or later
-License URI: http://www.gnu.org/licenses/gpl-2.0.html
+License URI: http://www.gnu.org/licenses/gpl-3.0.html
 Requires at least: 5.0
 Requires PHP: 5.6
 Tested up to: 6.1.1
-Stable tag: 1.3.1
+Stable tag: 1.4.0
 
 Use Slickstream to upgrade your site search.  Get beautiful as-you-type search, relevant content recommendations, user favorites and more!
 
@@ -245,3 +245,7 @@ You can find more information about Slickstream here on Slickstream.com.
 
 = 1.3.1
 - Security enhancements
+
+= 1.4.0
+- Performance improvements
+- CLS improvements

@@ -1,14 +1,14 @@
 <?php
 /*
-    Plugin Name: Slickstream Search and Engagement
-    Plugin URI: https://slickstream.com/getting-started
-    Author: Slickstream
-    Author URI: https://slickstream.com
-    Description: Use Slickstreams's cloud service and widgets to increase visitor engagement
-    Text Domain: slick-engagement
-    License: GPLv3 or later
+Plugin Name: Slickstream Search and Engagement
+Plugin URI: https://slickstream.com/getting-started
+Version: 1.4.0
+Author: Slickstream
+Author URI: https://slickstream.com
+Description: Use Slickstreams's cloud service and widgets to increase visitor engagement
+Text Domain: slick-engagement
+License: GPLv3 or later
 */
-
 
 $SlickEngagement_minimalRequiredPhpVersion = '5.0';
 
