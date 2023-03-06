@@ -247,4 +247,5 @@ You can find more information about Slickstream here on Slickstream.com.
 - Security enhancements
 
 = 1.4.0
-- Speed enhancements
+- Performance improvements
+- CLS improvements
