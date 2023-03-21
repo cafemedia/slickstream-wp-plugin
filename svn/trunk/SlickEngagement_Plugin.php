@@ -7,7 +7,8 @@ define('PLUGIN_VERSION', '1.4.1');
 
 class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
 {
-  const defaultServerUrl = 'https://app.slickstream.com';
+    private $consoleOutput = "";
+    const defaultServerUrl = 'https://app.slickstream.com';
     /**
      * @return array of option meta data.
      */
@@ -41,29 +42,14 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
         return 'slick-engagement.php';
     }
 
-/**
- * Called by install() to create any database tables if needed.
- * Best Practice:
- * (1) Prefix all table names with $wpdb->prefix
- * (2) make table names lower case only
- * @return void
- */
     protected function installDatabaseTables()
     {
     }
 
-/**
- * Drop plugin-created tables on uninstall.
- * @return void
- */
     protected function unInstallDatabaseTables()
     {
     }
 
-/**
- * Perform actions when upgrading from version X to version Y
- * @return void
- */
     public function upgrade()
     {
     }
@@ -288,7 +274,7 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
             return;
         }
 
-        $this->echoSlickstreamComment('Page Boot Data:');
+        $this->echoSlickstreamComment('Page Boot Data:', false);
 
         echo <<<JSBLOCK
         <script>
@@ -299,7 +285,7 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
         </script>\n
         JSBLOCK;
 
-        $this->echoSlickstreamComment('END Page Boot Data');
+        $this->echoSlickstreamComment('END Page Boot Data', false);
     }
 
     private function echoClsData($boot_data_obj)
@@ -323,14 +309,14 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
             $filmstrip_str = empty($filmstrip_config) ? '' :  json_encode($filmstrip_config);
             $dcm_str = empty($dcm_config) ? '' :  json_encode($dcm_config);
 
-            $this->echoSlickstreamComment('CLS Insertion:');
+            $this->echoSlickstreamComment('CLS Insertion:', false);
 
             echo "<script>\n";
             echo '"use strict";(async(e,t)=>{const n=e?JSON.parse(e):null;const r=t?JSON.parse(t):null;if(n||r){const e=async()=>{if(document.body){if(n){o(n.selector,n.position||"after selector","slick-film-strip",n.minHeight||72,n.margin||n.marginLegacy||"10px auto")}if(r){r.forEach((e=>{if(e.selector){o(e.selector,e.position||"after selector","slick-inline-search-panel",e.minHeight||350,e.margin||e.marginLegacy||"50px 15px",e.id)}}))}return}window.requestAnimationFrame(e)};window.requestAnimationFrame(e)}const i=async(e,t)=>{const n=Date.now();while(true){const r=document.querySelector(e);if(r){return r}const i=Date.now();if(i-n>=t){throw new Error("Timeout")}await c(200)}};const c=async e=>new Promise((t=>{setTimeout(t,e)}));const o=async(e,t,n,r,c,o)=>{try{const s=await i(e,5e3);const a=o?document.querySelector(`.${n}[data-config="${o}"]`):document.querySelector(`.${n}`);if(s&&!a){const e=document.createElement("div");e.style.minHeight=r+"px";e.style.margin=c;e.classList.add(n);if(o){e.dataset.config=o}switch(t){case"after selector":s.insertAdjacentElement("afterend",e);break;case"before selector":s.insertAdjacentElement("beforebegin",e);break;case"first child of selector":s.insertAdjacentElement("afterbegin",e);break;case"last child of selector":s.insertAdjacentElement("beforeend",e);break}return e}}catch(t){console.log("plugin","error",`Failed to inject ${n} for selector ${e}`)}return false}})' . "\n";
             echo "('" . addslashes($filmstrip_str) . "','" . addslashes($dcm_str) . "');" . "\n";
             echo "\n</script>\n";
 
-            $this->echoSlickstreamComment('END CLS Insertion');
+            $this->echoSlickstreamComment('END CLS Insertion', false);
         }
     }
 
@@ -342,17 +328,30 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
         return PAGE_BOOT_DATA_TRANSIENT_PREFIX . md5($normalized_url);
     }
 
-    private function echoSlickstreamComment($comment)
+    private function echoSlickstreamComment($comment, $echoToConsole = true)
     {
         echo "<!-- [Slickstream] " . $comment . " -->\n";
+
+        if ($echoToConsole) {
+            $this->consoleOutput .= $comment . "\n";
+        }
     }
 
+    private function echoConsoleOutput()
+    {
+        if ($this->consoleOutput !== "") 
+        {
+            echo "<script>console.info(`[SLICKSTREAM]\n" . $this->consoleOutput . "`)</script>\n";
+        }
+    }
+
+    //TODO: Add functionality to detect if the page was cached (by a CDN or otherwise)
     private function getCurrentTimestampByTimeZone($tz_name)
     {
         $timestamp = time();
         $dt = new DateTime('now', new DateTimeZone($tz_name));
         $dt->setTimestamp($timestamp);
-        return $dt->format('Y-m-d H:i:s');
+        return $dt->format('n/j/Y, g:i:s A');
     }
 
     // Delete transient boot data if `&delete-boot=1` is passed in
@@ -474,8 +473,9 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
     public function addSlickPageHeader()
     {
         global $post;
-
-        $this->echoSlickstreamComment("Page Generated at " . $this->getCurrentTimeStampByTimeZone('America/New_York') . " EST");
+        echo "\n";
+        $this->echoSlickstreamComment("Page Generated at: " . $this->getCurrentTimeStampByTimeZone('Europe/London') . " GMT");
+        $this->consoleOutput .= "Current timestamp: \${(new Date).toLocaleString('en-US', { timeZone: 'GMT' })} GMT\n\n";
         $this->echoPageBootData();
 
         echo "\n" . '<meta property="slick:wpversion" content="' . PLUGIN_VERSION . '" />' . "\n";
@@ -494,7 +494,7 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
 
             $jsBlock = $this->getAbTestJs();
 
-            $this->echoSlickstreamComment("Bootloader:");
+            $this->echoSlickstreamComment("Bootloader:", false);
             echo "<script>\n";
             echo "'use strict';\n";
             if ($adThriveAbTest) {
@@ -507,10 +507,10 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
                 echo "}\n";
             }
             echo "</script>\n";
-            $this->echoSlickstreamComment("END Bootloader");
+            $this->echoSlickstreamComment("END Bootloader", false);
         }
 
-        $this->echoSlickstreamComment("Page Metadata:");
+        $this->echoSlickstreamComment("Page Metadata:", false);
         
         //TODO: Move this out into SR functions and cache the output
         $ldJsonElements = array();
@@ -732,6 +732,7 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
             '@graph' => $ldJsonElements,
         ];
         echo '<script type="application/x-slickstream+json">' . json_encode($ldJson, JSON_UNESCAPED_SLASHES) . '</script>' . "\n";
-        $this->echoSlickstreamComment("END Page Metadata");
+        $this->echoSlickstreamComment("END Page Metadata", false);
+        $this->echoConsoleOutput();
     }
 }
