@@ -307,6 +307,18 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
         $filmstrip_config = isset($boot_data_obj->filmstrip) ? $boot_data_obj->filmstrip : '';
         $dcm_config = isset($boot_data_obj->inlineSearch) ? $boot_data_obj->inlineSearch : '';
 
+        // from 1.2.5 settings
+        $filmstrip_margin = $this->getOption('ReserveFilmstripMargin', '');
+        $dcm_margin = $this->getOption('ReserveDCMMargin', '');
+        if (!empty($filmstrip_config) && !empty($filmstrip_margin)) {
+            $filmstrip_config->marginLegacy = $filmstrip_margin;
+        }
+        if (!empty($dcm_config) && !empty($dcm_margin)) {
+            foreach ($dcm_config as $config) {
+              $config->marginLegacy = $dcm_margin;
+            }
+        }
+
         if (!empty($filmstrip_config) || !empty($dcm_config)) {
             $filmstrip_str = empty($filmstrip_config) ? '' :  json_encode($filmstrip_config);
             $dcm_str = empty($dcm_config) ? '' :  json_encode($dcm_config);
@@ -314,7 +326,7 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
             $this->echoSlickstreamComment('CLS Insertion:');
 
             echo "<script>\n";
-            echo '"use strict";(async(e,t)=>{const n=e?JSON.parse(e):null;const r=t?JSON.parse(t):null;if(n||r){const e=async()=>{if(document.body){if(n){s(n.selector,n.position||"after selector","slick-film-strip",n.minHeight||72,"10px auto")}if(r){r.forEach((e=>{if(e.selector){s(e.selector,e.position||"after selector","slick-inline-search-panel",e.minHeight||350,"50px 15px",e.id)}}))}return}window.requestAnimationFrame(e)};window.requestAnimationFrame(e)}const i=async(e,t)=>{const n=Date.now();while(true){const r=document.querySelector(e);if(r){return r}const i=Date.now();if(i-n>=t){throw new Error("Timeout")}await o(200)}};const o=async e=>new Promise((t=>{setTimeout(t,e)}));const s=async(e,t,n,r,o,s)=>{try{const c=await i(e,5e3);const a=s?document.querySelector(`.${n}[data-config="${s}"]`):document.querySelector(`.${n}`);if(c&&!a){const e=document.createElement("div");e.style.minHeight=r+"px";e.style.margin=o;e.classList.add(n);if(s){e.dataset.config=s}switch(t){case"after selector":c.insertAdjacentElement("afterend",e);break;case"before selector":c.insertAdjacentElement("beforebegin",e);break;case"first child of selector":c.insertAdjacentElement("afterbegin",e);break;case"last child of selector":c.insertAdjacentElement("beforeend",e);break}return e}}catch(t){console.log("plugin","error",`Failed to inject ${n} for selector ${e}`)}return false}})' . "\n";
+            echo '"use strict";(async(e,t)=>{const n=e?JSON.parse(e):null;const r=t?JSON.parse(t):null;if(n||r){const e=async()=>{if(document.body){if(n){o(n.selector,n.position||"after selector","slick-film-strip",n.minHeight||72,n.margin||n.marginLegacy||"10px auto")}if(r){r.forEach((e=>{if(e.selector){o(e.selector,e.position||"after selector","slick-inline-search-panel",e.minHeight||350,e.margin||e.marginLegacy||"50px 15px",e.id)}}))}return}window.requestAnimationFrame(e)};window.requestAnimationFrame(e)}const i=async(e,t)=>{const n=Date.now();while(true){const r=document.querySelector(e);if(r){return r}const i=Date.now();if(i-n>=t){throw new Error("Timeout")}await c(200)}};const c=async e=>new Promise((t=>{setTimeout(t,e)}));const o=async(e,t,n,r,c,o)=>{try{const s=await i(e,5e3);const a=o?document.querySelector(`.${n}[data-config="${o}"]`):document.querySelector(`.${n}`);if(s&&!a){const e=document.createElement("div");e.style.minHeight=r+"px";e.style.margin=c;e.classList.add(n);if(o){e.dataset.config=o}switch(t){case"after selector":s.insertAdjacentElement("afterend",e);break;case"before selector":s.insertAdjacentElement("beforebegin",e);break;case"first child of selector":s.insertAdjacentElement("afterbegin",e);break;case"last child of selector":s.insertAdjacentElement("beforeend",e);break}return e}}catch(t){console.log("plugin","error",`Failed to inject ${n} for selector ${e}`)}return false}})' . "\n";
             echo "('" . addslashes($filmstrip_str) . "','" . addslashes($dcm_str) . "');" . "\n";
             echo "\n</script>\n";
 
