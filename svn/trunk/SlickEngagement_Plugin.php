@@ -3,7 +3,7 @@
 include_once 'SlickEngagement_LifeCycle.php';
 include_once 'SlickEngagement_Widgets.php';
 
-define('PLUGIN_VERSION', '1.4.0');
+define('PLUGIN_VERSION', '1.4.1');
 
 class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
 {
