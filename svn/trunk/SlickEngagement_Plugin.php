@@ -311,10 +311,10 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
 
     private function echoClsData($boot_data_obj)
     {
-        $boot_data = $this->getBootDataForDevice($boot_data_obj);
+        $device_boot_data = $this->getBootDataForDevice($boot_data_obj);
 
-        $filmstrip_config = isset($boot_data->filmstrip) ? $boot_data->filmstrip : '';
-        $dcm_config = isset($boot_data->inlineSearch) ? $boot_data->inlineSearch : '';
+        $filmstrip_config = isset($device_boot_data->filmstrip) ? $device_boot_data->filmstrip : '';
+        $dcm_config = isset($device_boot_data->inlineSearch) ? $device_boot_data->inlineSearch : '';
 
         // from 1.2.5 settings
         $filmstrip_margin = $this->getOption('ReserveFilmstripMargin', '');
