@@ -254,7 +254,8 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
     {
         $protocol = ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off') || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
         $page_url = $protocol . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
-        $remote = self::defaultServerUrl . '/d/page-boot-data?site=' . $siteCode . '&url=' . rawurlencode($page_url);
+        // $remote = self::defaultServerUrl . '/d/page-boot-data?site=' . $siteCode . '&url=' . rawurlencode($page_url);
+        $remote = 'https://app-staging.slickstream.com/d/page-boot-data?site=V7W3V4H2&url=' . rawurlencode($page_url);
         $headers = array('referer' => home_url());
         $response = wp_remote_get($remote , array('timeout' => 2, 'headers' => $headers));
         
@@ -288,10 +289,33 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
         $this->echoSlickstreamComment('END Page Boot Data', false);
     }
 
+    private function isMobile() {
+        $user_agent = $_SERVER['HTTP_USER_AGENT'];
+        if (isset($user_agent)) {
+          $excluded = preg_match('/Tablet|iPad|Playbook|Nook|webOS|Kindle|Android (?!.*Mobile).*Safari/i', $user_agent);
+          $mobile = preg_match('/Mobi|iP(hone|od)|Opera Mini/i', $user_agent);
+          return $mobile && !$excluded;
+        }
+        return false;
+    }
+
+    private function getBootDataForDevice($boot_data_obj) {
+        if (isset($boot_data_obj->v2)) {
+            $boot_data_obj_v2 = $boot_data_obj->v2;
+            if (isset($boot_data_obj_v2->phone) && $this->isMobile()) {
+              return $boot_data_obj_v2->phone;
+            }
+            return $boot_data_obj_v2->desktop;
+        }
+        return $boot_data_obj;
+    }
+
     private function echoClsData($boot_data_obj)
     {
-        $filmstrip_config = isset($boot_data_obj->filmstrip) ? $boot_data_obj->filmstrip : '';
-        $dcm_config = isset($boot_data_obj->inlineSearch) ? $boot_data_obj->inlineSearch : '';
+        $boot_data = $this->getBootDataForDevice($boot_data_obj);
+
+        $filmstrip_config = isset($boot_data->filmstrip) ? $boot_data->filmstrip : '';
+        $dcm_config = isset($boot_data->inlineSearch) ? $boot_data->inlineSearch : '';
 
         // from 1.2.5 settings
         $filmstrip_margin = $this->getOption('ReserveFilmstripMargin', '');
