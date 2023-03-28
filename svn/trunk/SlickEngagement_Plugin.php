@@ -324,7 +324,7 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
     private function getTransientName()
     {
         DEFINE('PAGE_BOOT_DATA_TRANSIENT_PREFIX', 'slick_page_boot_');
-        $normalized_url = $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+        $normalized_url = $_SERVER['HTTP_HOST'] . explode('?', $_SERVER['REQUEST_URI'])[0];
         return PAGE_BOOT_DATA_TRANSIENT_PREFIX . md5($normalized_url);
     }
 
@@ -411,7 +411,7 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
             // Put the results in transient storage; expire after 15 minutes
             if ($boot_data_obj) {
                 set_transient($transient_name, $boot_data_obj, 15 * MINUTE_IN_SECONDS);
-                $this->echoSlickstreamComment("Storing page boot data in transient cache");
+                $this->echoSlickstreamComment("Storing page boot data in transient cache: " . $transient_name);
             } else {
                 $this->echoSlickstreamComment("Error Fetching page boot data from server");
                 return;
@@ -420,7 +420,7 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
             $this->echoSlickstreamComment("Skipping page boot data and CLS output");
             return;
         } else {
-            $this->echoSlickstreamComment("Using cached page boot data");
+            $this->echoSlickstreamComment("Using cached page boot data: " . $transient_name);
         }
 
         $this->echoSlickBootJs($boot_data_obj);
