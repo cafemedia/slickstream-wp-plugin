@@ -288,10 +288,33 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
         $this->echoSlickstreamComment('END Page Boot Data', false);
     }
 
+    private function isMobile() {
+        $user_agent = $_SERVER['HTTP_USER_AGENT'];
+        if (isset($user_agent)) {
+          $excluded = preg_match('/Tablet|iPad|Playbook|Nook|webOS|Kindle|Android (?!.*Mobile).*Safari/i', $user_agent);
+          $mobile = preg_match('/Mobi|iP(hone|od)|Opera Mini/i', $user_agent);
+          return $mobile && !$excluded;
+        }
+        return false;
+    }
+
+    private function getBootDataForDevice($boot_data_obj) {
+        if (isset($boot_data_obj->v2)) {
+            $boot_data_obj_v2 = $boot_data_obj->v2;
+            if (isset($boot_data_obj_v2->phone) && $this->isMobile()) {
+              return $boot_data_obj_v2->phone;
+            }
+            return $boot_data_obj_v2->desktop;
+        }
+        return $boot_data_obj;
+    }
+
     private function echoClsData($boot_data_obj)
     {
-        $filmstrip_config = isset($boot_data_obj->filmstrip) ? $boot_data_obj->filmstrip : '';
-        $dcm_config = isset($boot_data_obj->inlineSearch) ? $boot_data_obj->inlineSearch : '';
+        $device_boot_data = $this->getBootDataForDevice($boot_data_obj);
+
+        $filmstrip_config = isset($device_boot_data->filmstrip) ? $device_boot_data->filmstrip : '';
+        $dcm_config = isset($device_boot_data->inlineSearch) ? $device_boot_data->inlineSearch : '';
 
         // from 1.2.5 settings
         $filmstrip_margin = $this->getOption('ReserveFilmstripMargin', '');
