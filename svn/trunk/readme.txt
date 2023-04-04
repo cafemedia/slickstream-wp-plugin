@@ -251,4 +251,4 @@ You can find more information about Slickstream here on Slickstream.com.
 - CLS improvements
 
 = 1.4.1
-- CLS improvements
+- Added support for custom margins for CLS
