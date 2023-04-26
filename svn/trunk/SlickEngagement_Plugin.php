@@ -278,6 +278,7 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
 
         echo <<<JSBLOCK
         <script>
+        // slickstream page boot data
         window.\$slickBoot = window.\$slickBoot || {};
         window.\$slickBoot.d = ${boot_data_json};
         window.\$slickBoot.s = 'plugin';
@@ -289,8 +290,8 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
     }
 
     private function isMobile() {
-        $user_agent = $_SERVER['HTTP_USER_AGENT'];
-        if (isset($user_agent)) {
+        if (isset($_SERVER['HTTP_USER_AGENT'])) {
+          $user_agent = $_SERVER['HTTP_USER_AGENT'];
           $excluded = preg_match('/Tablet|iPad|Playbook|Nook|webOS|Kindle|Android (?!.*Mobile).*Safari/i', $user_agent);
           $mobile = preg_match('/Mobi|iP(hone|od)|Opera Mini/i', $user_agent);
           return $mobile && !$excluded;
@@ -335,7 +336,7 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
             $this->echoSlickstreamComment('CLS Insertion:', false);
 
             echo "<script>\n";
-            echo '"use strict";(async(e,t)=>{const n=e?JSON.parse(e):null;const r=t?JSON.parse(t):null;if(n||r){const e=async()=>{if(document.body){if(n){o(n.selector,n.position||"after selector","slick-film-strip",n.minHeight||72,n.margin||n.marginLegacy||"10px auto")}if(r){r.forEach((e=>{if(e.selector){o(e.selector,e.position||"after selector","slick-inline-search-panel",e.minHeight||350,e.margin||e.marginLegacy||"50px 15px",e.id)}}))}return}window.requestAnimationFrame(e)};window.requestAnimationFrame(e)}const i=async(e,t)=>{const n=Date.now();while(true){const r=document.querySelector(e);if(r){return r}const i=Date.now();if(i-n>=t){throw new Error("Timeout")}await c(200)}};const c=async e=>new Promise((t=>{setTimeout(t,e)}));const o=async(e,t,n,r,c,o)=>{try{const s=await i(e,5e3);const a=o?document.querySelector(`.${n}[data-config="${o}"]`):document.querySelector(`.${n}`);if(s&&!a){const e=document.createElement("div");e.style.minHeight=r+"px";e.style.margin=c;e.classList.add(n);if(o){e.dataset.config=o}switch(t){case"after selector":s.insertAdjacentElement("afterend",e);break;case"before selector":s.insertAdjacentElement("beforebegin",e);break;case"first child of selector":s.insertAdjacentElement("afterbegin",e);break;case"last child of selector":s.insertAdjacentElement("beforeend",e);break}return e}}catch(t){console.log("plugin","error",`Failed to inject ${n} for selector ${e}`)}return false}})' . "\n";
+            echo '"use strict";(async(e,t)=>{const n="slickstream";const r=e?JSON.parse(e):null;const i=t?JSON.parse(t):null;if(r||i){const e=async()=>{if(document.body){if(r){o(r.selector,r.position||"after selector","slick-film-strip",r.minHeight||72,r.margin||r.marginLegacy||"10px auto")}if(i){i.forEach((e=>{if(e.selector){o(e.selector,e.position||"after selector","slick-inline-search-panel",e.minHeight||350,e.margin||e.marginLegacy||"50px 15px",e.id)}}))}return}window.requestAnimationFrame(e)};window.requestAnimationFrame(e)}const c=async(e,t)=>{const n=Date.now();while(true){const r=document.querySelector(e);if(r){return r}const i=Date.now();if(i-n>=t){throw new Error("Timeout")}await s(200)}};const s=async e=>new Promise((t=>{setTimeout(t,e)}));const o=async(e,t,r,i,s,o)=>{try{const n=await c(e,5e3);const a=o?document.querySelector(`.${r}[data-config="${o}"]`):document.querySelector(`.${r}`);if(n&&!a){const e=document.createElement("div");e.style.minHeight=i+"px";e.style.margin=s;e.classList.add(r);if(o){e.dataset.config=o}switch(t){case"after selector":n.insertAdjacentElement("afterend",e);break;case"before selector":n.insertAdjacentElement("beforebegin",e);break;case"first child of selector":n.insertAdjacentElement("afterbegin",e);break;case"last child of selector":n.insertAdjacentElement("beforeend",e);break}return e}}catch(t){console.log("plugin","error",n,`Failed to inject ${r} for selector ${e}`)}return false}})' . "\n";
             echo "('" . addslashes($filmstrip_str) . "','" . addslashes($dcm_str) . "');" . "\n";
             echo "\n</script>\n";
 
