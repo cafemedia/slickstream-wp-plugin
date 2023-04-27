@@ -7,7 +7,7 @@ License URI: http://www.gnu.org/licenses/gpl-3.0.html
 Requires at least: 5.0
 Requires PHP: 5.6
 Tested up to: 6.1.1
-Stable tag: 1.4.1
+Stable tag: 1.4.2
 
 Use Slickstream to upgrade your site search.  Get beautiful as-you-type search, relevant content recommendations, user favorites and more!
 
@@ -252,3 +252,6 @@ You can find more information about Slickstream here on Slickstream.com.
 
 = 1.4.1
 - Added support for custom margins for CLS
+
+= 1.4.2
+- CLS improvements
