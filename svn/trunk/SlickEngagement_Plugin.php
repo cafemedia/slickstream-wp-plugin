@@ -1,4 +1,6 @@
 <?php
+//NOTE: All inline JS scripts embedded by the plugin need to have the string `slickstream` somewhere in them;
+//  This allows the string `slickstream` to be used in WP-Rocket lazy load exclusions
 
 include_once 'SlickEngagement_LifeCycle.php';
 include_once 'SlickEngagement_Widgets.php';
@@ -8,6 +10,7 @@ define('PLUGIN_VERSION', '1.4.2');
 class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
 {
     private $consoleOutput = "";
+    private $scriptClass = 'slickstream-script';
     const defaultServerUrl = 'https://app.slickstream.com';
     /**
      * @return array of option meta data.
@@ -20,15 +23,20 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
         );
     }
 
+    protected function addOptionsFromArray($options)
+    {
+        foreach ($options as $key => $arr) {
+            if (is_array($arr) && count($arr) > 1) {
+                $this->addOption($key, $arr[1]);
+            }
+        }
+    }
+    
     protected function initOptions()
     {
         $options = $this->getOptionMetaData();
         if (!empty($options)) {
-            foreach ($options as $key => $arr) {
-                if (is_array($arr) && count($arr) > 1) {
-                    $this->addOption($key, $arr[1]);
-                }
-            }
+            $this->addOptionsFromArray($options);
         }
     }
 
@@ -58,7 +66,6 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
     {
         // Add options administration page
         add_action('admin_menu', array(&$this, 'addSettingsSubMenuPage'));
-
 
         // Add Actions & Filters
         add_action('wp_head', array(&$this, 'addSlickPageHeader'));
@@ -90,11 +97,12 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
         add_filter('rocket_delay_js_exclusions', array(&$this, 'np_wp_rocket__exclude_from_delay_js'));
     }
 
-    // Exclude scripts from JS delay.
+    // Exclude scripts from JS delay in WP-Rocket.
     public function np_wp_rocket__exclude_from_delay_js($excluded_strings = array())
     {
         // MUST ESCAPE PERIODS AND PARENTHESES!
         $excluded_strings[] = "slickstream";
+        $excluded_strings[] = "ads\.adthrive\.com";
         return $excluded_strings;
     }
 
@@ -152,7 +160,7 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
         $storyPageRegex = '/^https\:\/\/([^\/]+)\/([^\/]+)\/story\/([^\/]+)$/i';
         $newStyleRegex = '/^([^\/]+)\/([^\/]+)$/i';
         $domain = "stories.slickstream.com";
-        $slickServerUrl = $this->getOption('SlickServerUrl', 'https://app.slickstream.com');
+        $slickServerUrl = $this->getOption('SlickServerUrl', $defaultServerUrl);
         if (preg_match('/\-staging\.slickstream/', $slickServerUrl)) {
             $domain = "stories-staging.slickstream.com";
         }
@@ -270,19 +278,22 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
         $boot_data_json = json_encode($boot_data_obj);
 
         if (false === $boot_data_json) {
-            $this->echoSlickstreamComment('Error encoding boot data JSON');
+            $this->echoSlickstreamComment('Error encoding page boot data JSON');
             return;
         }
 
         $this->echoSlickstreamComment('Page Boot Data:', false);
 
         echo <<<JSBLOCK
-        <script>
-        // slickstream page boot data
-        window.\$slickBoot = window.\$slickBoot || {};
-        window.\$slickBoot.d = ${boot_data_json};
-        window.\$slickBoot.s = 'plugin';
-        window.\$slickBoot._bd = performance.now();
+        <script class='$this->scriptClass'>
+        (function() {
+            "slickstream";
+            const win = window;
+            win.\$slickBoot = win.\$slickBoot || {};
+            win.\$slickBoot.d = ${boot_data_json};
+            win.\$slickBoot.s = 'plugin';
+            win.\$slickBoot._bd = performance.now();
+        })();
         </script>\n
         JSBLOCK;
 
@@ -354,7 +365,7 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
 
     private function echoSlickstreamComment($comment, $echoToConsole = true)
     {
-        echo "<!-- [Slickstream] " . $comment . " -->\n";
+        echo "<!-- [slickstream] " . $comment . " -->\n";
 
         if ($echoToConsole) {
             $this->consoleOutput .= $comment . "\n";
@@ -365,7 +376,7 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
     {
         if ($this->consoleOutput !== "") 
         {
-            echo "<script>console.info(`[SLICKSTREAM]\n" . $this->consoleOutput . "`)</script>\n";
+            echo "<script class='$this->scriptClass'>console.info(`[slickstream]\n$this->consoleOutput`)</script>\n";
         }
     }
 
@@ -493,6 +504,50 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
         return $jsBlock;
     }
 
+    private function get_tax_terms($post, $taxonomy_name) {
+        $taxTerms = array();
+        $terms = get_the_terms($post, $taxonomy_name);
+    
+        if (empty($terms)) {
+            return $taxTerms;
+        }
+    
+        foreach ($terms as $term) {
+            $termObject = (object) [
+                '@id' => $term->term_id,
+                'name' => $term->name,
+                'slug' => $term->slug,
+            ];
+            array_push($taxTerms, $termObject);
+        }
+    
+        return $taxTerms;
+    }
+    
+    private function create_ldJsonTaxElement($taxonomy, $taxTerms) {
+        return (object) [
+            'name' => $taxonomy->name,
+            'label' => $taxonomy->label,
+            'description' => $taxonomy->description,
+            'terms' => $taxTerms,
+        ];
+    }
+
+    private function echoWpRocketDetection()
+    {
+        echo <<<JSBLOCK
+        <script class='$this->scriptClass'>
+        (function() {
+            const slickstreamRocketPluginScripts = document.querySelectorAll('script.slickstream-script[type=rocketlazyloadscript]');
+            const slickstreamRocketExternalScripts = document.querySelectorAll('script[type=rocketlazyloadscript][src*="app.slickstream.com"]');
+            if (slickstreamRocketPluginScripts.length > 0 || slickstreamRocketExternalScripts.length > 0) {
+                console.warn('[slickstream] WARNING: WP-Rocket is deferring one or more Slickstream scripts. This may cause undesirable behavior, such as increased CLS scores.');
+            }
+        })();
+        </script>
+        JSBLOCK;
+    }
+
     //TODO: Clean this up / migrate to SR functions
     public function addSlickPageHeader()
     {
@@ -516,16 +571,14 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
                 $enabledPercent = (count($pieces) > 1) ? intval($pieces[1]) : 100;
             }
 
-            $jsBlock = $this->getAbTestJs();
-
             $this->echoSlickstreamComment("Bootloader:", false);
-            echo "<script>\n";
+            echo "<script class='$this->scriptClass' >\n";
             echo "'use strict';\n";
             if ($adThriveAbTest) {
-                echo $jsBlock;
+                echo $this->getAbTestJs();
                 echo "if (window.slickAbTestResult(" . $enabledPercent . ")) {\n";
             }
-            echo '"use strict";(async(e,t)=>{if(location.search.indexOf("no-slick")>=0){return}let o;const c=()=>performance.now();let a=window.$slickBoot=window.$slickBoot||{};a.rt=e;a._es=c();a.ev="2.0.1";a.l=async(e,t)=>{try{let a=0;if(!o&&"caches"in self){o=await caches.open("slickstream-code")}if(o){let n=await o.match(e);if(!n){a=c();await o.add(e);n=await o.match(e);if(n&&!n.ok){n=undefined;o.delete(e)}}if(n){const e=n.headers.get("x-slickstream-consent");return{t:a,d:t?await n.blob():await n.json(),c:e||"na"}}}}catch(e){console.log(e)}return{}};const n=e=>new Request(e,{cache:"no-store"});if(!a.d||a.d.bestBy<Date.now()){const o=n(`${e}/d/page-boot-data?site=${t}&url=${encodeURIComponent(location.href.split("#")[0])}`);let{t:s,d:i,c:d}=await a.l(o);if(i){if(i.bestBy<Date.now()){i=undefined}else if(s){a._bd=s;a.c=d}}if(!i){a._bd=c();const e=await fetch(o);const t=e.headers.get("x-slickstream-consent");a.c=t||"na";i=await e.json()}if(i){a.d=i;a.s="embed"}}if(a.d){let e=a.d.bootUrl;const{t:t,d:o}=await a.l(n(e),true);if(o){a.bo=e=URL.createObjectURL(o);if(t){a._bf=t}}else{a._bf=c()}const s=document.createElement("script");s.src=e;document.head.appendChild(s)}else{console.log("[Slick] Boot failed")}})' . "\n";
+            echo '"use strict";(async(e,t)=>{if(location.search.indexOf("no-slick")>=0){return}let o;const c=()=>performance.now();let a=window.$slickBoot=window.$slickBoot||{};a.rt=e;a._es=c();a.ev="2.0.1";a.l=async(e,t)=>{try{let a=0;if(!o&&"caches"in self){o=await caches.open("slickstream-code")}if(o){let n=await o.match(e);if(!n){a=c();await o.add(e);n=await o.match(e);if(n&&!n.ok){n=undefined;o.delete(e)}}if(n){const e=n.headers.get("x-slickstream-consent");return{t:a,d:t?await n.blob():await n.json(),c:e||"na"}}}}catch(e){console.log(e)}return{}};const n=e=>new Request(e,{cache:"no-store"});if(!a.d||a.d.bestBy<Date.now()){const o=n(`${e}/d/page-boot-data?site=${t}&url=${encodeURIComponent(location.href.split("#")[0])}`);let{t:s,d:i,c:d}=await a.l(o);if(i){if(i.bestBy<Date.now()){i=undefined}else if(s){a._bd=s;a.c=d}}if(!i){a._bd=c();const e=await fetch(o);const t=e.headers.get("x-slickstream-consent");a.c=t||"na";i=await e.json()}if(i){a.d=i;a.s="embed"}}if(a.d){let e=a.d.bootUrl;const{t:t,d:o}=await a.l(n(e),true);if(o){a.bo=e=URL.createObjectURL(o);if(t){a._bf=t}}else{a._bf=c()}const s=document.createElement("script");s.className="' . $this->scriptClass . '";s.src=e;document.head.appendChild(s)}else{console.log("[slickstream] Boot failed")}})' . "\n";
             echo '("' . $serverUrl . '","' . $siteCode . '");' . "\n";
             if ($adThriveAbTest) {
                 echo "}\n";
@@ -686,23 +739,10 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
                 if (!empty($taxonomies)) {
                     foreach ($taxonomies as $taxonomy) {
                         if (empty($taxonomy->_builtin) && $taxonomy->public) {
-                            $taxTerms = array();
-                            $terms = get_the_terms($post, $taxonomy->name);
-                            if (!empty($terms)) {
-                                foreach ($terms as $term) {
-                                    $termObject = (object) [
-                                        '@id' => $term->term_id,
-                                        'name' => $term->name,
-                                        'slug' => $term->slug,
-                                    ];
-                                    array_push($taxTerms, $termObject);
-                                }
-                                $ldJsonTaxElement = (object) [
-                                    'name' => $taxonomy->name,
-                                    'label' => $taxonomy->label,
-                                    'description' => $taxonomy->description,
-                                    'terms' => $taxTerms,
-                                ];
+                            $taxTerms = $this->get_tax_terms($post, $taxonomy->name);
+                    
+                            if (!empty($taxTerms)) {
+                                $ldJsonTaxElement = $this->create_ldJsonTaxElement($taxonomy, $taxTerms);
                                 array_push($ldJsonTaxonomies, $ldJsonTaxElement);
                             }
                         }
@@ -755,8 +795,9 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
             '@context' => 'https://slickstream.com',
             '@graph' => $ldJsonElements,
         ];
-        echo '<script type="application/x-slickstream+json">' . json_encode($ldJson, JSON_UNESCAPED_SLASHES) . '</script>' . "\n";
+        echo '<script type="application/x-slickstream+json">' . json_encode($ldJson, JSON_UNESCAPED_SLASHES) . "</script>\n";
         $this->echoSlickstreamComment("END Page Metadata", false);
+        $this->echoWpRocketDetection();
         $this->echoConsoleOutput();
     }
 }
