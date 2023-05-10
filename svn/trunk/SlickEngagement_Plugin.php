@@ -102,6 +102,8 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
     {
         // MUST ESCAPE PERIODS AND PARENTHESES!
         $excluded_strings[] = "slickstream";
+        $excluded_strings[] = "Slickstream";
+        $excluded_strings[] = "SLICKSTREAM";
         $excluded_strings[] = "ads\.adthrive\.com";
         return $excluded_strings;
     }
@@ -363,6 +365,12 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
         return PAGE_BOOT_DATA_TRANSIENT_PREFIX . md5($normalized_url);
     }
 
+    private function isDebugModeEnabled()
+    {
+        $debugModeParam = $this->getQueryParamByName('slickdebug');
+        return $debugModeParam === "1";
+    }
+
     private function echoSlickstreamComment($comment, $echoToConsole = true)
     {
         echo "<!-- [slickstream] " . $comment . " -->\n";
@@ -370,6 +378,34 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
         if ($echoToConsole) {
             $this->consoleOutput .= $comment . "\n";
         }
+    }
+
+    private function debugCLS()
+    {
+        echo <<<JSDOC
+        <script class='$this->scriptClass'>
+        (function () {
+        const slickBanner = "[slickstream]";
+        const clsDataCallback = (clsData) => {
+            console.log(`\${slickBanner} The CLS score on this page is: \${clsData.value}, which is considered \${clsData.rating}`);
+            if (clsData.value > 0) {
+                console.log(`\${slickBanner} The element that contributed the most CLS is:`);
+                console.table(clsData.attribution);
+            }
+        };
+
+        console.log(`\${slickBanner} Monitoring for CLS...`);
+        const script = document.createElement('script');
+        script.src = 'https://unpkg.com/web-vitals@3/dist/web-vitals.attribution.iife.js';
+        script.onload = function () {
+            webVitals.onCLS(clsDataCallback);
+            //webVitals.onFID(console.log);
+            //webVitals.onLCP(console.log);
+        };
+        document.head.appendChild(script);
+        })();
+        </script>
+        JSDOC;
     }
 
     private function echoConsoleOutput()
@@ -538,7 +574,7 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
         echo <<<JSBLOCK
         <script class='$this->scriptClass'>
         (function() {
-            const slickstreamRocketPluginScripts = document.querySelectorAll('script.slickstream-script[type=rocketlazyloadscript]');
+            const slickstreamRocketPluginScripts = document.querySelectorAll('script.$this->scriptClass[type=rocketlazyloadscript]');
             const slickstreamRocketExternalScripts = document.querySelectorAll('script[type=rocketlazyloadscript][src*="app.slickstream.com"]');
             if (slickstreamRocketPluginScripts.length > 0 || slickstreamRocketExternalScripts.length > 0) {
                 console.warn('[slickstream] WARNING: WP-Rocket is deferring one or more Slickstream scripts. This may cause undesirable behavior, such as increased CLS scores.');
@@ -548,13 +584,23 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
         JSBLOCK;
     }
 
+    //Outputs AB Test Config Data to the Console
+    private function consoleLogAbTestData()
+    {
+        echo <<<JSBLOCK
+        <script class='$this->scriptClass'>;
+        (function(){const slickBoot=window?.\$slickBoot;const slickHeader='[slickstream] ';const abTests=slickBoot.d?.abTests;const siteCode=slickBoot.d?.siteCode;const redCss="color: red";const yellowCss="color: yellow";if(!slickBoot){console.warn(`%c${ slickHeader }Slickstream config data not found; Slickstream is likely not installed on this site.`,yellowCss);return}if(!siteCode){console.warn(`%c${ slickHeader }Could not determine Slickstream siteCode for this page.`,yellowCss);return}if(slickBoot.d.bestBy<Date.now()){console.warn(`%c${ slickHeader }WARNING: Slicktream config data is stale (older than 15 minutes). Please reload the page to fetch up-to-date data.`,yellowCss)}if(!abTests||(Array.isArray(abTests)&&abTests.length===0)){console.info(`%c${ slickHeader }There are no Slickstream A/B tests running currently.`,redCss)}else{console.info(`%c${ slickHeader }A/B TEST(S) FOR SLICKSTREAM ARE RUNNING. \n\nHere are the details:`,redCss);const getTableData=(test)=>{const abTestStorage=localStorage.getItem('slick-ab');const abTestJson=abTestStorage&&JSON.parse(abTestStorage)||{value:false};return{'Feature being Tested':test.feature,'Is the A/B test running on this site?':!test?.excludeSites.includes(siteCode)?'yes':'no','Am I in the test group (feature disabled)?':(abTestJson.value===true)?'yes':'no','Percentage of Users this feature is ENABLED For':test.fraction,'Percentage of Users this feature is DISABLED For':100-test.fraction,'Start Date':new Date(test.startDate).toGMTString(),'End Date':new Date(test.endDate).toGMTString(),'Current Time':new Date().toGMTString()}};abTests.forEach((test)=>{console.table(getTableData(test))})}})();
+        </script>
+        JSBLOCK;
+    }
+
     //TODO: Clean this up / migrate to SR functions
     public function addSlickPageHeader()
     {
         global $post;
         echo "\n";
-        $this->echoSlickstreamComment("Page Generated at: " . $this->getCurrentTimeStampByTimeZone('Europe/London') . " GMT");
-        $this->consoleOutput .= "Current timestamp: \${(new Date).toLocaleString('en-US', { timeZone: 'GMT' })} GMT\n\n";
+        $this->echoSlickstreamComment("Page Generated at: " . $this->getCurrentTimeStampByTimeZone('UTC') . " UTC");
+        $this->consoleOutput .= "Current timestamp: \${(new Date).toLocaleString('en-US', { timeZone: 'UTC' })} UTC\n\n";
         $this->echoPageBootData();
 
         echo "\n" . '<meta property="slick:wpversion" content="' . PLUGIN_VERSION . '" />' . "\n";
@@ -578,7 +624,7 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
                 echo $this->getAbTestJs();
                 echo "if (window.slickAbTestResult(" . $enabledPercent . ")) {\n";
             }
-            echo '"use strict";(async(e,t)=>{if(location.search.indexOf("no-slick")>=0){return}let o;const c=()=>performance.now();let a=window.$slickBoot=window.$slickBoot||{};a.rt=e;a._es=c();a.ev="2.0.1";a.l=async(e,t)=>{try{let a=0;if(!o&&"caches"in self){o=await caches.open("slickstream-code")}if(o){let n=await o.match(e);if(!n){a=c();await o.add(e);n=await o.match(e);if(n&&!n.ok){n=undefined;o.delete(e)}}if(n){const e=n.headers.get("x-slickstream-consent");return{t:a,d:t?await n.blob():await n.json(),c:e||"na"}}}}catch(e){console.log(e)}return{}};const n=e=>new Request(e,{cache:"no-store"});if(!a.d||a.d.bestBy<Date.now()){const o=n(`${e}/d/page-boot-data?site=${t}&url=${encodeURIComponent(location.href.split("#")[0])}`);let{t:s,d:i,c:d}=await a.l(o);if(i){if(i.bestBy<Date.now()){i=undefined}else if(s){a._bd=s;a.c=d}}if(!i){a._bd=c();const e=await fetch(o);const t=e.headers.get("x-slickstream-consent");a.c=t||"na";i=await e.json()}if(i){a.d=i;a.s="embed"}}if(a.d){let e=a.d.bootUrl;const{t:t,d:o}=await a.l(n(e),true);if(o){a.bo=e=URL.createObjectURL(o);if(t){a._bf=t}}else{a._bf=c()}const s=document.createElement("script");s.className="' . $this->scriptClass . '";s.src=e;document.head.appendChild(s)}else{console.log("[slickstream] Boot failed")}})' . "\n";
+            echo '(async(e,t)=>{if(location.search.indexOf("no-slick")>=0){return}let o;const c=()=>performance.now();let a=window.$slickBoot=window.$slickBoot||{};a.rt=e;a._es=c();a.ev="2.0.1";a.l=async(e,t)=>{try{let a=0;if(!o&&"caches"in self){o=await caches.open("slickstream-code")}if(o){let n=await o.match(e);if(!n){a=c();await o.add(e);n=await o.match(e);if(n&&!n.ok){n=undefined;o.delete(e)}}if(n){const e=n.headers.get("x-slickstream-consent");return{t:a,d:t?await n.blob():await n.json(),c:e||"na"}}}}catch(e){console.log(e)}return{}};const n=e=>new Request(e,{cache:"no-store"});if(!a.d||a.d.bestBy<Date.now()){const o=n(`${e}/d/page-boot-data?site=${t}&url=${encodeURIComponent(location.href.split("#")[0])}`);let{t:s,d:i,c:d}=await a.l(o);if(i){if(i.bestBy<Date.now()){i=undefined}else if(s){a._bd=s;a.c=d}}if(!i){a._bd=c();const e=await fetch(o);const t=e.headers.get("x-slickstream-consent");a.c=t||"na";i=await e.json()}if(i){a.d=i;a.s="embed"}}if(a.d){let e=a.d.bootUrl;const{t:t,d:o}=await a.l(n(e),true);if(o){a.bo=e=URL.createObjectURL(o);if(t){a._bf=t}}else{a._bf=c()}const s=document.createElement("script");s.className="' . $this->scriptClass . '";s.src=e;document.head.appendChild(s)}else{console.log("[slickstream] Boot failed")}})' . "\n";
             echo '("' . $serverUrl . '","' . $siteCode . '");' . "\n";
             if ($adThriveAbTest) {
                 echo "}\n";
@@ -797,7 +843,13 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
         ];
         echo '<script type="application/x-slickstream+json">' . json_encode($ldJson, JSON_UNESCAPED_SLASHES) . "</script>\n";
         $this->echoSlickstreamComment("END Page Metadata", false);
+        
+        if ($this->isDebugModeEnabled()) 
+        {
+            $this->consoleLogAbTestData();
+            $this->debugCLS();
+            $this->echoConsoleOutput();
+        }
         $this->echoWpRocketDetection();
-        $this->echoConsoleOutput();
     }
 }
