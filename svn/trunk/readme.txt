@@ -6,7 +6,7 @@ License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 Requires at least: 5.0
 Requires PHP: 5.6
-Tested up to: 6.1.1
+Tested up to: 6.2
 Stable tag: 1.4.2
 
 Use Slickstream to upgrade your site search.  Get beautiful as-you-type search, relevant content recommendations, user favorites and more!
@@ -39,7 +39,7 @@ What makes Slickstream different is that we handle the hard work for you. We sit
 - Web Story Player: Full site integrations for existing web stories
 - Interactive Games: Automatically generated minigames featuring recommendations
 - Campaigns: Incorporate custom objectives into user experience (business only)
-- Analytics Portal: Robust insights into both Slickstream statistics and general 
+- Analytics Portal: Robust insights into both Slickstream statistics and general
 
 ## General Features and Integrations:
 
@@ -85,20 +85,20 @@ What makes Slickstream different is that we handle the hard work for you. We sit
 = What is Slickstream? =
 Slickstream is a sophisticated market-leading user engagement suite designed for independent publishers. It helps you turn casual visitors into loyal readers that return again and again through intelligent as-you-type search, content recommendations, favoriting and membership capabilities, email sign-up, and other useful features. You can easily design captivating user journeys that lead visitors to exactly what they're looking for. The result is higher pageviews, time-on-page, click-throughs, and return visits. As if that isn’t enough, Slickstream’s reporting gives deep insights into its performance and how your visitors are interacting on your site, far beyond what you can see in Google Analytics.
 
-= How will Slickstream help me? = 
-Slickstream helps you to get the most out of the traffic that visits your site by turning casual visitors into loyal readers, increasing ad revenue. 
+= How will Slickstream help me? =
+Slickstream helps you to get the most out of the traffic that visits your site by turning casual visitors into loyal readers, increasing ad revenue.
 
-Customizable features complement your brand and create a more premium site experience. The powerful recommendation engine serves up the best content to your readers so they spend more time on your site. Slickstream also saves you time, money and hassle from not having to rely on developers, multiple products, or other resources to do a bunch of manual site customization handled with one simple Slickstream installation. 
+Customizable features complement your brand and create a more premium site experience. The powerful recommendation engine serves up the best content to your readers so they spend more time on your site. Slickstream also saves you time, money and hassle from not having to rely on developers, multiple products, or other resources to do a bunch of manual site customization handled with one simple Slickstream installation.
 
 Worried about first-party data? Slickstream helps with that too! Slickstream helps you authenticate traffic and build first-party data with logged-in site visitors.
 
-Slickstream also offers an email sign-up feature that you can use to collect email addresses, but you can seamlessly use your existing email subscription method too. Slicksteam’s Highlighter feature draws attention to any element of your site you choose and has proven to significantly improve conversions. 
+Slickstream also offers an email sign-up feature that you can use to collect email addresses, but you can seamlessly use your existing email subscription method too. Slicksteam’s Highlighter feature draws attention to any element of your site you choose and has proven to significantly improve conversions.
 
 = Do You Support Languages Other Than English? =
 Yes we do. Our underlying recommendation technology is not English-specific, and we have already localized the Engagement Suite for German, Portuguese, Spanish, Dutch, French, Norwegian, Swedish, Croatian, Russian, Danish, Arabic, Hebrew, Japanese and more. [Reach out to us](https://www.slickstream.com/contact) and we can confirm if we support your language too.
 
-= Where can I learn more about Slickstream? = 
-You can find more information about Slickstream here on Slickstream.com.  
+= Where can I learn more about Slickstream? =
+You can find more information about Slickstream here on Slickstream.com.
 
 == Installation ==
 
@@ -111,7 +111,7 @@ You can find more information about Slickstream here on Slickstream.com.
 
 1. Slickstream Search in action, filtered by "sauce" and displaying results for "chipotle" along with appropriate metadata.
 2. The on-page experience for Slickstream users. On display are Favorites/Bookmarks, Floating Search, Back-To-Top and the Filmstrip Toolbar.
-3. Automatic categorization within the Slickstream panel. Here you can see results for "dessert" grouped by popularity, date, and a related subcategory ("baking"). 
+3. Automatic categorization within the Slickstream panel. Here you can see results for "dessert" grouped by popularity, date, and a related subcategory ("baking").
 
 == Changelog ==
 
@@ -254,4 +254,4 @@ You can find more information about Slickstream here on Slickstream.com.
 - Added support for custom margins for CLS
 
 = 1.4.2
-- Fixed an incompatability with WP-Rocket cache and our CLS code
+- Fixed an incompatibility with WP-Rocket cache and our CLS code
