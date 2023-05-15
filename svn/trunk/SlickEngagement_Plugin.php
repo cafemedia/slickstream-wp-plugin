@@ -387,9 +387,10 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
         (function () {
         const slickBanner = "[slickstream]";
         const clsDataCallback = (clsData) => {
-            console.log(`\${slickBanner} The CLS score on this page is: \${clsData.value}, which is considered \${clsData.rating}`);
+            console.log(`\${slickBanner} The CLS score on this page is: \${clsData.value.toFixed(2)}, which is considered \${clsData.rating}`);
             if (clsData.value > 0) {
                 console.log(`\${slickBanner} The element that contributed the most CLS is:`);
+                console.log(largestShiftSource.node);
                 console.table(clsData.attribution);
             }
         };
