@@ -592,11 +592,17 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
     //Outputs AB Test Config Data to the Console
     private function consoleLogAbTestData()
     {
-        echo <<<JSBLOCK
-        <script class='$this->scriptClass'>;
-        (function(){const slickBoot=window?.\$slickBoot;const slickHeader='[slickstream] ';const abTests=slickBoot.d?.abTests;const siteCode=slickBoot.d?.siteCode;const redCss="color: red";const yellowCss="color: yellow";if(!slickBoot){console.warn(`%c${ slickHeader }Slickstream config data not found; Slickstream is likely not installed on this site.`,yellowCss);return}if(!siteCode){console.warn(`%c${ slickHeader }Could not determine Slickstream siteCode for this page.`,yellowCss);return}if(slickBoot.d.bestBy<Date.now()){console.warn(`%c${ slickHeader }WARNING: Slicktream config data is stale (older than 15 minutes). Please reload the page to fetch up-to-date data.`,yellowCss)}if(!abTests||(Array.isArray(abTests)&&abTests.length===0)){console.info(`%c${ slickHeader }There are no Slickstream A/B tests running currently.`,redCss)}else{console.info(`%c${ slickHeader }A/B TEST(S) FOR SLICKSTREAM ARE RUNNING. \n\nHere are the details:`,redCss);const getTableData=(test)=>{const abTestStorage=localStorage.getItem('slick-ab');const abTestJson=abTestStorage&&JSON.parse(abTestStorage)||{value:false};return{'Feature being Tested':test.feature,'Is the A/B test running on this site?':!test?.excludeSites.includes(siteCode)?'yes':'no','Am I in the test group (feature disabled)?':(abTestJson.value===true)?'yes':'no','Percentage of Users this feature is ENABLED For':test.fraction,'Percentage of Users this feature is DISABLED For':100-test.fraction,'Start Date':new Date(test.startDate).toGMTString(),'End Date':new Date(test.endDate).toGMTString(),'Current Time':new Date().toGMTString()}};abTests.forEach((test)=>{console.table(getTableData(test))})}})();
-        </script>
-        JSBLOCK;
+    echo <<<JSBLOCK
+    <script class='$this->scriptClass'>;
+    (function(){const slickBoot=window?.\$slickBoot;const slickHeader='[slickstream] ';const abTests=slickBoot.d?.abTests;const siteCode=slickBoot.d?.siteCode;const redCss="color: red";const yellowCss="color: yellow";
+    if(!slickBoot){console.warn(`%c\${slickHeader}Slickstream config data not found; Slickstream is likely not installed on this site.`,yellowCss);return}
+    if(!siteCode){console.warn(`%c\${slickHeader}Could not determine Slickstream siteCode for this page.`,yellowCss);return}
+    if(slickBoot.d.bestBy<Date.now()){console.warn(`%c\${slickHeader}WARNING: Slicktream config data is stale (older than 15 minutes). Please reload the page to fetch up-to-date data.`,yellowCss)}
+    if(!abTests||(Array.isArray(abTests)&&abTests.length===0)){console.info(`%c\${slickHeader}There are no Slickstream A/B tests running currently.`,redCss)}else{console.info(`%c\${slickHeader}A/B TEST(S) FOR SLICKSTREAM ARE RUNNING. \n\nHere are the details:`,redCss);
+    const getTableData=(test)=>{const abTestStorage=localStorage.getItem('slick-ab');const abTestJson=abTestStorage&&JSON.parse(abTestStorage)||{value:false};
+    return{'Feature being Tested':test.feature,'Is the A/B test running on this site?':!test?.excludeSites.includes(siteCode)?'yes':'no','Am I in the test group (feature disabled)?':(abTestJson.value===true)?'yes':'no','Percentage of Users this feature is ENABLED For':test.fraction,'Percentage of Users this feature is DISABLED For':100-test.fraction,'Start Date':new Date(test.startDate).toGMTString(),'End Date':new Date(test.endDate).toGMTString(),'Current Time':new Date().toGMTString()}};abTests.forEach((test)=>{console.table(getTableData(test))})}})();
+    </script>
+JSBLOCK;
     }
 
     //TODO: Clean this up / migrate to SR functions
