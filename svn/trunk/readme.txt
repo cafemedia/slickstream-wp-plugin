@@ -254,4 +254,4 @@ You can find more information about Slickstream here on Slickstream.com.
 - Added support for custom margins for CLS
 
 = 1.4.2
-- Fixed an incompatibility with WP-Rocket cache and our CLS code
+- Performance improvements
