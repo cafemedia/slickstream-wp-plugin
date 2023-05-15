@@ -387,21 +387,25 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
         (function () {
         const slickBanner = "[slickstream]";
         const clsDataCallback = (clsData) => {
-            console.log(`\${slickBanner} The CLS score on this page is: \${clsData.value.toFixed(2)}, which is considered \${clsData.rating}`);
-            if (clsData.value > 0) {
-                console.log(`\${slickBanner} The element that contributed the most CLS is:`);
-                console.log(largestShiftSource.node);
+            if (typeof(clsData.value) !== "number" || !clsData.attribution) {
+                console.info('Invalid CLS data object.');
+                return;
+            }
+            console.info(`\${slickBanner} The CLS score on this page is: \${clsData.value.toFixed(3)}, which is considered \${clsData.rating}`);
+            if (clsData.value.toFixed(3) > 0.000) {
+                console.info(`\${slickBanner} The element that contributed the most CLS is:`);
+                console.info(clsData.attribution.largestShiftSource.node);
                 console.table(clsData.attribution);
             }
         };
 
-        console.log(`\${slickBanner} Monitoring for CLS...`);
+        console.info(`\${slickBanner} Monitoring for CLS...`);
         const script = document.createElement('script');
         script.src = 'https://unpkg.com/web-vitals@3/dist/web-vitals.attribution.iife.js';
         script.onload = function () {
             webVitals.onCLS(clsDataCallback);
-            //webVitals.onFID(console.log);
-            //webVitals.onLCP(console.log);
+            //webVitals.onFID(console.info);
+            //webVitals.onLCP(console.info);
         };
         document.head.appendChild(script);
         })();
