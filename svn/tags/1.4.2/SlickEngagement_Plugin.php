@@ -31,7 +31,7 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
             }
         }
     }
-    
+
     protected function initOptions()
     {
         $options = $this->getOptionMetaData();
@@ -260,14 +260,14 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
 
     // Fetches the Page Boot Data from the server
     //TODO: if we find that `/page-boot-data` requests are reduced enough to always use origin, we can add headers to avoid hitting CloudFlare
-    private function fetchBootData($siteCode) 
+    private function fetchBootData($siteCode)
     {
         $protocol = ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off') || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
         $page_url = $protocol . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
         $remote = self::defaultServerUrl . '/d/page-boot-data?site=' . $siteCode . '&url=' . rawurlencode($page_url);
         $headers = array('referer' => home_url());
         $response = wp_remote_get($remote , array('timeout' => 2, 'headers' => $headers));
-        
+
         if (is_array($response)) {
             $response_text = wp_remote_retrieve_body($response);
             return json_decode($response_text);
@@ -357,7 +357,7 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
         }
     }
 
-    //Returns a name for the "page boot data" transient 
+    //Returns a name for the "page boot data" transient
     private function getTransientName()
     {
         DEFINE('PAGE_BOOT_DATA_TRANSIENT_PREFIX', 'slick_page_boot_');
@@ -415,7 +415,7 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
 
     private function echoConsoleOutput()
     {
-        if ($this->consoleOutput !== "") 
+        if ($this->consoleOutput !== "")
         {
             echo "<script class='$this->scriptClass'>console.info(`[slickstream]\n$this->consoleOutput`)</script>\n";
         }
@@ -441,7 +441,7 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
         }
 
         $this->echoSlickstreamComment("Deleting page boot data from cache");
-        $comment = (false === delete_transient($this->getTransientName())) ? 
+        $comment = (false === delete_transient($this->getTransientName())) ?
             "Nothing to do--page not found in cache" :
             "Page boot data deleted successfully";
         $this->echoSlickstreamComment($comment);
@@ -453,7 +453,7 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
         return $param_val;
     }
 
-    private function echoPageBootData() 
+    private function echoPageBootData()
     {
         $siteCode = substr(trim($this->getOption('SiteCode')), 0, 9);
 
@@ -463,7 +463,7 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
         }
 
         global $wp;
-        
+
         $transient_name = $this->getTransientName(); //Name for WP Transient Cache API Key
 
         // If `delete-boot=1` is passed as a query param, delete the stored page boot data
@@ -477,7 +477,7 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
         $force_fetch_boot_data = ($slick_boot_param === '1');
         $dont_load_boot_data = ($slick_boot_param === '0');
         $slick_boot_param_not_set = ($slick_boot_param === null);
-    
+
         // Check for existing data in transient cache. If none, then fetch data from server.
         //TODO: store cache hits and cache misses in a transient or option?
         if ($force_fetch_boot_data || ($no_transient_data && $slick_boot_param_not_set)) {
@@ -506,13 +506,13 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
     //Plugin-based A/B Testing JS Logic
     private function getAbTestJs()
     {
-        
+
         $jsBlock = <<<JSBLOCK
         window.slickAbTestResult = function(percentEnabled, recalculate = false, testName = 'embed') {
         const win = window;
         const storage = win.localStorage;
         const targetPercentEnabled = parseInt(percentEnabled);
-        
+
         if (isNaN(targetPercentEnabled)) {
             return new Error("Invalid enabled percentage");
         }
@@ -520,10 +520,10 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
         let enableSlickFeature;
         const abTestStorageKey = `slickab-\${testName}-\${targetPercentEnabled}`;
         const storedOnOffVal = storage.getItem(abTestStorageKey);
-        
+
         const percentKey = `slickAbTestPercent-\${testName}`;
         const storedPercentVal = parseInt(storage.getItem(percentKey));
-        
+
         if (recalculate === true || !storedOnOffVal || storedPercentVal !== targetPercentEnabled) {
             enableSlickFeature = (Math.random() * 100) <= targetPercentEnabled;
             storage.setItem(abTestStorageKey, enableSlickFeature);
@@ -541,18 +541,18 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
         return enableSlickFeature;
         };
         JSBLOCK;
-        
+
         return $jsBlock;
     }
 
     private function get_tax_terms($post, $taxonomy_name) {
         $taxTerms = array();
         $terms = get_the_terms($post, $taxonomy_name);
-    
+
         if (empty($terms)) {
             return $taxTerms;
         }
-    
+
         foreach ($terms as $term) {
             $termObject = (object) [
                 '@id' => $term->term_id,
@@ -561,10 +561,10 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
             ];
             array_push($taxTerms, $termObject);
         }
-    
+
         return $taxTerms;
     }
-    
+
     private function create_ldJsonTaxElement($taxonomy, $taxTerms) {
         return (object) [
             'name' => $taxonomy->name,
@@ -592,11 +592,17 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
     //Outputs AB Test Config Data to the Console
     private function consoleLogAbTestData()
     {
-        echo <<<JSBLOCK
-        <script class='$this->scriptClass'>;
-        (function(){const slickBoot=window?.\$slickBoot;const slickHeader='[slickstream] ';const abTests=slickBoot.d?.abTests;const siteCode=slickBoot.d?.siteCode;const redCss="color: red";const yellowCss="color: yellow";if(!slickBoot){console.warn(`%c${ slickHeader }Slickstream config data not found; Slickstream is likely not installed on this site.`,yellowCss);return}if(!siteCode){console.warn(`%c${ slickHeader }Could not determine Slickstream siteCode for this page.`,yellowCss);return}if(slickBoot.d.bestBy<Date.now()){console.warn(`%c${ slickHeader }WARNING: Slicktream config data is stale (older than 15 minutes). Please reload the page to fetch up-to-date data.`,yellowCss)}if(!abTests||(Array.isArray(abTests)&&abTests.length===0)){console.info(`%c${ slickHeader }There are no Slickstream A/B tests running currently.`,redCss)}else{console.info(`%c${ slickHeader }A/B TEST(S) FOR SLICKSTREAM ARE RUNNING. \n\nHere are the details:`,redCss);const getTableData=(test)=>{const abTestStorage=localStorage.getItem('slick-ab');const abTestJson=abTestStorage&&JSON.parse(abTestStorage)||{value:false};return{'Feature being Tested':test.feature,'Is the A/B test running on this site?':!test?.excludeSites.includes(siteCode)?'yes':'no','Am I in the test group (feature disabled)?':(abTestJson.value===true)?'yes':'no','Percentage of Users this feature is ENABLED For':test.fraction,'Percentage of Users this feature is DISABLED For':100-test.fraction,'Start Date':new Date(test.startDate).toGMTString(),'End Date':new Date(test.endDate).toGMTString(),'Current Time':new Date().toGMTString()}};abTests.forEach((test)=>{console.table(getTableData(test))})}})();
-        </script>
-        JSBLOCK;
+    echo <<<JSBLOCK
+    <script class='$this->scriptClass'>;
+    (function(){const slickBoot=window?.\$slickBoot;const slickHeader='[slickstream] ';const abTests=slickBoot.d?.abTests;const siteCode=slickBoot.d?.siteCode;const redCss="color: red";const yellowCss="color: yellow";
+    if(!slickBoot){console.warn(`%c\${slickHeader}Slickstream config data not found; Slickstream is likely not installed on this site.`,yellowCss);return}
+    if(!siteCode){console.warn(`%c\${slickHeader}Could not determine Slickstream siteCode for this page.`,yellowCss);return}
+    if(slickBoot.d.bestBy<Date.now()){console.warn(`%c\${slickHeader}WARNING: Slicktream config data is stale (older than 15 minutes). Please reload the page to fetch up-to-date data.`,yellowCss)}
+    if(!abTests||(Array.isArray(abTests)&&abTests.length===0)){console.info(`%c\${slickHeader}There are no Slickstream A/B tests running currently.`,redCss)}else{console.info(`%c\${slickHeader}A/B TEST(S) FOR SLICKSTREAM ARE RUNNING. \n\nHere are the details:`,redCss);
+    const getTableData=(test)=>{const abTestStorage=localStorage.getItem('slick-ab');const abTestJson=abTestStorage&&JSON.parse(abTestStorage)||{value:false};
+    return{'Feature being Tested':test.feature,'Is the A/B test running on this site?':!test?.excludeSites.includes(siteCode)?'yes':'no','Am I in the test group (feature disabled)?':(abTestJson.value===true)?'yes':'no','Percentage of Users this feature is ENABLED For':test.fraction,'Percentage of Users this feature is DISABLED For':100-test.fraction,'Start Date':new Date(test.startDate).toGMTString(),'End Date':new Date(test.endDate).toGMTString(),'Current Time':new Date().toGMTString()}};abTests.forEach((test)=>{console.table(getTableData(test))})}})();
+    </script>
+JSBLOCK;
     }
 
     //TODO: Clean this up / migrate to SR functions
@@ -639,7 +645,7 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
         }
 
         $this->echoSlickstreamComment("Page Metadata:", false);
-        
+
         //TODO: Move this out into SR functions and cache the output
         $ldJsonElements = array();
 
@@ -647,7 +653,7 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
             '@type' => 'Plugin',
             'version' => PLUGIN_VERSION,
         ];
-        
+
         array_push($ldJsonElements, $ldJsonPlugin);
 
         $ldJsonSite = (object) [
@@ -791,7 +797,7 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
                     foreach ($taxonomies as $taxonomy) {
                         if (empty($taxonomy->_builtin) && $taxonomy->public) {
                             $taxTerms = $this->get_tax_terms($post, $taxonomy->name);
-                    
+
                             if (!empty($taxTerms)) {
                                 $ldJsonTaxElement = $this->create_ldJsonTaxElement($taxonomy, $taxTerms);
                                 array_push($ldJsonTaxonomies, $ldJsonTaxElement);
@@ -848,8 +854,8 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
         ];
         echo '<script type="application/x-slickstream+json">' . json_encode($ldJson, JSON_UNESCAPED_SLASHES) . "</script>\n";
         $this->echoSlickstreamComment("END Page Metadata", false);
-        
-        if ($this->isDebugModeEnabled()) 
+
+        if ($this->isDebugModeEnabled())
         {
             $this->consoleLogAbTestData();
             $this->debugCLS();
