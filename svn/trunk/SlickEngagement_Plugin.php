@@ -265,13 +265,17 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
         $protocol = ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off') || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
         $page_url = $protocol . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
         $remote = self::defaultServerUrl . '/d/page-boot-data?site=' . $siteCode . '&url=' . rawurlencode($page_url);
-        $headers = array('referer' => home_url());
+        $remote = 'https://app-staging.slickstream.com/d/page-boot-data?site=V7W3V4H2&url=' . rawurlencode($page_url);
+        $headers = array(); // Referer will be added back after testing
+        $this->echoSlickstreamComment("Fetch endpoint: " . $remote);
         $response = wp_remote_get($remote , array('timeout' => 2, 'headers' => $headers));
+        $response_code = wp_remote_retrieve_response_code( $response );
+        $response_text = wp_remote_retrieve_body($response);
         
-        if (is_array($response)) {
-            $response_text = wp_remote_retrieve_body($response);
+        if ($response_code === 200) {
             return json_decode($response_text);
         } else {
+            $this->echoSlickstreamComment("Error fetching boot data: " . $response_text);
             return null;
         }
     }
@@ -489,7 +493,6 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
                 set_transient($transient_name, $boot_data_obj, 15 * MINUTE_IN_SECONDS);
                 $this->echoSlickstreamComment("Storing page boot data in transient cache: " . $transient_name);
             } else {
-                $this->echoSlickstreamComment("Error Fetching page boot data from server");
                 return;
             }
         } else if ($dont_load_boot_data) {
@@ -593,14 +596,8 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
     private function consoleLogAbTestData()
     {
     echo <<<JSBLOCK
-    <script class='$this->scriptClass'>;
-    (function(){const slickBoot=window?.\$slickBoot;const slickHeader='[slickstream] ';const abTests=slickBoot.d?.abTests;const siteCode=slickBoot.d?.siteCode;const redCss="color: red";const yellowCss="color: yellow";
-    if(!slickBoot){console.warn(`%c\${slickHeader}Slickstream config data not found; Slickstream is likely not installed on this site.`,yellowCss);return}
-    if(!siteCode){console.warn(`%c\${slickHeader}Could not determine Slickstream siteCode for this page.`,yellowCss);return}
-    if(slickBoot.d.bestBy<Date.now()){console.warn(`%c\${slickHeader}WARNING: Slicktream config data is stale (older than 15 minutes). Please reload the page to fetch up-to-date data.`,yellowCss)}
-    if(!abTests||(Array.isArray(abTests)&&abTests.length===0)){console.info(`%c\${slickHeader}There are no Slickstream A/B tests running currently.`,redCss)}else{console.info(`%c\${slickHeader}A/B TEST(S) FOR SLICKSTREAM ARE RUNNING. \n\nHere are the details:`,redCss);
-    const getTableData=(test)=>{const abTestStorage=localStorage.getItem('slick-ab');const abTestJson=abTestStorage&&JSON.parse(abTestStorage)||{value:false};
-    return{'Feature being Tested':test.feature,'Is the A/B test running on this site?':!test?.excludeSites.includes(siteCode)?'yes':'no','Am I in the test group (feature disabled)?':(abTestJson.value===true)?'yes':'no','Percentage of Users this feature is ENABLED For':test.fraction,'Percentage of Users this feature is DISABLED For':100-test.fraction,'Start Date':new Date(test.startDate).toGMTString(),'End Date':new Date(test.endDate).toGMTString(),'Current Time':new Date().toGMTString()}};abTests.forEach((test)=>{console.table(getTableData(test))})}})();
+    <script class='$this->scriptClass'>
+    "use strict";(async()=>{var e,t;const o=window.\$slickBoot=window.\$slickBoot||{};const n="[SLICKSTREAM] ";const s="color: red";const a="color: yellow";if(!o.d){console.warn(`%c${n}Slickstream page boot data not found.`,a);return}const r=(e=o.d)===null||e===void 0?void 0:e.abTests;const i=(t=o.d)===null||t===void 0?void 0:t.siteCode;if(!o){console.warn(`%c${n}Slickstream config data not found; Slickstream is likely not installed on this site.`,a);return}if(!i){console.warn(`%c${n}Could not determine Slickstream siteCode for this page.`,a);return}if(o.d.bestBy<Date.now()){console.warn(`%c${n}WARNING: Slicktream config data is stale (older than 15 minutes). Please reload the page to fetch up-to-date data.`,a)}if(!r||Array.isArray(r)&&r.length===0){console.info(`%c${n}There are no Slickstream A/B tests running currently.`,s)}else{console.info(`%c${n}A/B TEST(S) FOR SLICKSTREAM ARE RUNNING. \\n\\nHere are the details:`,s);const e=e=>{var t;const o=localStorage.getItem("slick-ab");const n=o&&JSON.parse(o)||{value:false};return{"Feature being Tested":e.feature,"Is the A/B test running on this site?":!((t=e===null||e===void 0?void 0:e.excludeSites)===null||t===void 0?void 0:t.includes(i))?"yes":"no","Am I in the test group (feature disabled)?":n.value===true?"yes":"no","Percentage of Users this feature is ENABLED For":e.fraction,"Percentage of Users this feature is DISABLED For":100-e.fraction,"Start Date":new Date(e.startDate).toString(),"End Date":new Date(e.endDate).toString(),"Current Time":(new Date).toString()}};r.forEach((t=>{console.table(e(t))}))}})();
     </script>
 JSBLOCK;
     }
@@ -635,7 +632,7 @@ JSBLOCK;
                 echo $this->getAbTestJs();
                 echo "if (window.slickAbTestResult(" . $enabledPercent . ")) {\n";
             }
-            echo '(async(e,t)=>{if(location.search.indexOf("no-slick")>=0){return}let o;const c=()=>performance.now();let a=window.$slickBoot=window.$slickBoot||{};a.rt=e;a._es=c();a.ev="2.0.1";a.l=async(e,t)=>{try{let a=0;if(!o&&"caches"in self){o=await caches.open("slickstream-code")}if(o){let n=await o.match(e);if(!n){a=c();await o.add(e);n=await o.match(e);if(n&&!n.ok){n=undefined;o.delete(e)}}if(n){const e=n.headers.get("x-slickstream-consent");return{t:a,d:t?await n.blob():await n.json(),c:e||"na"}}}}catch(e){console.log(e)}return{}};const n=e=>new Request(e,{cache:"no-store"});if(!a.d||a.d.bestBy<Date.now()){const o=n(`${e}/d/page-boot-data?site=${t}&url=${encodeURIComponent(location.href.split("#")[0])}`);let{t:s,d:i,c:d}=await a.l(o);if(i){if(i.bestBy<Date.now()){i=undefined}else if(s){a._bd=s;a.c=d}}if(!i){a._bd=c();const e=await fetch(o);const t=e.headers.get("x-slickstream-consent");a.c=t||"na";i=await e.json()}if(i){a.d=i;a.s="embed"}}if(a.d){let e=a.d.bootUrl;const{t:t,d:o}=await a.l(n(e),true);if(o){a.bo=e=URL.createObjectURL(o);if(t){a._bf=t}}else{a._bf=c()}const s=document.createElement("script");s.className="' . $this->scriptClass . '";s.src=e;document.head.appendChild(s)}else{console.log("[slickstream] Boot failed")}})' . "\n";
+            echo '(async(e,t)=>{if(location.search.indexOf("no-slick")>=0){return}let s;const a=()=>performance.now();let c=window.$slickBoot=window.$slickBoot||{};c.rt=e;c._es=a();c.ev="2.0.1";c.l=async(e,t)=>{try{let c=0;if(!s&&"caches"in self){s=await caches.open("slickstream-code")}if(s){let o=await s.match(e);if(!o){c=a();await s.add(e);o=await s.match(e);if(o&&!o.ok){o=undefined;s.delete(e)}}if(o){const e=o.headers.get("x-slickstream-consent");return{t:c,d:t?await o.blob():await o.json(),c:e||"na"}}}}catch(e){console.log(e)}return{}};const o=e=>new Request(e,{cache:"no-store"});if(!c.d||c.d.bestBy<Date.now()){const s=o(`${e}/d/page-boot-data?site=${t}&url=${encodeURIComponent(location.href.split("#")[0])}`);let{t:i,d:n,c:l}=await c.l(s);if(n){if(n.bestBy<Date.now()){n=undefined}else if(i){c._bd=i;c.c=l}}if(!n){c._bd=a();const e=await fetch(s);const t=e.headers.get("x-slickstream-consent");c.c=t||"na";n=await e.json()}if(n){c.d=n;c.s="embed"}}if(c.d){let e=c.d.bootUrl;const{t:t,d:s}=await c.l(o(e),true);if(s){c.bo=e=URL.createObjectURL(s);if(t){c._bf=t}}else{c._bf=a()}const i=document.createElement("script");i.className="slickstream-script";i.src=e;document.head.appendChild(i)}else{console.log("[slickstream] Boot failed")}})' . "\n";
             echo '("' . $serverUrl . '","' . $siteCode . '");' . "\n";
             if ($adThriveAbTest) {
                 echo "}\n";
