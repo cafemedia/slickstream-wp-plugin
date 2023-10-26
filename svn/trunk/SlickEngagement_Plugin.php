@@ -7,6 +7,11 @@ include_once 'SlickEngagement_Widgets.php';
 
 define('PLUGIN_VERSION', '1.4.2');
 
+define("GENESIS_AFTER_HEADER_POSTS", "After header on posts (for Genesis themes)");
+define("GENESIS_BEFORE_CONTENT_POSTS", "Before content on posts (for Genesis themes)");
+define("GENESIS_AFTER_CONTENT", "After content (for Genesis themes)");
+define("GENESIS_BEFORE_FOOTER", "Before footer (for Genesis themes)");
+
 class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
 {
     private $consoleOutput = "";
@@ -17,10 +22,19 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
      */
     public function getOptionMetaData()
     {
-        return array(
+        $options = array(
             'SiteCode' => array(__('Site Code', 'slick-engagement')),
             'SlickServerUrl' => array(__('Service URL (optional)', 'slick-engagement')),
         );
+
+        if (function_exists('genesis')) {
+            $options = array_merge($options, [
+                'InsertFilmstrip' => array(__('Insert filmstrip', 'slick-engagement'), 'None', GENESIS_AFTER_HEADER_POSTS, GENESIS_BEFORE_CONTENT_POSTS),
+                'InsertSearchPanel' => array(__('Insert inline search panel', 'slick-engagement'), 'None', GENESIS_AFTER_CONTENT, GENESIS_BEFORE_FOOTER),
+            ]);
+        }
+
+        return $options;
     }
 
     protected function addOptionsFromArray($options)
@@ -95,6 +109,39 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
         add_filter("{$prefix}plugin_action_links_{$plugin_file}", array(&$this, 'onActionLinks'));
 
         add_filter('rocket_delay_js_exclusions', array(&$this, 'np_wp_rocket__exclude_from_delay_js'));
+
+        $this->maybe_add_genesis_hooks();
+    }
+
+    private function maybe_add_genesis_hooks() {
+        $insertFilmstrip = $this->getOption('InsertFilmstrip', 'None');
+        if ($insertFilmstrip === GENESIS_AFTER_HEADER_POSTS) {
+            add_action('genesis_after_header', array($this, 'insert_film_strip_markup'), 15);
+        } else if ($insertFilmstrip === GENESIS_BEFORE_CONTENT_POSTS) {
+            add_action('genesis_before_content', array($this, 'insert_film_strip_markup'), 15);
+        }
+
+        $InsertSearchPanel = $this->getOption('InsertSearchPanel', 'None');
+        if ($InsertSearchPanel === GENESIS_AFTER_CONTENT) {
+            add_action('genesis_after_content', array($this, 'insert_inline_search_panel_markup'), 15);
+        } else if ($InsertSearchPanel === GENESIS_BEFORE_FOOTER) {
+            add_action('genesis_before_footer', array($this, 'insert_inline_search_panel_markup'), 15);
+        }
+    }
+
+    public function insert_film_strip_markup()
+    {
+        if (is_singular('post')) {
+            echo '<div style="min-height:72px;margin:10px auto" class="slick-film-strip"></div>';
+        }
+    }
+
+    public function insert_inline_search_panel_markup()
+    {
+        if (is_singular('post')) {
+            echo "\n" . '<style>.slick-inline-search-panel { margin: 50px 15px; min-height: 428px; } @media (max-width: 600px) { .slick-inline-search-panel { min-height: 334px; } } </style>' . "\n";
+            echo '<div class="slick-inline-search-panel" data-config="_default"></div>' . "\n";
+        }
     }
 
     // Exclude scripts from JS delay in WP-Rocket.
