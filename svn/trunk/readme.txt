@@ -7,7 +7,7 @@ License URI: http://www.gnu.org/licenses/gpl-3.0.html
 Requires at least: 5.0
 Requires PHP: 5.6
 Tested up to: 6.2
-Stable tag: 1.4.2
+Stable tag: 1.4.3
 
 Use Slickstream to upgrade your site search.  Get beautiful as-you-type search, relevant content recommendations, user favorites and more!
 
@@ -255,3 +255,7 @@ You can find more information about Slickstream here on Slickstream.com.
 
 = 1.4.2
 - Performance improvements
+
+= 1.4.3
+- Include options for Genesis-based container reservation
+- Additional performance enhancements

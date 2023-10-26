@@ -5,7 +5,7 @@
 include_once 'SlickEngagement_LifeCycle.php';
 include_once 'SlickEngagement_Widgets.php';
 
-define('PLUGIN_VERSION', '1.4.2');
+define('PLUGIN_VERSION', '1.4.3');
 
 define("GENESIS_AFTER_HEADER_POSTS", "After header on posts (for Genesis themes)");
 define("GENESIS_BEFORE_CONTENT_POSTS", "Before content on posts (for Genesis themes)");
@@ -314,6 +314,7 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
         $remote = self::defaultServerUrl . '/d/page-boot-data?site=' . $siteCode . '&url=' . rawurlencode($page_url);
         $headers = array('referer' => home_url());
         $this->echoSlickstreamComment("Fetch endpoint: " . $remote);
+        $this->echoSlickstreamComment("Headers: " . json_encode($headers));
         $response = wp_remote_get($remote , array('timeout' => 2, 'headers' => $headers));
         $response_code = wp_remote_retrieve_response_code( $response );
         $response_text = wp_remote_retrieve_body($response);
@@ -678,7 +679,7 @@ JSBLOCK;
                 echo $this->getAbTestJs();
                 echo "if (window.slickAbTestResult(" . $enabledPercent . ")) {\n";
             }
-            echo '(async(e,t)=>{if(location.search.indexOf("no-slick")>=0){return}let o;const a=()=>performance.now();let c=window.$slickBoot=window.$slickBoot||{};c.rt=e;c._es=a();c.ev="2.0.1";c.l=async(e,t)=>{try{let c=0;if(!o&&"caches"in self){o=await caches.open("slickstream-code")}if(o){let s=await o.match(e);if(!s){c=a();await o.add(e);s=await o.match(e);if(s&&!s.ok){s=undefined;o.delete(e)}}if(s){const e=s.headers.get("x-slickstream-consent");return{t:c,d:t?await s.blob():await s.json(),c:e||"na"}}}}catch(e){console.log(e)}return{}};const s=e=>new Request(e,{cache:"no-store"});if(!c.d||c.d.bestBy<Date.now()){if(!c.d){console.log("veronica no data")}if(c.d&&c.d.bestBy<Date.now()){console.log("veronica data expired")}const o=s(`${e}/d/page-boot-data?site=${t}&url=${encodeURIComponent(location.href.split("#")[0])}`);let{t:n,d:i,c:l}=await c.l(o);if(i){if(i.bestBy<Date.now()){i=undefined}else if(n){c._bd=n;c.c=l}}if(!i){c._bd=a();const e=await fetch(o);const t=e.headers.get("x-slickstream-consent");c.c=t||"na";i=await e.json()}if(i){c.d=i;c.s="embed";console.log("veronica data from embed")}}else{console.log("veronica data from plugin")}if(c.d){let e=c.d.bootUrl;const{t:t,d:o}=await c.l(s(e),true);if(o){c.bo=e=URL.createObjectURL(o);if(t){c._bf=t}}else{c._bf=a()}const n=document.createElement("script");n.className="slickstream-script";n.src=e;document.head.appendChild(n)}else{console.log("[slickstream] Boot failed")}})' . "\n";
+            echo '(async(e,t)=>{if(location.search.indexOf("no-slick")>=0){return}let s;const a=()=>performance.now();let c=window.$slickBoot=window.$slickBoot||{};c.rt=e;c._es=a();c.ev="2.0.1";c.l=async(e,t)=>{try{let c=0;if(!s&&"caches"in self){s=await caches.open("slickstream-code")}if(s){let o=await s.match(e);if(!o){c=a();await s.add(e);o=await s.match(e);if(o&&!o.ok){o=undefined;s.delete(e)}}if(o){const e=o.headers.get("x-slickstream-consent");return{t:c,d:t?await o.blob():await o.json(),c:e||"na"}}}}catch(e){console.log(e)}return{}};const o=e=>new Request(e,{cache:"no-store"});if(!c.d||c.d.bestBy<Date.now()){const s=o(`${e}/d/page-boot-data?site=${t}&url=${encodeURIComponent(location.href.split("#")[0])}`);let{t:i,d:n,c:l}=await c.l(s);if(n){if(n.bestBy<Date.now()){n=undefined}else if(i){c._bd=i;c.c=l}}if(!n){c._bd=a();const e=await fetch(s);const t=e.headers.get("x-slickstream-consent");c.c=t||"na";n=await e.json()}if(n){c.d=n;c.s="embed"}}if(c.d){let e=c.d.bootUrl;const{t:t,d:s}=await c.l(o(e),true);if(s){c.bo=e=URL.createObjectURL(s);if(t){c._bf=t}}else{c._bf=a()}const i=document.createElement("script");i.className="slickstream-script";i.src=e;document.head.appendChild(i)}else{console.log("[slickstream] Boot failed")}})' . "\n";
             echo '("' . $serverUrl . '","' . $siteCode . '");' . "\n";
             if ($adThriveAbTest) {
                 echo "}\n";
