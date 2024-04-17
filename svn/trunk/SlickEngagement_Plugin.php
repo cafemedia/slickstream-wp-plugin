@@ -5,7 +5,7 @@
 include_once 'SlickEngagement_LifeCycle.php';
 include_once 'SlickEngagement_Widgets.php';
 
-define('PLUGIN_VERSION', '1.4.3');
+define('PLUGIN_VERSION', '1.4.4');
 
 define("GENESIS_AFTER_HEADER_POSTS", "After header on posts (for Genesis themes)");
 define("GENESIS_BEFORE_CONTENT_POSTS", "Before content on posts (for Genesis themes)");
@@ -380,6 +380,7 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
 
         $filmstrip_config = isset($device_boot_data->filmstrip) ? $device_boot_data->filmstrip : '';
         $dcm_config = isset($device_boot_data->inlineSearch) ? $device_boot_data->inlineSearch : '';
+        $ec_config = isset($device_boot_data->emailCapture) ? $device_boot_data->emailCapture : '';
 
         // from 1.2.5 settings
         $filmstrip_margin = $this->getOption('ReserveFilmstripMargin', '');
@@ -393,15 +394,16 @@ class SlickEngagement_Plugin extends SlickEngagement_LifeCycle
             }
         }
 
-        if (!empty($filmstrip_config) || !empty($dcm_config)) {
+        if (!empty($filmstrip_config) || !empty($dcm_config) || !empty($ec_config)) {
             $filmstrip_str = empty($filmstrip_config) ? '' :  json_encode($filmstrip_config);
             $dcm_str = empty($dcm_config) ? '' :  json_encode($dcm_config);
+            $ec_str = empty($ec_config) ? '' :  json_encode($ec_config);
 
             $this->echoSlickstreamComment('CLS Insertion:', false);
 
             echo "<script>\n";
-            echo '"use strict";(async(e,t)=>{const n="slickstream";const r=e?JSON.parse(e):null;const i=t?JSON.parse(t):null;if(r||i){const e=async()=>{if(document.body){if(r){o(r.selector,r.position||"after selector","slick-film-strip",r.minHeight||72,r.margin||r.marginLegacy||"10px auto")}if(i){i.forEach((e=>{if(e.selector){o(e.selector,e.position||"after selector","slick-inline-search-panel",e.minHeight||350,e.margin||e.marginLegacy||"50px 15px",e.id)}}))}return}window.requestAnimationFrame(e)};window.requestAnimationFrame(e)}const c=async(e,t)=>{const n=Date.now();while(true){const r=document.querySelector(e);if(r){return r}const i=Date.now();if(i-n>=t){throw new Error("Timeout")}await s(200)}};const s=async e=>new Promise((t=>{setTimeout(t,e)}));const o=async(e,t,r,i,s,o)=>{try{const n=await c(e,5e3);const a=o?document.querySelector(`.${r}[data-config="${o}"]`):document.querySelector(`.${r}`);if(n&&!a){const e=document.createElement("div");e.style.minHeight=i+"px";e.style.margin=s;e.classList.add(r);if(o){e.dataset.config=o}switch(t){case"after selector":n.insertAdjacentElement("afterend",e);break;case"before selector":n.insertAdjacentElement("beforebegin",e);break;case"first child of selector":n.insertAdjacentElement("afterbegin",e);break;case"last child of selector":n.insertAdjacentElement("beforeend",e);break}return e}}catch(t){console.log("plugin","error",n,`Failed to inject ${r} for selector ${e}`)}return false}})' . "\n";
-            echo "('" . addslashes($filmstrip_str) . "','" . addslashes($dcm_str) . "');" . "\n";
+            echo '"use strict";(async(e,t,n)=>{const o="slickstream";const i=e?JSON.parse(e):null;const r=t?JSON.parse(t):null;const c=n?JSON.parse(n):null;if(i||r||c){const e=async()=>{if(document.body){if(i){m(i.selector,i.position||"after selector","slick-film-strip",i.minHeight||72,i.margin||i.marginLegacy||"10px auto")}if(r){r.forEach((e=>{if(e.selector){m(e.selector,e.position||"after selector","slick-inline-search-panel",e.minHeight||350,e.margin||e.marginLegacy||"50px 15px",e.id)}}))}if(c){s(c)}return}window.requestAnimationFrame(e)};window.requestAnimationFrame(e)}const s=async e=>{const t="slick-on-page";try{if(document.querySelector(`.${t}`)){return}const n=l()?e.minHeightMobile||220:e.minHeight||200;if(e.cssSelector){m(e.cssSelector,"before selector",t,n,"",undefined)}else{a(e.pLocation||3,t,n)}}catch(e){console.log("plugin","error",o,`Failed to inject ${t}`)}};const a=async(e,t,n)=>{const o=document.createElement("div");o.classList.add(t);o.classList.add("cls-inserted");o.style.minHeight=n+"px";const i=document.querySelectorAll("article p");if((i===null||i===void 0?void 0:i.length)>=e){const t=i[e-1];t.insertAdjacentElement("afterend",o);return o}const r=document.querySelectorAll("section.wp-block-template-part div.entry-content p");if((r===null||r===void 0?void 0:r.length)>=e){const t=r[e-1];t.insertAdjacentElement("afterend",o);return o}return null};const l=()=>{const e=navigator.userAgent;const t=/Tablet|iPad|Playbook|Nook|webOS|Kindle|Android (?!.*Mobile).*Safari/i.test(e);const n=/Mobi|iP(hone|od)|Opera Mini/i.test(e);return n&&!t};const d=async(e,t)=>{const n=Date.now();while(true){const o=document.querySelector(e);if(o){return o}const i=Date.now();if(i-n>=t){throw new Error("Timeout")}await u(200)}};const u=async e=>new Promise((t=>{setTimeout(t,e)}));const m=async(e,t,n,i,r,c)=>{try{const o=await d(e,5e3);const s=c?document.querySelector(`.${n}[data-config="${c}"]`):document.querySelector(`.${n}`);if(o&&!s){const e=document.createElement("div");e.style.minHeight=i+"px";e.style.margin=r;e.classList.add(n);e.classList.add("cls-inserted");if(c){e.dataset.config=c}switch(t){case"after selector":o.insertAdjacentElement("afterend",e);break;case"before selector":o.insertAdjacentElement("beforebegin",e);break;case"first child of selector":o.insertAdjacentElement("afterbegin",e);break;case"last child of selector":o.insertAdjacentElement("beforeend",e);break}return e}}catch(t){console.log("plugin","error",o,`Failed to inject ${n} for selector ${e}`)}return false}})' . "\n";
+            echo "('" . addslashes($filmstrip_str) . "','" . addslashes($dcm_str) . "','" . addslashes($ec_str) . "');" . "\n";
             echo "\n</script>\n";
 
             $this->echoSlickstreamComment('END CLS Insertion', false);
