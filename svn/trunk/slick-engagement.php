@@ -2,7 +2,6 @@
 /*
 Plugin Name: Slickstream Search and Engagement
 Plugin URI: https://slickstream.com/getting-started
-Version: 1.4.4
 Author: Slickstream
 Author URI: https://slickstream.com
 Description: Use Slickstreams's cloud service and widgets to increase visitor engagement
@@ -10,25 +9,23 @@ Text Domain: slick-engagement
 License: GPLv3 or later
 */
 
-$SlickEngagement_minimalRequiredPhpVersion = '5.0';
+$SlickEngagement_minimalRequiredPhpVersion = '7.4';
 
 /**
  * Check the PHP version and give a useful error message if the user's version is less than the required version
  * @return boolean true if version check passed. If false, triggers an error which WP will handle, by displaying
  * an error message on the Admin page
  */
-function SlickEngagement_noticePhpVersionWrong()
-{
+function SlickEngagement_noticePhpVersionWrong(): void {
     global $SlickEngagement_minimalRequiredPhpVersion;
     echo '<div class="updated fade">' .
-    __('Error: plugin "Slick Engagement" requires a newer version of PHP to be running.', 'slick-engagement') .
+    __('Error: plugin "Slickstream Engagement" requires a newer version of PHP to be running.', 'slick-engagement') .
     '<br/>' . __('Minimal version of PHP required: ', 'slick-engagement') . '<strong>' . $SlickEngagement_minimalRequiredPhpVersion . '</strong>' .
     '<br/>' . __('Your server\'s PHP version: ', 'slick-engagement') . '<strong>' . phpversion() . '</strong>' .
         '</div>';
 }
 
-function SlickEngagement_PhpVersionCheck()
-{
+function SlickEngagement_PhpVersionCheck(): bool {
     global $SlickEngagement_minimalRequiredPhpVersion;
     if (version_compare(phpversion(), $SlickEngagement_minimalRequiredPhpVersion) < 0) {
         add_action('admin_notices', 'SlickEngagement_noticePhpVersionWrong');
@@ -44,7 +41,7 @@ function SlickEngagement_PhpVersionCheck()
  *      http://www.wdmac.com/how-to-create-a-po-language-translation#more-631
  * @return void
  */
-function SlickEngagement_i18n_init()
+function SlickEngagement_i18n_init(): void
 {
     $pluginDir = dirname(plugin_basename(__FILE__));
     load_plugin_textdomain('slick-engagement', false, $pluginDir . '/languages/');

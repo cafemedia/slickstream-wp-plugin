@@ -1,6 +1,6 @@
 <?php
 
-include_once('SlickEngagement_ShortCodeLoader.php');
+include_once 'SlickEngagement_ShortCodeLoader.php';
 
 /**
  * Adapted from this excellent article:
@@ -18,7 +18,7 @@ abstract class SlickEngagement_ShortCodeScriptLoader extends SlickEngagement_Sho
 
         // It will be too late to enqueue the script in the header,
         // but can add them to the footer
-        add_action('wp_footer', array($this, 'addScriptWrapper'));
+        add_action('wp_footer', [$this, 'addScriptWrapper']);
     }
 
     public function handleShortcodeWrapper($atts) {

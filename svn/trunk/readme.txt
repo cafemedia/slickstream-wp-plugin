@@ -5,16 +5,15 @@ Tags: search,recommendations,favorites,navigation,engagement,better search,advan
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 Requires at least: 5.0
-Requires PHP: 5.6
-Tested up to: 6.5
-Stable tag: 1.4.4
+Requires PHP: 7.4
+Tested up to: 6.6.2
+Stable tag: 2.0.0
 
 Use Slickstream to upgrade your site search.  Get beautiful as-you-type search, relevant content recommendations, user favorites and more!
 
 == Description ==
 
-This plugin is for [Slickstream](https://www.slickstream.com) customers.  It adds our embed code and key metadata into
-your webpages without affecting site speed or performance.
+This plugin is for [Slickstream](https://www.slickstream.com) customers.  It adds our embed code and key metadata into your webpages without affecting site speed or performance.
 
 Slickstream users get unlimited access to all of our tools, including:
 - Responsive *as-you-type search* with a heap of advanced features that your visitors will love
@@ -37,7 +36,6 @@ What makes Slickstream different is that we handle the hard work for you. We sit
 - Floating Favorites: Interactive content bookmarking with no sign-in required
 - Floating Back-to-Top: Simple option to return to top of content
 - Web Story Player: Full site integrations for existing web stories
-- Interactive Games: Automatically generated minigames featuring recommendations
 - Campaigns: Incorporate custom objectives into user experience (business only)
 - Analytics Portal: Robust insights into both Slickstream statistics and general
 
@@ -262,3 +260,8 @@ You can find more information about Slickstream here on Slickstream.com.
 
 = 1.4.4
 - Performance improvement for CLS
+
+= 2.0.0
+- Code updates to follow best practices for PHP >= 7.4.0
+- Page configuration data-loading performance improvements
+- Security enhancements

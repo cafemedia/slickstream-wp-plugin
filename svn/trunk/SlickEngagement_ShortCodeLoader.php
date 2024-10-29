@@ -25,11 +25,11 @@ abstract class SlickEngagement_ShortCodeLoader {
     protected function registerShortcodeToFunction($shortcodeName, $functionName) {
         if (is_array($shortcodeName)) {
             foreach ($shortcodeName as $aName) {
-                add_shortcode($aName, array($this, $functionName));
+                add_shortcode($aName, [$this, $functionName]);
             }
         }
         else {
-            add_shortcode($shortcodeName, array($this, $functionName));
+            add_shortcode($shortcodeName, [$this, $functionName]);
         }
     }
 
