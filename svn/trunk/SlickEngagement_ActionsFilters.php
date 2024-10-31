@@ -1,4 +1,6 @@
-<?php
+<?php 
+declare(strict_types=1);
+namespace Slickstream;
 
 require_once 'SlickEngagement_LifeCycle.php';
 require_once 'SlickEngagement_Plugin.php';
@@ -8,9 +10,7 @@ const GENESIS_BEFORE_CONTENT_POSTS = 'Before content on posts (for Genesis theme
 const GENESIS_AFTER_CONTENT = 'After content (for Genesis themes)';
 const GENESIS_BEFORE_FOOTER = 'Before footer (for Genesis themes)';
 
-
-
-class SlickEngagement_ActionsFilters extends SlickEngagement_LifeCycle {
+class ActionsFilters extends PluginLifecycle {
 
     public function __construct() {
         parent::__construct();
@@ -66,7 +66,7 @@ class SlickEngagement_ActionsFilters extends SlickEngagement_LifeCycle {
     }
 
     protected function getMainPluginFileName(): string {
-        return 'slick-engagement.php';
+        return 'SlickEngagement.php';
     }
 
     protected function installDatabaseTables(): void {}
@@ -95,7 +95,11 @@ class SlickEngagement_ActionsFilters extends SlickEngagement_LifeCycle {
 
     public function addActionsAndFilters(): void {
         $plugin = new SlickEngagement_Plugin();
-        add_action('admin_menu', [$this, 'addSettingsSubMenuPage']);
+
+        // Admin actions
+        if (is_admin()) {
+            add_action('admin_menu', [$this, 'addSettingsSubMenuPage']);
+        }
         add_action('wp_head', [$plugin, 'addSlickPageHeader']);
         add_action('init', [$this, 'addTaxonomiesToPages']);
     
@@ -114,6 +118,16 @@ class SlickEngagement_ActionsFilters extends SlickEngagement_LifeCycle {
         add_filter('rocket_delay_js_exclusions', [$this, 'addWpRocketExclusions']);
     
         $this->addGenesisHooks();
+    }
+
+    public function addSettingsSubMenuPage(): void {
+        $this->requireExtraPluginFiles();
+        $displayName = $this->getPluginDisplayName();
+        add_options_page($displayName,
+            $displayName,
+            'manage_options',
+            'SlickstreamSettings',
+            [&$this, 'settingsPage']);
     }
 
     private function addGenesisHooks(): void {
@@ -146,8 +160,8 @@ class SlickEngagement_ActionsFilters extends SlickEngagement_LifeCycle {
     }
 
     public function onActionLinks($links): array {
-        $settings_url = esc_url(admin_url('options-general.php?page=SlickEngagement_PluginSettings'));
-        $mylinks = ["<a href=\"$settings_url\">Settings</a>"];
+        $settingsUrl = esc_url(admin_url('options-general.php?page=SlickstreamSettings'));
+        $mylinks = ["<a href=\"$settingsUrl\">Settings</a>"];
         return array_merge($links, $mylinks);
     }
 

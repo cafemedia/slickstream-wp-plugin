@@ -1,9 +1,11 @@
-<?php
+<?php 
+declare(strict_types=1);
+namespace Slickstream;
 
-function SlickEngagement_init($file): void {
+function PluginInit(): void {
 
     require_once 'SlickEngagement_ActionsFilters.php';
-    $slickActionsFilters = new SlickEngagement_ActionsFilters();
+    $slickActionsFilters = new ActionsFilters();
 
     // NOTE: this file gets run each time you *activate* the plugin.
     // So in WP when you "install" the plugin, all that does it dump its files in the plugin-templates directory
@@ -19,11 +21,4 @@ function SlickEngagement_init($file): void {
 
     // Add callbacks to hooks
     $slickActionsFilters->addActionsAndFilters();
-
-    if (!$file) {
-        $file = __FILE__;
-    }
-
-    //register_activation_hook($file, [&$slickEngagementPlugin, 'activate']);
-    //register_deactivation_hook($file, [&$slickEngagementPlugin, 'deactivate']);
 }

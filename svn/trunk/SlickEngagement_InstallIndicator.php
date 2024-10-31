@@ -1,7 +1,10 @@
-<?php
-include_once 'SlickEngagement_OptionsManager.php';
+<?php 
+declare(strict_types=1);
+namespace Slickstream;
 
-class SlickEngagement_InstallIndicator extends SlickEngagement_OptionsManager {
+require_once 'SlickEngagement_OptionsManager.php';
+
+class InstallIndicator extends OptionsManager {
 
     const optionInstalled = '_installed';
     const optionVersion = '_version';
@@ -65,7 +68,7 @@ class SlickEngagement_InstallIndicator extends SlickEngagement_OptionsManager {
      * Get a value for input key in the header section of main plugin file.
      * E.g. "Plugin Name", "Version", "Description", "Text Domain", etc.
      * @param $key string plugin header key
-     * @return string if found, otherwise null
+     * @return string | null if found, otherwise null
      */
     public function getPluginHeaderValue($key) {
         // Read the string from the comment header of the main plugin file

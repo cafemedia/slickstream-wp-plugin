@@ -1,8 +1,10 @@
-<?php
+<?php 
+declare(strict_types=1);
+namespace Slickstream;
 
 require_once 'SlickEngagement_Utils.php';
 
-class SlickEngagement_PageBootData extends SlickEngagement_OptionsManager {
+class PageBootData extends OptionsManager {
     private const PAGE_BOOT_DATA_DEFAULT_TTL = 60 * MINUTE_IN_SECONDS;
     private const URL_TO_PAGE_GROUP_MAP_TTL = 12 * HOUR_IN_SECONDS;
     private const DEFAULT_SERVER_URL = 'app.slickstream.com';
@@ -13,14 +15,14 @@ class SlickEngagement_PageBootData extends SlickEngagement_OptionsManager {
     private string $siteCode;
     private string $serverUrlBase;
     private string $urlPath;
-    private SlickEngagement_Utils $utils;
+    private Utils $utils;
 
     public function __construct($serverUrlBase, $siteCode, $scriptClass) {
         parent::__construct();
         $this->scriptClass = $scriptClass;
         $this->serverUrlBase = $serverUrlBase;
         $this->siteCode = $siteCode;
-        $this->utils = new SlickEngagement_Utils();
+        $this->utils = new Utils();
         $this->urlPath = $this->getCurrentUrlPath();
         $this->pageGroupId = $this->getPageGroupId();
         $this->pageGroupTransientName = $this->getPageGroupTransientName();
@@ -65,7 +67,7 @@ class SlickEngagement_PageBootData extends SlickEngagement_OptionsManager {
     }
 
     private function getPageBootData(): ?object {
-        if (!$this->pageGroupId) {
+        if (!$this->pageGroupId || !$this->siteCode || $this->pageGroupTransientName === null) {
             return null;
         }
 
@@ -216,7 +218,10 @@ class SlickEngagement_PageBootData extends SlickEngagement_OptionsManager {
         $this->echoComment('END Page Boot Data', false, false);
     }
 
-    private function getPageGroupTransientName(): string {
+    private function getPageGroupTransientName(): ?string {
+        if (!$this->pageGroupId) {
+            return null;
+        }
         return 'slick_page_group_' . md5($this->pageGroupId);
     }
 

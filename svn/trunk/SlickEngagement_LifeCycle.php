@@ -1,7 +1,10 @@
-<?php
-include_once 'SlickEngagement_InstallIndicator.php';
+<?php 
+declare(strict_types=1);
+namespace Slickstream;
 
-class SlickEngagement_LifeCycle extends SlickEngagement_InstallIndicator {
+require_once 'SlickEngagement_InstallIndicator.php';
+
+class PluginLifecycle extends InstallIndicator {
 
     public function __construct() {
         parent::__construct();
@@ -87,49 +90,9 @@ class SlickEngagement_LifeCycle extends SlickEngagement_InstallIndicator {
      */
     protected function otherUninstall(): void {}
 
-    /**
-     * Puts the configuration page in the Plugins menu by default.
-     * Override to put it elsewhere or create a set of submenus
-     * Override with an empty implementation if you don't want a configuration page
-     * @return void
-     */
-    public function addSettingsSubMenuPage(): void {
-        //$this->addSettingsSubMenuPageToPluginsMenu();
-        $this->addSettingsSubMenuPageToSettingsMenu();
-    }
-
     protected function requireExtraPluginFiles(): void {
         require_once ABSPATH . 'wp-includes/pluggable.php';
         require_once ABSPATH . 'wp-admin/includes/plugin.php';
-    }
-
-    /**
-     * @return string Slug name for the URL to the Setting page
-     * (i.e. the page for setting options)
-     */
-    protected function getSettingsSlug(): string {
-        return get_class($this) . 'Settings';
-    }
-
-    protected function addSettingsSubMenuPageToPluginsMenu(): void {
-        $this->requireExtraPluginFiles();
-        $displayName = $this->getPluginDisplayName();
-        add_submenu_page('plugins.php',
-            $displayName,
-            $displayName,
-            'manage_options',
-            $this->getSettingsSlug(),
-            [&$this, 'settingsPage']);
-    }
-
-    protected function addSettingsSubMenuPageToSettingsMenu(): void {
-        $this->requireExtraPluginFiles();
-        $displayName = $this->getPluginDisplayName();
-        add_options_page($displayName,
-            $displayName,
-            'manage_options',
-            $this->getSettingsSlug(),
-            [&$this, 'settingsPage']);
     }
 
     /**

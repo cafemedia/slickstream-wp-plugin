@@ -1,11 +1,13 @@
-<?php
+<?php 
+declare(strict_types=1);
+namespace Slickstream;
 
-class SlickEngagement_OptionsManager {
+class OptionsManager {
+    private $optionNamePrefix;
 
-    public function __construct() {}
-
-    public function getOptionNamePrefix(): string {
-        return get_class($this) . '_';
+    public function __construct() {
+        // Note: Do not change this or else settings from previous versions will not be able to be accessed
+        $this->optionNamePrefix = 'SlickEngagement_Plugin_';
     }
 
     /**
@@ -60,9 +62,9 @@ class SlickEngagement_OptionsManager {
      * Just returns the class name. Override this method to return something more readable
      */
     public function getPluginDisplayName(): string {
-        return get_class($this);
+        return 'Slickstream Engagement';
     }
-
+    
     /**
      * Get the prefixed version input $name suitable for storing in WP options
      * Idempotent: if $optionName is already prefixed, it is not prefixed again, it is returned without change
@@ -70,25 +72,10 @@ class SlickEngagement_OptionsManager {
      * @return string
      */
     public function prefix($name): string {
-        $optionNamePrefix = $this->getOptionNamePrefix();
-        if (strpos($name, $optionNamePrefix) === 0) { // 0 but not false
+        if (strpos($name, $this->optionNamePrefix) === 0) { // 0 but not false
             return $name; // already prefixed
         }
-        return $optionNamePrefix . $name;
-    }
-
-    /**
-     * Remove the prefix from the input $name.
-     * Idempotent: If no prefix found, just returns what was input.
-     * @param  $name string
-     * @return string $optionName without the prefix.
-     */
-    public function &unPrefix($name): string {
-        $optionNamePrefix = $this->getOptionNamePrefix();
-        if (strpos($name, $optionNamePrefix) === 0) {
-            return substr($name, strlen($optionNamePrefix));
-        }
-        return $name;
+        return $this->optionNamePrefix . $name;
     }
 
     /**
@@ -105,7 +92,7 @@ class SlickEngagement_OptionsManager {
         if (!$retVal && $default) {
             $retVal = $default;
         }
-        return $retVal;
+        return (string) $retVal;
     }
 
     /**
@@ -209,33 +196,6 @@ class SlickEngagement_OptionsManager {
             return true;
         }
         return $this->isUserRoleEqualOrBetterThan($roleAllowed);
-    }
-
-    /**
-     * see: http://codex.wordpress.org/Creating_Options_Pages
-     * @return void
-     */
-    public function createSettingsMenu(): void {
-        $pluginName = $this->getPluginDisplayName();
-        //create new top-level menu
-        add_menu_page(
-            "$pluginName Plugin Settings",
-            $pluginName,
-            'administrator',
-            get_class($this),
-            [&$this, 'settingsPage']
-            /*,plugins_url('/images/icon.png', __FILE__)*/); // if you call 'plugins_url; be sure to "require_once" it
-
-        //call register settings function
-        add_action('admin_init', [&$this, 'registerSettings']);
-    }
-
-    public function registerSettings(): void {
-        $settingsGroup = get_class($this) . '-settings-group';
-        $optionMetaData = $this->getOptionMetaData();
-        foreach ($optionMetaData as $aOptionKey => $aOptionMeta) {
-            register_setting($settingsGroup, $aOptionMeta);
-        }
     }
 
     /**

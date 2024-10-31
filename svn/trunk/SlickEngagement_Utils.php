@@ -1,20 +1,40 @@
-<?php
+<?php 
+declare(strict_types=1);
+namespace Slickstream;
 
-class SlickEngagement_Utils {
-    private $consoleOutput;
+class Utils {
+    private static $instance = null;
 
-    public function __construct() {
-        $this->consoleOutput = '';
+    private function __clone() {}
+
+    private function __wakeup() {}
+
+    public static function getInstance(): Utils {
+        if (self::$instance === null) {
+            self::$instance = new Utils();
+        }
+        return self::$instance;
     }
 
-    public function echoComment($comment, $echoToConsole = true, $debugOnly = true): void {
+    public function echoComment($comment, $sendToBrowserConsole = true, $debugOnly = true): void {
         if ($debugOnly === true && !$this->isDebugModeEnabled()) {
             return;
         }
 
-        echo "<!-- [slickstream] " . strip_tags($comment) . " -->\n";
-        if ($echoToConsole) {
-            $this->consoleOutput .= "$comment\n";
+        echo "<!-- [slickstream] " . strip_tags($comment) . " -->";
+
+        if ($sendToBrowserConsole) {
+            $this->echoConsoleOutput($comment);        
+        } else {
+            echo "\n";
+        }
+
+    }
+
+    public function echoConsoleOutput($output): void {
+        if ($output !== '') {
+            $safeOutput = addslashes(strip_tags($output));
+            echo "\t\t<script>console.info(`[slickstream] $safeOutput`);</script>\n";
         }
     }
 

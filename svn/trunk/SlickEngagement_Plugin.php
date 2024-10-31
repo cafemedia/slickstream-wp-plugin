@@ -1,28 +1,29 @@
 <?php
+declare(strict_types=1);
+namespace Slickstream;
+
 // NOTE: All inline JS scripts embedded by the plugin need to have the string `slickstream` somewhere in them;
 // This allows the string `slickstream` to be used in WP-Rocket lazy load exclusions; ideally $scriptClass is added to each script
 
-declare(strict_types=1); // Enforce strict types
 require_once 'SlickEngagement_Widgets.php';
 require_once 'SlickEngagement_OptionsManager.php';
 require_once 'SlickEngagement_PageBootData.php';
 require_once 'SlickEngagement_Utils.php';
 
-class SlickEngagement_Plugin extends SlickEngagement_OptionsManager  {
+class SlickEngagement_Plugin extends OptionsManager  {
     private const PLUGIN_VERSION = '2.0.0';
     private const DEFAULT_SERVER_URL = 'app.slickstream.com';
-    private string $consoleOutput = '';
     private string $scriptClass = 'slickstream-script';
     private string $serverUrlBase;
     private string $siteCode;
-    private SlickEngagement_Utils $utils;
+    private Utils $utils;
 
     public function __construct() {
        parent::__construct();
        $this->siteCode = rawurlencode(substr(trim($this->getOption('SiteCode', '')), 0, 9));
        $protocol = ($_SERVER['HTTPS'] === 'on') ? 'https' : 'http'; 
        $this->serverUrlBase = "$protocol://" . $this->getOption('SlickServerUrl', self::DEFAULT_SERVER_URL);
-       $this->utils = new SlickEngagement_Utils();
+       $this->utils = Utils::getInstance();
     }
 
     private function echoComment($comment, $echoToConsole = true, $debugOnly = true): void {
@@ -59,24 +60,12 @@ class SlickEngagement_Plugin extends SlickEngagement_OptionsManager  {
         JSDOC;
     }
 
-    private function echoConsoleOutput(): void {
-        if ($this->consoleOutput !== '') {
-            echo "<script class='$this->scriptClass'>console.info(`[slickstream]\n$this->consoleOutput`)</script>\n";
-        }
-    }
-
-    //TODO: Add functionality to detect if the page was cached (by a CDN or otherwise)
     private function getCurrentTimestampByTimeZone($timezone): string {
         $timestamp = time();
-        $dt = new DateTime('now', new DateTimeZone($timezone));
+        $dt = new \DateTime('now', new \DateTimeZone($timezone));
         $dt->setTimestamp($timestamp);
         return $dt->format('n/j/Y, g:i:s A');
     }
-
-    private function getQueryParamByName(string $paramName): ?string {
-        return filter_input(INPUT_GET, $paramName, FILTER_SANITIZE_STRING);
-    }
-
 
     private function getTaxTerms($post, $taxonomyName): array {
         $taxTerms = [];
@@ -121,7 +110,6 @@ class SlickEngagement_Plugin extends SlickEngagement_OptionsManager  {
         JSBLOCK;
     }
 
-    // Outputs A/B Test Config Data to the Console
     private function consoleLogAbTestData(): void {
     echo <<<JSBLOCK
     <script class='$this->scriptClass'>
@@ -320,7 +308,7 @@ class SlickEngagement_Plugin extends SlickEngagement_OptionsManager  {
             return;
         }
 
-        $pageBootData = new SlickEngagement_PageBootData($this->serverUrlBase, $this->siteCode, $this->scriptClass);
+        $pageBootData = new PageBootData($this->serverUrlBase, $this->siteCode, $this->scriptClass);
         $pageBootData->handlePageBootData();
         $this->echoVersionMetaTag();
         $this->echoBootLoader();    
@@ -330,9 +318,10 @@ class SlickEngagement_Plugin extends SlickEngagement_OptionsManager  {
     }
     
     private function echoPageGenerationTimestamp(): void {
-        $timezone = 'EST';
-        $this->echoComment("Page Generated at: " . $this->getCurrentTimeStampByTimeZone($timezone) . " $timezone", true, false);
-        $this->consoleOutput .= "Current timestamp: \${(new Date).toLocaleString('en-US', { timeZone: '$timezone' })} $timezone\n\n";
+        $timezone = 'America/New_York';
+        $shortTimezone = 'EST';
+        $this->echoComment("Page Generated at: " . $this->getCurrentTimeStampByTimeZone($timezone) . " $shortTimezone", true, false);
+        $this->utils->echoConsoleOutput("Current timestamp: \${(new Date).toLocaleString('en-US', { timeZone: '$timezone' })} $shortTimezone\n\n");
     }
     
     private function echoPageMetadata($post): void {
@@ -417,6 +406,5 @@ class SlickEngagement_Plugin extends SlickEngagement_OptionsManager  {
         }
         $this->consoleLogAbTestData();
         $this->echoDebugCLS();
-        $this->echoConsoleOutput();
     }
 }

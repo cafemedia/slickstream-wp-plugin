@@ -1,4 +1,5 @@
-<?php
+<?php 
+declare(strict_types=1);
 
 class Slick_FilmStrip_Widget extends WP_Widget {
     /**
