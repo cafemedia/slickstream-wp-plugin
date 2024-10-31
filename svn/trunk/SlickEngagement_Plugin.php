@@ -321,7 +321,7 @@ class SlickEngagement_Plugin extends OptionsManager  {
         $timezone = 'America/New_York';
         $shortTimezone = 'EST';
         $this->echoComment("Page Generated at: " . $this->getCurrentTimeStampByTimeZone($timezone) . " $shortTimezone", true, false);
-        $this->utils->echoConsoleOutput("Current timestamp: \${(new Date).toLocaleString('en-US', { timeZone: '$timezone' })} $shortTimezone\n\n");
+        echo "\t\t<script>console.info(`[slickstream] Current timestamp: \${(new Date).toLocaleString('en-US', { timeZone: '$timezone' })} $shortTimezone`);</script>\n";
     }
     
     private function echoPageMetadata($post): void {

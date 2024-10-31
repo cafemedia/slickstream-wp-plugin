@@ -22,7 +22,7 @@ class PageBootData extends OptionsManager {
         $this->scriptClass = $scriptClass;
         $this->serverUrlBase = $serverUrlBase;
         $this->siteCode = $siteCode;
-        $this->utils = new Utils();
+        $this->utils = Utils::getInstance();
         $this->urlPath = $this->getCurrentUrlPath();
         $this->pageGroupId = $this->getPageGroupId();
         $this->pageGroupTransientName = $this->getPageGroupTransientName();
@@ -96,6 +96,11 @@ class PageBootData extends OptionsManager {
     }
     
     public function handlePageBootData(): void {
+        if (wp_get_environment_type() === 'local') {
+            $this->echoComment('Local Environment Detected; Skipping Page Boot Data');
+            return;
+        }
+
         // If `delete-boot=1` is passed as a query param, delete the stored page boot data
         $this->handleDeletePageBootData();
         
@@ -108,7 +113,7 @@ class PageBootData extends OptionsManager {
         if ($forceFetchBootData) {
             $this->pageBootData = $this->fetchPageBootData();
         } else if ($dontLoadBootData) {
-            $this->echoComment('Skipping Page Group Data and CLS Data Output');
+            $this->echoComment('Skipping Page Boot Data and CLS Data Output');
             return;
         }
     
@@ -232,7 +237,7 @@ class PageBootData extends OptionsManager {
         if (!$shouldDeleteTransientData) {
             return;
         }
-        $this->echoComment("Deleting Page Group Data From Cache With Key: $this->pageGroupTransientName");
+        $this->echoComment("Deleting Page Boot Data From Cache With Key: $this->pageGroupTransientName");
         $deleteComment = (false === delete_transient($this->pageGroupTransientName)) ? 
             "Nothing to do--Page Boot Data Not Found in Cache" : "Page Boot Data Deleted Successfully";
         $this->echoComment($deleteComment);
