@@ -5,9 +5,9 @@ namespace Slickstream;
 class Utils {
     private static $instance = null;
 
-    private function __clone() {}
+    public function __clone() {}
 
-    private function __wakeup() {}
+    public function __wakeup() {}
 
     public static function getInstance(): Utils {
         if (self::$instance === null) {
@@ -28,7 +28,6 @@ class Utils {
         } else {
             echo "\n";
         }
-
     }
 
     public function echoConsoleOutput($output): void {
@@ -46,7 +45,11 @@ class Utils {
         return filter_input(INPUT_GET, $paramName, FILTER_SANITIZE_STRING);
     }
 
-    public function fetchRemoteObject(string $remoteUrl, int $timeout = 1): ?object {
+    public function fetchRemoteObject(string $remoteUrl, int $timeout = 1, $type = 'json') {
+        if (!in_array($type, ['json', 'text'])) {
+            throw new \InvalidArgumentException("The type parameter must be either 'json' or 'text'.");
+        }
+
         $headers = ['referer' => home_url()];
         $this->echoComment("Fetching from URL: $remoteUrl");
         $this->echoComment('Headers: ' . json_encode($headers));
@@ -62,7 +65,10 @@ class Utils {
             return null;
         }
 
-        return json_decode(wp_remote_retrieve_body($response));
+        return $type === 'text' ? 
+            wp_remote_retrieve_body($response) : 
+            json_decode(wp_remote_retrieve_body($response));
+
     }
 
     //This logic matches the logic on the back-end to determine if the device is mobile

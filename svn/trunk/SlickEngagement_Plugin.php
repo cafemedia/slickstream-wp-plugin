@@ -21,8 +21,7 @@ class SlickEngagement_Plugin extends OptionsManager  {
     public function __construct() {
        parent::__construct();
        $this->siteCode = rawurlencode(substr(trim($this->getOption('SiteCode', '')), 0, 9));
-       $protocol = ($_SERVER['HTTPS'] === 'on') ? 'https' : 'http'; 
-       $this->serverUrlBase = "$protocol://" . $this->getOption('SlickServerUrl', self::DEFAULT_SERVER_URL);
+       $this->serverUrlBase = "https://" . $this->getOption('SlickServerUrl', self::DEFAULT_SERVER_URL);
        $this->utils = Utils::getInstance();
     }
 

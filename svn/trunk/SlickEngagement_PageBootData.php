@@ -6,12 +6,12 @@ require_once 'SlickEngagement_Utils.php';
 
 class PageBootData extends OptionsManager {
     private const PAGE_BOOT_DATA_DEFAULT_TTL = 60 * MINUTE_IN_SECONDS;
-    private const URL_TO_PAGE_GROUP_MAP_TTL = 12 * HOUR_IN_SECONDS;
-    private const DEFAULT_SERVER_URL = 'app.slickstream.com';
+    private const URL_TO_PAGE_GROUP_ID_TTL = 12 * HOUR_IN_SECONDS;
     private string $scriptClass;
     private ?string $pageGroupId;
     private ?object $pageBootData;
     private ?string $pageGroupTransientName;
+    private ?string $pageGroupIdTransientName;
     private string $siteCode;
     private string $serverUrlBase;
     private string $urlPath;
@@ -21,9 +21,10 @@ class PageBootData extends OptionsManager {
         parent::__construct();
         $this->scriptClass = $scriptClass;
         $this->serverUrlBase = $serverUrlBase;
-        $this->siteCode = $siteCode;
+        $this->siteCode = addslashes(substr($siteCode, 0, 9));
         $this->utils = Utils::getInstance();
         $this->urlPath = $this->getCurrentUrlPath();
+        $this->pageGroupIdTransientName = 'slick_page_group_id_' . md5($_SERVER['SERVER_NAME'] . $this->urlPath);
         $this->pageGroupId = $this->getPageGroupId();
         $this->pageGroupTransientName = $this->getPageGroupTransientName();
         $this->pageBootData = $this->getPageBootData();
@@ -33,9 +34,9 @@ class PageBootData extends OptionsManager {
         $this->utils->echoComment($comment, $echoToConsole, $debugOnly);
     }
 
-    private function getBootDataForDevice(): object {
+    private function getPageBootDataForDevice(): object {
         if (isset($this->pageBootData->v2)) {
-            if ($this->utils->isMobile() && isset($bootDataObj->v2->phone)) {
+            if ($this->utils->isMobile() && isset($this->pageBootData->v2->phone)) {
               return $this->pageBootData->v2->phone;
             }
             return $this->pageBootData->v2->desktop;
@@ -44,16 +45,16 @@ class PageBootData extends OptionsManager {
     }
 
     private function echoClsData(): void {
-        $deviceBootData = $this->getBootDataForDevice();
+        $deviceBootData = $this->getPageBootDataForDevice();
     
         $filmstripConfig = $deviceBootData->filmstrip ?? '';
         $dcmConfig = $deviceBootData->inlineSearch ?? '';
-        $ecConfig = $deviceBootData->emailCapture ?? '';
+        $emailCapConfig = $deviceBootData->emailCapture ?? '';
     
-        if (!empty($filmstripConfig) || !empty($dcmConfig) || !empty($ecConfig)) {
+        if (!empty($filmstripConfig) || !empty($dcmConfig) || !empty($emailCapConfig)) {
             $filmstripStr = empty($filmstripConfig) ? '' : json_encode($filmstripConfig);
             $dcmStr = empty($dcmConfig) ? '' : json_encode($dcmConfig);
-            $emailCapStr = empty($ecConfig) ? '' : json_encode($ecConfig);
+            $emailCapStr = empty($emailCapConfig) ? '' : json_encode($emailCapConfig);
     
             $this->echoComment('CLS Insertion:', false, false);
     
@@ -79,24 +80,40 @@ class PageBootData extends OptionsManager {
 
         if ($noTransientPageBootData) {
             $pageBootData = $this->fetchPageBootData();
-            if (!$pageBootData) {
-                $this->echoComment("ERROR: Unable to Fetch Page Boot Data from Server");
-                return null;
-            }
-
             if ($pageBootData) {
-                // Read the TTL in minutes value from the boot data object; fallback to 60 minute default if not found
                 $pageBootDataTtl = $pageBootData->wpPluginTtl ?? self::PAGE_BOOT_DATA_DEFAULT_TTL;
                 set_transient($this->pageGroupTransientName, $pageBootData, $pageBootDataTtl);
                 $this->echoComment("Stored Page Boot Data in Transient Cache Using Key: $this->pageGroupTransientName for $pageBootDataTtl Seconds.");
+            } else {
+                $this->echoComment("ERROR: Unable to Fetch Page Boot Data from Server");
+                return null;
             }            
         }
-
+        $this->echoComment("Retrieved Page Boot Data from from Transient Cache for Page Group ID: $this->pageGroupId from Key: $this->pageGroupTransientName");
         return $pageBootData;
+    }
+
+    // Fetch the Page Boot Data Object by Site Code and Page Group ID from the server
+    private function fetchPageBootData(): ?object {
+        $this->echoComment("Fetching Page Boot Data From Server");
+        
+        if (!$this->siteCode) {
+            $this->echoComment("fetchPageBootData Error: Missing Site Code");
+            return null;
+        }
+        if (!$this->pageGroupId) {
+            $this->echoComment("fetchPageBootData Error: Missing Page Group ID");
+            return null;
+        }
+
+        $protocol = ($_SERVER['HTTPS'] === 'on') ? 'https' : 'http'; 
+        $pageUrl = $protocol . '://' .$_SERVER['SERVER_NAME'] . $this->urlPath;
+        $pageBootDataUrl = $this->serverUrlBase . '/d/page-boot-data?site=' . rawurlencode($this->siteCode) . '&url=' . rawurlencode($pageUrl);
+        return $this->utils->fetchRemoteObject($pageBootDataUrl);
     }
     
     public function handlePageBootData(): void {
-        if (wp_get_environment_type() === 'local') {
+        if (wp_get_environment_type() === 'local' && !$this->utils->isDebugModeEnabled()) {
             $this->echoComment('Local Environment Detected; Skipping Page Boot Data');
             return;
         }
@@ -125,76 +142,50 @@ class PageBootData extends OptionsManager {
         }
     }
 
-    // Fetch the page URL path to Page Group ID mappings from the server
-    private function fetchUrlToPageGroupMap(): ?object {
-        $this->echoComment("Fetching Page Group Map From Server");
-        
-        if (!$this->siteCode) {
-            $this->echoComment("fetchPageBootData Error: Missing Site Code");
-            return null;
-        }
-
-        $urlToPageGroupMapUrl = "{$this->serverUrlBase}/d/url-page-group?site={$this->siteCode}";
-        return $this->utils->fetchRemoteObject($urlToPageGroupMapUrl, 2);
-    }
-        
-    // Fetch the Page Boot Data Object by Site Code and Page Group ID from the server
-    private function fetchPageBootData(): ?object {
-        $this->echoComment("Fetching Page Boot Data From Server");
-        
-        if (!$this->siteCode) {
-            $this->echoComment("fetchPageBootData Error: Missing Site Code");
-            return null;
-        }
-        if (!$this->pageGroupId) {
-            $this->echoComment("fetchPageBootData Error: Missing Page Group ID");
-            return null;
-        }
-
-        $pageBootDataByGroupUrl = $this->serverUrlBase . "/d/group-page-boot-data?site=$this->siteCode&pageGroupId=" . rawurlencode($this->pageGroupId);
-        return $this->utils->fetchRemoteObject($pageBootDataByGroupUrl);
-    }
-
-    private function getCurrentUrlPath() {
-        $scheme = $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
-        $url = "$scheme://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}";
+    private function getCurrentUrlPath(): string {
+        $url = $_SERVER['SERVER_NAME'] . $_SERVER['REQUEST_URI'];
         $parsedUrl = parse_url($url);
-        return dirname($parsedUrl['path']);
+        
+        $path = '';
+        if (isset($parsedUrl['path'])) {
+            $path = ($parsedUrl['path'] === '/') ? '/' : rtrim($parsedUrl['path'], '/');
+        }
+        
+        return $path;
     }
 
-    private function findPageGroupIdByPath($urlToPageGroupMap): ?string {
-        foreach ($urlToPageGroupMap as $path => $pageGroupId) {
-            if ($path === $this->urlPath) {
-                return $pageGroupId;
-            }
+    // Fetch a single page URL path to Page Group ID from the server by site code and URL path
+    private function fetchPageGroupId(): ?string {
+        $this->echoComment("Fetching Page Group ID From Server");
+        
+        if (!$this->siteCode) {
+            $this->echoComment("fetchPageBootData Error: Missing Site Code");
+            return null;
         }
-        return null;
+
+        $urlPathToPageGroupIdUrl = "{$this->serverUrlBase}/d/url-page-group?site={$this->siteCode}&url={$this->urlPath}";
+        return $this->utils->fetchRemoteObject($urlPathToPageGroupIdUrl, 1, 'text');
     }
 
     private function getPageGroupId(): ?string {
-        $urlToPageGroupMap = $this->getUrlToPageGroupMap();
-        return $urlToPageGroupMap ? $this->findPageGroupIdByPath($urlToPageGroupMap) : null;
-    }
-
-    private function getUrlToPageGroupMap(): ?object {
-        $pageGroupMapTransientName = 'slick_page_group_map_' . md5($_SERVER['SERVER_NAME']);
-        $noTransientPageGroupMapExists = (
+        $noTransientPageGroupIdExists = (
             false === (
-                $urlToPageGroupMap = get_transient($pageGroupMapTransientName)
+                $pageGroupId = get_transient($this->pageGroupIdTransientName)
             )
         );
-        
-        if ($noTransientPageGroupMapExists) {
-            $urlToPageGroupMap = $this->fetchUrlToPageGroupMap();
-            if (!$urlToPageGroupMap) {
-                $this->echoComment("Error Fetching Page Group Map From Server");
+
+        if ($noTransientPageGroupIdExists) {
+            $pageGroupId = $this->fetchPageGroupId();
+            if ($pageGroupId) {
+                set_transient($this->pageGroupIdTransientName, $pageGroupId, self::URL_TO_PAGE_GROUP_ID_TTL);
+                $this->echoComment("Successfully Cached Page Group ID With Key: $this->pageGroupIdTransientName for URL Path: $this->urlPath");
+            } else {
+                $this->echoComment("Failed to Fetch Page Group ID for URL Path: $this->urlPath");
                 return null;
             }
-
-            set_transient($pageGroupMapTransientName, $urlToPageGroupMap, self::URL_TO_PAGE_GROUP_MAP_TTL);
-            $this->echoComment("Successfully Cached Page Group Map With Key: $pageGroupMapTransientName.");
-        }
-        return $urlToPageGroupMap;
+        } 
+        $this->echoComment("Retrieved Page Group ID: '{$pageGroupId}' from Transient Cache from Key: $this->pageGroupIdTransientName");
+        return $pageGroupId;
     }
 
     private function echoSlickBootJs(): void {
@@ -227,7 +218,7 @@ class PageBootData extends OptionsManager {
         if (!$this->pageGroupId) {
             return null;
         }
-        return 'slick_page_group_' . md5($this->pageGroupId);
+        return 'slick_page_group_' . md5($_SERVER['SERVER_NAME'] . $this->pageGroupId);
     }
 
     private function handleDeletePageBootData(): void {
@@ -237,9 +228,18 @@ class PageBootData extends OptionsManager {
         if (!$shouldDeleteTransientData) {
             return;
         }
+
         $this->echoComment("Deleting Page Boot Data From Cache With Key: $this->pageGroupTransientName");
         $deleteComment = (false === delete_transient($this->pageGroupTransientName)) ? 
-            "Nothing to do--Page Boot Data Not Found in Cache" : "Page Boot Data Deleted Successfully";
+            "Nothing to do--Page Boot Data Not Found in Cache" : "Page Boot Data Transient Deleted Successfully";
         $this->echoComment($deleteComment);
+
+        $this->echoComment("Deleting Page Group ID From Cache With Key: $this->pageGroupIdTransientName");
+        $deleteComment = (false === delete_transient($this->pageGroupIdTransientName)) ? 
+            "Nothing to do--Page Group ID Not Found in Cache" : "Page Group ID Transient Deleted Successfully";
+        $this->echoComment($deleteComment);
+
+        //Reinitialize the object, which will repopulate the page group ID and page boot data
+        $this->__construct($this->serverUrlBase, $this->siteCode, $this->scriptClass);
     }
 }
