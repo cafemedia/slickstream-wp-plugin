@@ -238,8 +238,5 @@ class PageBootData extends OptionsManager {
         $deleteComment = (false === delete_transient($this->pageGroupIdTransientName)) ? 
             "Nothing to do--Page Group ID Not Found in Cache" : "Page Group ID Transient Deleted Successfully";
         $this->echoComment($deleteComment);
-
-        //Reinitialize the object, which will repopulate the page group ID and page boot data
-        $this->__construct($this->serverUrlBase, $this->siteCode, $this->scriptClass);
     }
 }
