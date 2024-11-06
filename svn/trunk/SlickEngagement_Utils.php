@@ -60,7 +60,7 @@ class Utils {
 
         $responseCode = wp_remote_retrieve_response_code($response);
         if (is_wp_error($response) || $responseCode !== 200) {
-            $errorMsg = is_wp_error($response) ? (string) $response : 'Server-side Error';
+            $errorMsg = is_wp_error($response) ? $response->get_error_message() : 'Server-side Error';
             $this->echoComment("Error Fetching Data from $remoteUrl; Response code: $responseCode; Error: $errorMsg");
             return null;
         }
