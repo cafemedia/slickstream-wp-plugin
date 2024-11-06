@@ -68,7 +68,15 @@ class PageBootData extends OptionsManager {
     }
 
     private function getPageBootData(): ?object {
-        if (!$this->pageGroupId || !$this->siteCode || $this->pageGroupTransientName === null) {
+        if (!$this->pageGroupId || !$this->siteCode || !$this->urlPath || 
+            !$this->pageGroupIdTransientName || !$this->pageGroupTransientName) {
+
+            $this->echoComment('getPageBootData Error: Missing Required Data; Skipping Page Boot Data. Details:');
+            $this->echoComment('pageGroupId: ' . $this->pageGroupId ?? 'null');
+            $this->echoComment('siteCode: ' . $this->siteCode ?? 'null');
+            $this->echoComment('urlPath: ' . $this->urlPath ?? 'null');
+            $this->echoComment('pageGroupIdTransientName: ' . $this->pageGroupIdTransientName ?? 'null');
+            $this->echoComment('pageGroupTransientName: ' . $this->pageGroupTransientName ?? 'null');
             return null;
         }
 
@@ -143,12 +151,12 @@ class PageBootData extends OptionsManager {
     }
 
     private function getCurrentUrlPath(): string {
-        $url = $_SERVER['SERVER_NAME'] . $_SERVER['REQUEST_URI'];
-        $parsedUrl = parse_url($url);
-        
+        $parsedUrl = parse_url('http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']);
         $path = '';
+
         if (isset($parsedUrl['path'])) {
-            $path = ($parsedUrl['path'] === '/') ? '/' : rtrim($parsedUrl['path'], '/');
+            $path = ($parsedUrl['path'] === '/') ? '/' : 
+                rtrim($parsedUrl['path'], '/');
         }
         
         return $path;
