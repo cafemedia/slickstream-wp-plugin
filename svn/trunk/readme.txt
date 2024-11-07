@@ -166,102 +166,102 @@ You can find more information about Slickstream here on Slickstream.com.
 = 1.1.1 =
 - Fix bug with widget declaration
 
-= 1.1.2
+= 1.1.2 =
 - Changed embed code to absolute URL
 
-= 1.1.3
+= 1.1.3 =
 - Trim site codes in case someone adds whitespace
 
-= 1.1.4
+= 1.1.4 =
 - Declare compatibility with WP 4.3
 
-= 1.1.5
+= 1.1.5 =
 - New inline embed code that fixes problem with Firefox Private Browsing
 
-= 1.1.6
+= 1.1.6 =
 - Name and description updates only, no functional changes
 
-= 1.1.7
+= 1.1.7 =
 - Revised shortcode for story-viewer
 
-= 1.1.8
+= 1.1.8 =
 - Added widget and shortcode support for content-grid widget
 
-= 1.1.9
+= 1.1.9 =
 - Added widgets and shortcodes for story-carousel and story-explorer
 - Revised shortcode for story-viewer to use new embed code style
 - Added option for Genesis-based filmstrip container reservation
 
-= 1.1.10
+= 1.1.10 =
 - More options for Genesis-based container reservation
 - Internal testing option added
 
-= 1.1.11
+= 1.1.11 =
 - Minor fix to category fetching
 - Tested with WP 5.7.1
 
-= 1.1.12
+= 1.1.12 =
 - Filmstrip injection now supports Genesis, Trellis/THA, and Thesis-based themes
 - Added Slickstream LD_JSON
 
-= 1.1.13
+= 1.1.13 =
 - Removing Slickstream LD_JSON
 
-= 1.1.14
+= 1.1.14 =
 - Bumping stable version
 
-= 1.1.15
+= 1.1.15 =
 - Support for Kadence theme hooks
 
-= 1.1.16
+= 1.1.16 =
 - Slickstream JSON metadata
 
-= 1.1.17
+= 1.1.17 =
 - Remove extraneous logging
 - Add support for custom injection hook
 
-= 1.2.0
+= 1.2.0 =
 - New embed code with support for boot loader
 
-= 1.2.1
+= 1.2.1 =
 - New options for injecting DCM
 
-= 1.2.2
+= 1.2.2 =
 - Revised to clarify support option
 
-= 1.2.3
+= 1.2.3 =
 - Verified compatibility with WP 6.0.1
 
-= 1.2.4
+= 1.2.4 =
 - Security enhancements
 
-= 1.2.5
+= 1.2.5 =
 - Enhanced A/B testing
 
-= 1.3.0
+= 1.3.0 =
 - Automatically reduces CLS without adjustments or setting changes from admin
 
-= 1.3.1
+= 1.3.1 =
 - Security enhancements
 
-= 1.4.0
+= 1.4.0 =
 - Performance improvements
 - CLS improvements
 
-= 1.4.1
+= 1.4.1 =
 - Added support for custom margins for CLS
 
-= 1.4.2
+= 1.4.2 =
 - Performance improvements
 
-= 1.4.3
+= 1.4.3 =
 - Include options for Genesis-based container reservation
 - Additional performance enhancements
 
-= 1.4.4
+= 1.4.4 =
 - Performance improvement for CLS
 
-= 2.0.0
+= 2.0.0 =
 - Code updates to follow best practices for PHP >= 7.4.0
 - Page configuration data-loading performance improvements
 - Security enhancements
