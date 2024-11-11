@@ -145,7 +145,7 @@ You can find more information about Slickstream here on Slickstream.com.
 - Security enhancements
 
 = 2.0.1 =
-- Updated main file header to improve upgrade path
+- Updated plugin metadata to improve upgrade workflow
 
 == Upgrade Notice ==
 
