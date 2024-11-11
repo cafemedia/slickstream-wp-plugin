@@ -1,5 +1,5 @@
 === Slickstream: Engagement and Conversions ===
-Contributors: kduffie
+Contributors: kduffie,wpslickstream
 Donate link:  https://slickstream.com
 Tags: search,recommendations,favorites,engagement,bookmarks
 License: GPLv3 or later
@@ -150,4 +150,4 @@ You can find more information about Slickstream here on Slickstream.com.
 == Upgrade Notice ==
 
 = 2.0.1 =
-- We recommend all Slickstream sites upgrade to this latest plugin version for the best Slickstream experience. This new version includes enhancements to page load speeds, better configuration data caching, and enhanced security. NOTE: Slickstream Plugins v2.0.0+ require at leaset PHP 7.4.0.
+- We recommend all Slickstream sites upgrade to this latest plugin version for the best Slickstream experience. This new version includes enhancements to page load speeds, better configuration data caching, and enhanced security. NOTE: Slickstream Plugins 2.0.0+ require at leaset PHP 7.4.0.

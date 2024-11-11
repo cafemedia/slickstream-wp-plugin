@@ -1,7 +1,7 @@
 <?php namespace Slickstream;
 /*
  * Plugin Name:       Slickstream Search and Engagement
- * Plugin URI:        https://slickstream.com/getting-started
+ * Plugin URI:        https://slickstream.com/
  * Description:       For use with Slickstream's cloud service and widgets to increase visitor engagement
  * Version:           2.0.1
  * Requires at least: 5.2.0
