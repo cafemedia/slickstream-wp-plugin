@@ -10,7 +10,6 @@
  * Author URI:        https://slickstream.com
  * License:           GPL v3 or later
  * License URI:       https://www.gnu.org/licenses/gpl-3.0.html
- * Update URI:        https://example.com/my-plugin/
  * Text Domain:       slick-engagement
  */
 
