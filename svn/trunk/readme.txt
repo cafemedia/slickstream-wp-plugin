@@ -146,6 +146,7 @@ You can find more information about Slickstream here on Slickstream.com.
 
 = 2.0.1 =
 - Updated plugin metadata to improve upgrade workflow
+- Revised to show accurate version number and update status
 
 == Upgrade Notice ==
 
