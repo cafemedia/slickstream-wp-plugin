@@ -6,10 +6,10 @@ License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 Requires at least: 5.0
 Requires PHP: 7.4.0
-Tested up to: 6.7.0
-Stable tag: 2.0.3
+Tested up to: 6.8.2
+Stable tag: 2.1.0
 
-Use Slickstream to upgrade your site search.  Get beautiful as-you-type search, relevant content recommendations, user favorites and more!
+Use Slickstream to upgrade your site search. Get beautiful as-you-type search, relevant content recommendations, user favorites and more!
 
 == Description ==
 
@@ -78,7 +78,7 @@ What makes Slickstream different is that we handle the hard work for you. We sit
 - Structured data search experience for ingredients or supplies
 - All search queries recorded in analytics
 
-== FAQ ==
+== FAQs ==
 
 = What is Slickstream? =
 Slickstream is a sophisticated market-leading user engagement suite designed for independent publishers. It helps you turn casual visitors into loyal readers that return again and again through intelligent as-you-type search, content recommendations, favoriting and membership capabilities, email sign-up, and other useful features. You can easily design captivating user journeys that lead visitors to exactly what they're looking for. The result is higher pageviews, time-on-page, click-throughs, and return visits. As if that isn’t enough, Slickstream’s reporting gives deep insights into its performance and how your visitors are interacting on your site, far beyond what you can see in Google Analytics.
@@ -96,7 +96,11 @@ Slickstream also offers an email sign-up feature that you can use to collect ema
 Yes we do. Our underlying recommendation technology is not English-specific, and we have already localized the Engagement Suite for German, Portuguese, Spanish, Dutch, French, Norwegian, Swedish, Croatian, Russian, Danish, Arabic, Hebrew, Japanese and more. [Reach out to us](https://www.slickstream.com/contact) and we can confirm if we support your language too.
 
 = Where can I learn more about Slickstream? =
-You can find more information about Slickstream here on Slickstream.com.
+You can find more information about Slickstream at our website: [https://slickstream.com](https://slickstream.com).
+
+= How can I report security bugs? =
+
+You can report security bugs through the Patchstack Vulnerability Disclosure Program. The Patchstack team helps validate, triage and handle any security vulnerabilities. [Report a security vulnerability.](https://patchstack.com/database/vdp/a5ba44ba-8ef4-4d10-a395-b0589af7d09e)
 
 == Installation ==
 
@@ -153,9 +157,16 @@ You can find more information about Slickstream here on Slickstream.com.
 
 = 2.0.3 =
 - Restored `SlickEngagement_init()` function
-- Tested to be comaptible up to Wordpress 6.7.0
+- Tested to be compatible up to Wordpress 6.7.0
 
 == Upgrade Notice ==
 
 = 2.0.3 =
-- We recommend all Slickstream sites upgrade to this latest plugin version for the best Slickstream experience. This new version includes enhancements to page load speeds, better configuration data caching, and enhanced security. NOTE: Slickstream Plugins 2.0.0+ require at leaset PHP 7.4.0.
+- We recommend all Slickstream sites upgrade to this latest plugin version for the best Slickstream experience. This new version includes enhancements to page load speeds, better configuration data caching, and enhanced security. NOTE: Slickstream Plugins 2.0.0+ require at least PHP 7.4.0.
+
+= 2.0.4 =
+- Tested compatibility up to WordPress 6.8.2
+- Fixed deprecated function warning for PHP 8.2.0+
+- Addressed CVE-2025-53273
+- Enhanced string escaping and input validation
+- Enhanced embed code retrieval

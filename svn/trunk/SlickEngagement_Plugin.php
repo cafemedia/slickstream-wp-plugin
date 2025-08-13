@@ -1,5 +1,7 @@
 <?php
+
 declare(strict_types=1);
+
 namespace Slickstream;
 
 // NOTE: All inline JS scripts embedded by the plugin need to have the string `slickstream` somewhere in them;
@@ -10,70 +12,83 @@ require_once 'SlickEngagement_OptionsManager.php';
 require_once 'SlickEngagement_PageBootData.php';
 require_once 'SlickEngagement_Utils.php';
 
-class SlickEngagement_Plugin extends OptionsManager  {
-    private const PLUGIN_VERSION = '2.0.3';
-    private const DEFAULT_SERVER_URL = 'app.slickstream.com';
+class SlickEngagement_Plugin extends OptionsManager
+{
+    private const PLUGIN_VERSION = '2.1.0a';
+    private const DEFAULT_APP_SERVER = 'app.slickstream.com';
+    private const CDN_SERVER = 'c.slickstream.com';
     private string $scriptClass = 'slickstream-script';
     private string $serverUrlBase;
     private string $siteCode;
     private Utils $utils;
 
-    public function __construct() {
-       parent::__construct();
-       $this->siteCode = rawurlencode(substr(trim($this->getOption('SiteCode', '')), 0, 9));
-       $this->serverUrlBase = "https://" . $this->getOption('SlickServerUrl', self::DEFAULT_SERVER_URL);
-       $this->utils = Utils::getInstance();
+    public function __construct()
+    {
+        parent::__construct();
+        $this->siteCode = rawurlencode(substr(trim($this->getOption('SiteCode', '')), 0, 9));
+        $serverHost = $this->getOption('SlickServerUrl', self::DEFAULT_APP_SERVER);
+        $serverHost = preg_replace('#^https?://#', '', $serverHost);
+        $this->serverUrlBase = "https://$serverHost";
+        $this->utils = Utils::getInstance();
     }
 
-    private function echoComment($comment, $echoToConsole = true, $debugOnly = true): void {
-        $this->utils->echoComment($comment, $echoToConsole, $debugOnly);
-    }
-
-    private function echoDebugCLS(): void {
+    private function echoDebugCLS(): void
+    {
+        $this->utils->echoComment("Debug CLS output", false, true);
         echo <<<JSDOC
-        <script class='$this->scriptClass'>
-        (function () {
+    <script id='slick-wp-plugin-debug-cls' class='$this->scriptClass'>
+    (function () {
         const slickBanner = "[slickstream]";
         const clsDataCallback = (clsData) => {
-            if (typeof(clsData.value) !== "number" || !clsData.attribution) {
-                console.info('Invalid CLS data object.');
+            if (typeof clsData.value !== "number" || !clsData.attribution) {
+                console.info(`\${slickBanner} Invalid CLS data object.`);
                 return;
             }
-            console.info(`\${slickBanner} The CLS score on this page is: \${clsData.value.toFixed(3)}, which is considered \${clsData.rating}`);
-            if (clsData.value.toFixed(3) > 0.000) {
+
+            console.info(`\${slickBanner} The CLS score on this page is: \${clsData.value.toFixed(3)}, which is considered \    ${clsData.rating}`);
+
+            if (clsData.value > 0.000) {
                 console.info(`\${slickBanner} The element that contributed the most CLS is:`);
-                console.info(clsData.attribution.largestShiftSource.node);
+                console.info(clsData.attribution?.largestShiftSource?.node || "No node information available.");
                 console.table(clsData.attribution);
             }
         };
 
         console.info(`\${slickBanner} Monitoring for CLS...`);
+
         const script = document.createElement('script');
         script.src = 'https://unpkg.com/web-vitals/dist/web-vitals.attribution.iife.js';
         script.onload = function () {
-            webVitals.onCLS(clsDataCallback);
+            if (typeof webVitals !== 'undefined' && webVitals.onCLS) {
+                webVitals.onCLS(clsDataCallback);
+            } else {
+                console.warn(`\${slickBanner} webVitals library did not load correctly.`);
+            }
         };
         document.head.appendChild(script);
-        })();
-        </script>
-        JSDOC;
+    })();
+    </script>
+    JSDOC;
+        $this->utils->echoComment("END Debug CLS output", false, true);
     }
 
-    private function getCurrentTimestampByTimeZone($timezone): string {
+    private function getCurrentTimestampByTimeZone($timezone): string
+    {
         $timestamp = time();
         $dt = new \DateTime('now', new \DateTimeZone($timezone));
         $dt->setTimestamp($timestamp);
         return $dt->format('n/j/Y, g:i:s A');
     }
 
-    private function getTaxTerms($post, $taxonomyName): array {
+    private function getTaxTerms($post, $taxonomyName): array
+    {
         $taxTerms = [];
         $terms = get_the_terms($post, $taxonomyName);
-    
+
         if (empty($terms)) {
             return $taxTerms;
         }
-    
+
         foreach ($terms as $term) {
             $termObject = (object) [
                 '@id' => $term->term_id,
@@ -82,11 +97,12 @@ class SlickEngagement_Plugin extends OptionsManager  {
             ];
             array_push($taxTerms, $termObject);
         }
-    
+
         return $taxTerms;
     }
-    
-    private function createLdJsonTaxElement($taxonomy, $taxTerms): object {
+
+    private function createLdJsonTaxElement($taxonomy, $taxTerms): object
+    {
         return (object) [
             'name' => $taxonomy->name,
             'label' => $taxonomy->label,
@@ -95,54 +111,65 @@ class SlickEngagement_Plugin extends OptionsManager  {
         ];
     }
 
-    private function echoWpRocketDetection(): void {
+    private function echoWpRocketDetection(): void
+    {
+        $this->utils->echoComment("WP-Rocket Detection", false, true);
         echo <<<JSBLOCK
-        <script class='$this->scriptClass'>
+        <script id="slick-wp-rocket-detect-script" class='$this->scriptClass'>
         (function() {
             const slickstreamRocketPluginScripts = document.querySelectorAll('script.$this->scriptClass[type=rocketlazyloadscript]');
             const slickstreamRocketExternalScripts = document.querySelectorAll('script[type=rocketlazyloadscript][src*="app.slickstream.com"]');
             if (slickstreamRocketPluginScripts.length > 0 || slickstreamRocketExternalScripts.length > 0) {
-                console.warn('[slickstream]' + ['Slickstream scripts. This ', 'may cause undesirable behavior, ', 'such as increased CLS scores.',' WP-Rocket is deferring one or more ',].sort().join(''));
+                console.warn('[slickstream]' + ['Slickstream scripts. This ', 
+                'may cause undesirable behavior, ', 'such as increased CLS scores.',' WP-Rocket is deferring one or more '].sort().join(''));
             }
         })();
         </script>
         JSBLOCK;
+        $this->utils->echoComment("END WP-Rocket Detection", false, true);
     }
 
-    private function consoleLogAbTestData(): void {
-    echo <<<JSBLOCK
-    <script class='$this->scriptClass'>
-    "use strict";(async()=>{var e,t;const o=window.\$slickBoot=window.\$slickBoot||{};const n="[slickstream] ";const s="color: red";const a="color: yellow";if(!o.d){console.warn(`%c\${n}Slickstream page boot data not found.`,a);return}const r=(e=o.d)===null||e===void 0?void 0:e.abTests;const i=(t=o.d)===null||t===void 0?void 0:t.siteCode;if(!o){console.warn(`%c\${n}Slickstream config data not found; Slickstream is likely not installed on this site.`,a);return}if(!i){console.warn(`%c\${n}Could not determine Slickstream siteCode for this page.`,a);return}if(o.d.bestBy<Date.now()){console.warn(`%c\${n}WARNING: Slicktream page config data is stale. Please reload the page to fetch up-to-date config data.`,a)}if(!r||Array.isArray(r)&&r.length===0){console.info(`%c\${n}There are no Slickstream A/B tests running currently.`,s)}else{console.info(`%c\${n}A/B TEST(S) FOR SLICKSTREAM ARE RUNNING. \\n\\nHere are the details:`,s);const e=e=>{var t;const o=localStorage.getItem("slick-ab");const n=o&&JSON.parse(o)||{value:false};return{"Feature being Tested":e.feature,"Is the A/B test running on this site?":!((t=e===null||e===void 0?void 0:e.excludeSites)===null||t===void 0?void 0:t.includes(i))?"yes":"no","Am I in the test group (feature disabled)?":n.value===true?"yes":"no","Percentage of Users this feature is ENABLED For":e.fraction,"Percentage of Users this feature is DISABLED For":100-e.fraction,"Start Date":new Date(e.startDate).toString(),"End Date":new Date(e.endDate).toString(),"Current Time":(new Date).toString()}};r.forEach((t=>{console.table(e(t))}))}})();
-    </script>
-    JSBLOCK;
+    private function consoleLogAbTestData(): void
+    {
+        $this->utils->echoComment("Console Logging A/B Test Data", false, true);
+        echo <<<JSBLOCK
+        <script id="slick-ab-test-script" class='$this->scriptClass'>
+        "use strict";(async()=>{var e,t;const o=window.\$slickBoot=window.\$slickBoot||{};const n="[slickstream] ";const s="color: red";const a="color: yellow";if(!o.d){console.warn(`%c\${n}Slickstream page boot data not found.`,a);return}const r=(e=o.d)===null||e===void 0?void 0:e.abTests;const i=(t=o.d)===null||t===void 0?void 0:t.siteCode;if(!o){console.warn(`%c\${n}Slickstream config data not found; Slickstream is likely not installed on this site.`,a);return}if(!i){console.warn(`%c\${n}Could not determine Slickstream siteCode for this page.`,a);return}if(o.d.bestBy<Date.now()){console.warn(`%c\${n}WARNING: Slicktream page config data is stale. Please reload the page to fetch up-to-date config data.`,a)}if(!r||Array.isArray(r)&&r.length===0){console.info(`%c\${n}There are no Slickstream A/B tests running currently.`,s)}else{console.info(`%c\${n}A/B TEST(S) FOR SLICKSTREAM ARE RUNNING. \\n\\nHere are the details:`,s);const e=e=>{var t;const o=localStorage.getItem("slick-ab");const n=o&&JSON.parse(o)||{value:false};return{"Feature being Tested":e.feature,"Is the A/B test running on this site?":!((t=e===null||e===void 0?void 0:e.excludeSites)===null||t===void 0?void 0:t.includes(i))?"yes":"no","Am I in the test group (feature disabled)?":n.value===true?"yes":"no","Percentage of Users this feature is ENABLED For":e.fraction,"Percentage of Users this feature is DISABLED For":100-e.fraction,"Start Date":new Date(e.startDate).toString(),"End Date":new Date(e.endDate).toString(),"Current Time":(new Date).toString()}};r.forEach((t=>{console.table(e(t))}))}})();
+        </script>
+        JSBLOCK;
+        $this->utils->echoComment("END Console Logging A/B Test Data", false, true);
     }
 
-    function getPageType(): string {
+    private function getPageType(): string
+    {
         if (is_front_page() || is_home()) {
             return 'home';
-        } 
+        }
         if (is_category()) {
             return 'category';
-        } 
+        }
         if (is_tag()) {
             return 'tag';
-        } 
+        }
         if (is_singular('post')) {
             return 'post';
-        } 
+        }
         if (is_singular('page')) {
             return 'page';
         }
         return 'other';
     }
-    
-    function addMeta($property, $content): void {
+
+    private function addMeta($property, $content): void
+    {
         $property = (string) $property;
         $content = (string) $content;
-        echo '<meta property="' . htmlspecialchars($property, ENT_QUOTES, 'UTF-8') . 
-        '" content="' . htmlspecialchars($content, ENT_QUOTES, 'UTF-8') . "\" />\n";    }
-    
-    function handleCategoryMeta($ldJsonPost): void {
+        echo '<meta property="' . htmlspecialchars($property, ENT_QUOTES, 'UTF-8') .
+        '" content="' . htmlspecialchars($content, ENT_QUOTES, 'UTF-8') . "\" />\n";
+    }
+
+    private function handleCategoryMeta($ldJsonPost): void
+    {
         $term = get_queried_object();
         if (isset($term->slug)) {
             $this->addMeta('slick:category', "$term->slug:$term->name");
@@ -153,8 +180,9 @@ class SlickEngagement_Plugin extends OptionsManager  {
             ];
         }
     }
-    
-    function handleTagMeta($ldJsonPost): void {
+
+    private function handleTagMeta($ldJsonPost): void
+    {
         $term = get_queried_object();
         if (isset($term->slug)) {
             $this->addMeta('slick:tag', "$term->slug:$term->name");
@@ -165,23 +193,25 @@ class SlickEngagement_Plugin extends OptionsManager  {
             ];
         }
     }
-    
-    function handleSingularMeta($post, &$ldJsonPost): void {
+
+    private function handleSingularMeta($post, &$ldJsonPost): void
+    {
         if (is_singular('post')) {
             $this->addMeta('slick:group', 'post');
         }
-    
+
         $this->handleCategories($post, $ldJsonPost);
         $this->handleTags($post, $ldJsonPost);
         $this->handleTaxonomies($post, $ldJsonPost);
     }
-    
-    function handleCategories($post, &$ldJsonPost): void {
+
+    private function handleCategories($post, &$ldJsonPost): void
+    {
         $categories = get_the_category();
         if (empty($categories)) {
             return;
         }
-    
+
         $ldJsonCategoryElements = [];
         foreach ($categories as $category) {
             if (isset($category->slug) && $category->slug !== 'uncategorized') {
@@ -189,22 +219,25 @@ class SlickEngagement_Plugin extends OptionsManager  {
                 $ldJsonCategoryElements[] = $this->buildCategoryElement($category);
             }
         }
-    
+
         if (!empty($ldJsonCategoryElements)) {
             $ldJsonPost->categories = $ldJsonCategoryElements;
         }
     }
-    
-    function buildCategoryElement($category): object {
+
+    private function buildCategoryElement($category): object
+    {
         $ldJsonParents = [];
         $used = [$category->cat_ID];
         $parentCatId = $category->category_parent;
 
         while ($parentCatId && count($used) < 8 && !in_array($parentCatId, $used)) {
             $parentCat = get_category($parentCatId);
+
             if ($parentCat instanceof WPError || $parentCat === null) {
                 continue;
             }
+
             if ($parentCat && is_object($parentCat) && isset($parentCat->slug) && $parentCat->slug !== 'uncategorized') {
                 $parentCat = (object) $parentCat; //To placate WPError warnings
                 $this->addMeta(';', $parentCat->slug . ':' . $this->utils->removeSemicolons($parentCat->name));
@@ -216,13 +249,14 @@ class SlickEngagement_Plugin extends OptionsManager  {
                 ];
             }
             $used[] = $parentCatId;
+
             if (!is_wp_error($parentCat)) {
                 $parentCatId = $parentCat->category_parent;
             } else {
                 continue;
             }
         }
-    
+
         return (object)[
             '@id' => $category->cat_ID,
             'slug' => $category->slug,
@@ -230,25 +264,29 @@ class SlickEngagement_Plugin extends OptionsManager  {
             'parents' => $ldJsonParents
         ];
     }
-    
-    function handleTags($post, &$ldJsonPost): void {
+
+    private function handleTags($post, &$ldJsonPost): void
+    {
         $tags = get_the_tags();
         if (empty($tags)) {
             return;
         }
-        $ldJsonTags = array_map(function($tag) {
+        $ldJsonTags = array_map(function ($tag) {
             return $tag->name;
         }, $tags);
-    
+
         if (!empty($ldJsonTags)) {
             $ldJsonPost->tags = $ldJsonTags;
         }
     }
-    
-    function handleTaxonomies($post, &$ldJsonPost): void {
+
+    private function handleTaxonomies($post, &$ldJsonPost): void
+    {
         $taxonomies = get_object_taxonomies($post, 'objects');
-        if (empty($taxonomies)) return;
-    
+        if (empty($taxonomies)) {
+            return;
+        }
+
         $ldJsonTaxonomies = [];
         foreach ($taxonomies as $taxonomy) {
             if (empty($taxonomy->_builtin) && $taxonomy->public) {
@@ -258,13 +296,14 @@ class SlickEngagement_Plugin extends OptionsManager  {
                 }
             }
         }
-    
+
         if (!empty($ldJsonTaxonomies)) {
             $ldJsonPost->taxonomies = $ldJsonTaxonomies;
         }
     }
-    
-    function buildLdJsonPost($post): object {
+
+    private function buildLdJsonPost($post): object
+    {
         $ldJsonPost = (object)[
             '@type' => 'WebPage',
             '@id' => $post->ID,
@@ -279,78 +318,172 @@ class SlickEngagement_Plugin extends OptionsManager  {
             'pageType' => $this->getPageType(),
             'postType' => $post->post_type
         ];
-    
+
         return $ldJsonPost;
     }
 
-    public function echoBootLoader(): void {
-        $this->echoComment("Bootloader:", false, false);
-        echo "<script class='$this->scriptClass'>'use strict';\n";
-        echo "(async(e,t)=>{if(location.search.indexOf(\"no-slick\")>=0){return}let s;const a=()=>performance.now();let c=window.\$slickBoot=window.\$slickBoot||{};c.rt=e;c._es=a();c.ev=\"2.0.1\";c.l=async(e,t)=>{try{let c=0;if(!s&&\"caches\"in self){s=await caches.open(\"slickstream-code\")}if(s){let o=await s.match(e);if(!o){c=a();await s.add(e);o=await s.match(e);if(o&&!o.ok){o=undefined;s.delete(e)}}if(o){const e=o.headers.get(\"x-slickstream-consent\");return{t:c,d:t?await o.blob():await o.json(),c:e||\"na\"}}}}catch(e){console.log(e)}return{}};const o=e=>new Request(e,{cache:\"no-store\"});if(!c.d||c.d.bestBy<Date.now()){const s=o(`\${e}/d/page-boot-data?site=\${t}&url=\${encodeURIComponent(location.href.split(\"#\")[0])}`);let{t:i,d:n,c:l}=await c.l(s);if(n){if(n.bestBy<Date.now()){n=undefined}else if(i){c._bd=i;c.c=l}}if(!n){c._bd=a();const e=await fetch(s);const t=e.headers.get(\"x-slickstream-consent\");c.c=t||\"na\";n=await e.json()}if(n){c.d=n;c.s=\"embed\"}}if(c.d){let e=c.d.bootUrl;const{t:t,d:s}=await c.l(o(e),true);if(s){c.bo=e=URL.createObjectURL(s);if(t){c._bf=t}}else{c._bf=a()}const i=document.createElement(\"script\");i.className=\"slickstream-script\";i.src=e;document.head.appendChild(i)}else{console.log(\"[slickstream] Boot failed\")}})\n";
-        echo '("' . addslashes($this->serverUrlBase) . '","' . addslashes($this->siteCode) . "\");\n";
-        echo "</script>\n";
-        $this->echoComment("END Bootloader", false, false);
+
+    // Check the transient cache for the embed code first
+    // If not present, fetch it from the server
+    public function getEmbedCode(string $version, string $branch = 'app', string $overrideUrl = ''): string
+    {
+        $embedCodeTransientName = 'slickstream_embed_code';
+        $embedCode = get_transient($embedCodeTransientName);
+
+        if ($embedCode) {
+            return $embedCode;
+        }
+
+        $embedCodeObj = $this->fetchRemoteEmbedCode($version, $branch, $overrideUrl);
+
+        if (!$embedCodeObj) {
+            return "// ERROR: Failed to fetch embed code from the server (Version: $version / Branch $branch)";
+        }
+
+        $embedCode = $this->replaceEmbedPlaceholders($embedCodeObj->body);
+
+        if ($embedCode === null) {
+            return "// ERROR: Embed code contains placeholders and was not cached";
+        }
+
+        $this->cacheEmbedCode($embedCode, $embedCodeTransientName);
+        return $embedCode;
     }
 
-    private function echoVersionMetaTag(): void {
+    private function fetchRemoteEmbedCode(string $version, string $branch, string $overrideUrl = ''): ?object
+    {
+        $remoteUrl = (!empty($overrideUrl)) ? 
+            $overrideUrl : 
+            "https://" . self::CDN_SERVER . "/$branch/$version/embed-code.js";
+
+        $this->utils->echoComment("Fetching embed code from: $remoteUrl");
+        $embedCodeObj = $this->utils->fetchRemote($remoteUrl, 2);
+
+        if (
+            $embedCodeObj &&
+            $embedCodeObj->status === 'success' &&
+            $embedCodeObj->body
+        ) {
+            return $embedCodeObj;
+        }
+
+        return null;
+    }
+
+    private function replaceEmbedPlaceholders(string $embedCode): ?string
+    {
+        $replacements = [
+            '{{{serverRoot}}}' => addslashes($this->serverUrlBase),
+            '{{sitecode}}' => addslashes($this->siteCode),
+        ];
+
+        foreach ($replacements as $search => $replace) {
+            $embedCode = preg_replace('/' . preg_quote($search, '/') . '/u', $replace, $embedCode);
+        }
+
+        if (
+            strpos($embedCode, '{{{serverRoot}}}') === false &&
+            strpos($embedCode, '{{sitecode}}') === false
+        ) {
+            return $embedCode;
+        }
+        return null;
+    }
+
+    private function cacheEmbedCode(string $embedCode, string $embedCodeTransientName): void
+    {
+        set_transient($embedCodeTransientName, $embedCode, 24 * HOUR_IN_SECONDS);
+    }
+
+    public function echoEmbedCode(): void
+    {
+        // FIXME: update the embed-code URL to point to the latest version (using a slug) and branch before broad production deployment!!
+        $clientBranch = "SLICK-1783";
+        $clientVersion = "2.15.0a19-SLICK-1783";
+        $overrideUrl = ''; // Set this to a specific URL if needed, otherwise it will use the default CDN URL
+
+        $codeBranchStr = ($clientBranch === 'main') ? 
+            'app' : 
+            "app-branch/$clientBranch";
+
+        $embedCode = $this->getEmbedCode($clientVersion, $codeBranchStr, $overrideUrl);
+
+        if ($embedCode) {
+            $this->utils->echoComment("Embed Code:  ", false, true, true);
+            echo "<script id=\"slick-embed-code-script\" class='$this->scriptClass'>\n$embedCode\n</script>\n";
+            $this->utils->echoComment("END Embed Code", false, true, true);
+        } else {
+            $this->utils->echoComment("Embed code missing; Slickstream services are disabled", true, false);
+        }
+
+        return;
+    }
+
+    private function echoVersionMetaTag(): void
+    {
         echo "\n<meta property='slick:wpversion' content='" . self::PLUGIN_VERSION . "' />\n";
     }
 
     //Outputs debug info, meta tags, page boot data, and other page metadata into the page header
-    public function addSlickPageHeader(): void {
+    public function addSlickPageHeader(): void
+    {
         global $post;
 
         $this->echoPageGenerationTimestamp();
 
         if (!$this->siteCode) {
-            $this->echoComment("ERROR: Site Code missing from Plugin Settings; Slickstream services are disabled", true, false);
+            $this->utils->echoComment("ERROR: Site Code missing from Plugin Settings; Slickstream services are disabled", true, false);
             return;
         }
 
         $pageBootData = new PageBootData($this->serverUrlBase, $this->siteCode, $this->scriptClass);
         $pageBootData->handlePageBootData();
         $this->echoVersionMetaTag();
-        $this->echoBootLoader();    
+        $this->echoEmbedCode();
         $this->echoPageMetadata($post);
         $this->outputDebugInfo();
         $this->echoWpRocketDetection();
     }
-    
-    private function echoPageGenerationTimestamp(): void {
+
+    private function echoPageGenerationTimestamp(): void
+    {
         $timezone = 'America/New_York';
         $shortTimezone = 'EST';
-        $this->echoComment("Page Generated at: " . $this->getCurrentTimeStampByTimeZone($timezone) . " $shortTimezone", true, false);
+        $this->utils->echoComment("Page Generated at: " . $this->getCurrentTimestampByTimeZone($timezone) . " $shortTimezone", true, false);
         echo "\t\t<script>console.info(`[slickstream] Current timestamp: \${(new Date).toLocaleString('en-US', { timeZone: '$timezone' })} $shortTimezone`);</script>\n";
     }
-    
-    private function echoPageMetadata($post): void {
-        $this->echoComment("Page Metadata:", false, false);
-        
+
+    private function echoPageMetadata($post): void
+    {
+        $this->utils->echoComment("Page Metadata:", false, false);
+
         $ldJsonElements = [];
         array_push($ldJsonElements, $this->getLdJsonPluginData(), $this->getLdJsonSiteData());
-        
+
         if (!empty($post)) {
             $ldJsonPost = $this->buildLdJsonPost($post);
             $this->processPostMetadata($post, $ldJsonPost);
             array_push($ldJsonElements, $ldJsonPost);
         }
-    
+
         $ldJson = (object) [
             '@context' => 'https://slickstream.com',
             '@graph' => $ldJsonElements,
         ];
         echo '<script type="application/x-slickstream+json">' . json_encode($ldJson, JSON_UNESCAPED_SLASHES) . "</script>\n";
-        $this->echoComment("END Page Metadata", false, false);
+        $this->utils->echoComment("END Page Metadata", false, false);
     }
-    
-    private function getLdJsonPluginData(): object {
+
+    private function getLdJsonPluginData(): object
+    {
         return (object) [
             '@type' => 'Plugin',
             'version' => self::PLUGIN_VERSION,
         ];
     }
-    
-    private function getLdJsonSiteData(): object {
+
+    private function getLdJsonSiteData(): object
+    {
         return (object) [
             '@type' => 'Site',
             'name' => get_bloginfo('name'),
@@ -360,10 +493,11 @@ class SlickEngagement_Plugin extends OptionsManager  {
             'rtl' => is_rtl(),
         ];
     }
-    
-    private function processPostMetadata($post, &$ldJsonPost): void {
+
+    private function processPostMetadata($post, &$ldJsonPost): void
+    {
         $this->addMeta('slick:wppostid', $post->ID);
-        
+
         if (has_post_thumbnail($post)) {
             $images = wp_get_attachment_image_src(get_post_thumbnail_id($post), 'single-post-thumbnail');
             if (!empty($images)) {
@@ -371,15 +505,15 @@ class SlickEngagement_Plugin extends OptionsManager  {
                 $ldJsonPost->featured_image = $images[0];
             }
         }
-    
+
         $authorName = get_the_author_meta('display_name');
         if (!empty($authorName)) {
             $ldJsonPost->author = $authorName;
         }
-    
+
         $this->handlePostTypeMeta($post, $ldJsonPost);
     }
-    
+
     private function handlePostTypeMeta($post, &$ldJsonPost): void
     {
         switch (true) {
@@ -387,19 +521,20 @@ class SlickEngagement_Plugin extends OptionsManager  {
                 $this->addMeta('slick:group', 'category');
                 $this->handleCategoryMeta($ldJsonPost);
                 break;
-    
+
             case is_tag():
                 $this->addMeta('slick:group', 'tag');
                 $this->handleTagMeta($ldJsonPost);
                 break;
-    
+
             case is_singular(['post', 'page']):
                 $this->handleSingularMeta($post, $ldJsonPost);
                 break;
         }
     }
-    
-    private function outputDebugInfo(): void {
+
+    private function outputDebugInfo(): void
+    {
         if (!$this->utils->isDebugModeEnabled()) {
             return;
         }

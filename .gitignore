@@ -1,3 +1,20 @@
+*.zip
+
+# Operating System
+.DS_Store
+Thumbs.db
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# Composer
+/vendor/
+/composer.lock
+
+# svn
 svn/.svn
 svn/trunk.zip
-.ds_store
+
+# PHP
+vendor/

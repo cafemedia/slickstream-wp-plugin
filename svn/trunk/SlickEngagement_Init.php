@@ -1,7 +1,9 @@
-<?php 
+<?php
+
 declare(strict_types=1);
 
-function SlickEngagement_init(): void {
+function SlickEngagement_init(): void
+{
 
     require_once 'SlickEngagement_PluginInit.php';
     require_once 'SlickEngagement_ActionsFilters.php';
