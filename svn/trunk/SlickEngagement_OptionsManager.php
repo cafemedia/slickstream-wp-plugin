@@ -10,7 +10,7 @@ class OptionsManager
 
     public function __construct()
     {
-        // Note: Do not change this or else settings from previous versions will not be able to be accessed
+        // Note: Do not change this or else settings from previous versions will not be accessed
         $this->optionNamePrefix = 'SlickEngagement_Plugin_';
     }
 

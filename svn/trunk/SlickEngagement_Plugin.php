@@ -21,6 +21,8 @@ class SlickEngagement_Plugin extends OptionsManager
     private string $serverUrlBase;
     private string $siteCode;
     private Utils $utils;
+    private const CLIENT_CODE_BRANCH = 'SLICK-1783'; // Only needs to be populated when testing on feature branches
+    private const CLIENT_VERSION = '2.15.0a25-SLICK-1783'; // Update this when the embed code, bootloader, or CLS insertion scripts change
 
     public function __construct()
     {
@@ -36,25 +38,24 @@ class SlickEngagement_Plugin extends OptionsManager
     {
         $this->utils->echoComment("Debug CLS output", false, true);
         echo <<<JSDOC
-    <script id='slick-wp-plugin-debug-cls' class='$this->scriptClass'>
+    <script id='slick-wp-plugin-debug-cls' class='\\$this->scriptClass'>
     (function () {
-        const slickBanner = "[slickstream]";
         const clsDataCallback = (clsData) => {
             if (typeof clsData.value !== "number" || !clsData.attribution) {
-                console.info(`\${slickBanner} Invalid CLS data object.`);
+                console.info(`[Slickstream] Invalid CLS data object.`);
                 return;
             }
 
-            console.info(`\${slickBanner} The CLS score on this page is: \${clsData.value.toFixed(3)}, which is considered \    ${clsData.rating}`);
+            console.info(`[slickstream] The CLS score on this page is: \${clsData.value.toFixed(3)}, which is considered \${clsData.rating}`);
 
             if (clsData.value > 0.000) {
-                console.info(`\${slickBanner} The element that contributed the most CLS is:`);
+                console.info(`[Slickstream] The element that contributed the most CLS is:`);
                 console.info(clsData.attribution?.largestShiftSource?.node || "No node information available.");
                 console.table(clsData.attribution);
             }
         };
 
-        console.info(`\${slickBanner} Monitoring for CLS...`);
+        console.info(`[Slickstream] Monitoring for CLS...`);
 
         const script = document.createElement('script');
         script.src = 'https://unpkg.com/web-vitals/dist/web-vitals.attribution.iife.js';
@@ -62,7 +63,7 @@ class SlickEngagement_Plugin extends OptionsManager
             if (typeof webVitals !== 'undefined' && webVitals.onCLS) {
                 webVitals.onCLS(clsDataCallback);
             } else {
-                console.warn(`\${slickBanner} webVitals library did not load correctly.`);
+                console.warn(`[Slickstream] webVitals library did not load correctly.`);
             }
         };
         document.head.appendChild(script);
@@ -392,21 +393,19 @@ class SlickEngagement_Plugin extends OptionsManager
 
     private function cacheEmbedCode(string $embedCode, string $embedCodeTransientName): void
     {
-        set_transient($embedCodeTransientName, $embedCode, 24 * HOUR_IN_SECONDS);
+        set_transient($embedCodeTransientName, $embedCode, 8 * HOUR_IN_SECONDS);
     }
 
     public function echoEmbedCode(): void
     {
         // FIXME: update the embed-code URL to point to the latest version (using a slug) and branch before broad production deployment!!
-        $clientBranch = "SLICK-1783";
-        $clientVersion = "2.15.0a19-SLICK-1783";
         $overrideUrl = ''; // Set this to a specific URL if needed, otherwise it will use the default CDN URL
 
-        $codeBranchStr = ($clientBranch === 'main') ? 
+        $codeBranchStr = (self::CLIENT_CODE_BRANCH === 'main') ? 
             'app' : 
-            "app-branch/$clientBranch";
+            "app-branch/" . self::CLIENT_CODE_BRANCH;
 
-        $embedCode = $this->getEmbedCode($clientVersion, $codeBranchStr, $overrideUrl);
+        $embedCode = $this->getEmbedCode(self::CLIENT_VERSION, $codeBranchStr, $overrideUrl);
 
         if ($embedCode) {
             $this->utils->echoComment("Embed Code:  ", false, true, true);
@@ -424,7 +423,7 @@ class SlickEngagement_Plugin extends OptionsManager
         echo "\n<meta property='slick:wpversion' content='" . self::PLUGIN_VERSION . "' />\n";
     }
 
-    //Outputs debug info, meta tags, page boot data, and other page metadata into the page header
+    // Outputs debug info, meta tags, page boot data, and other page metadata into the page <head>
     public function addSlickPageHeader(): void
     {
         global $post;
@@ -440,6 +439,7 @@ class SlickEngagement_Plugin extends OptionsManager
         $pageBootData->handlePageBootData();
         $this->echoVersionMetaTag();
         $this->echoEmbedCode();
+        // TODO: fetch, transient cache, and echo the contents of `boot-loader.js`
         $this->echoPageMetadata($post);
         $this->outputDebugInfo();
         $this->echoWpRocketDetection();

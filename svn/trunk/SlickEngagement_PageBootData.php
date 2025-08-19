@@ -47,7 +47,7 @@ class PageBootData extends OptionsManager
         return $this->pageBootData;
     }
 
-    private function echoClsData(): void
+    private function echoClsContainerScript(): void
     {
         $deviceBootData = $this->getPageBootDataForDevice();
 
@@ -65,7 +65,7 @@ class PageBootData extends OptionsManager
             // NOTE: The source of the minified JavaScript below is: slickstream-client/blob/main/src/plugin/cls-inject.ts
             // This script will insert the filmstrip, DCM, and email container elements into the page to eliminate CLS on those widgets.
             // TODO: This should be pulled in over HTTP and cached in Wordpress, not embedded directly like this.
-            echo "<script>\n";
+            echo "\n<script>\n";
             echo "\"use strict\";(async(e,t,n)=>{const o=\"slickstream\";const i=e?JSON.parse(e):null;const r=t?JSON.parse(t):null;const c=n?JSON.parse(n):null;if(i||r||c){const e=async()=>{if(document.body){if(i){m(i.selector,i.position||\"after selector\",\"slick-film-strip\",i.minHeight||72,i.margin||i.marginLegacy||\"10px auto\")}if(r){r.forEach((e=>{if(e.selector){m(e.selector,e.position||\"after selector\",\"slick-inline-search-panel\",e.minHeight||350,e.margin||e.marginLegacy||\"50px 15px\",e.id)}}))}if(c){s(c)}return}window.requestAnimationFrame(e)};window.requestAnimationFrame(e)}const s=async e=>{const t=\"slick-on-page\";try{if(document.querySelector(`.\${t}`)){return}const n=l()?e.minHeightMobile||220:e.minHeight||200;if(e.cssSelector){m(e.cssSelector,\"before selector\",t,n,\"\",undefined)}else{a(e.pLocation||3,t,n)}}catch(e){console.log(\"plugin\",\"error\",o,`Failed to inject \${t}`)}};const a=async(e,t,n)=>{const o=document.createElement(\"div\");o.classList.add(t);o.classList.add(\"cls-inserted\");o.style.minHeight=n+\"px\";const i=document.querySelectorAll(\"article p\");if((i===null||i===void 0?void 0:i.length)>=e){const t=i[e-1];t.insertAdjacentElement(\"afterend\",o);return o}const r=document.querySelectorAll(\"section.wp-block-template-part div.entry-content p\");if((r===null||r===void 0?void 0:r.length)>=e){const t=r[e-1];t.insertAdjacentElement(\"afterend\",o);return o}return null};const l=()=>{const e=navigator.userAgent;const t=/Tablet|iPad|Playbook|Nook|webOS|Kindle|Android (?!.*Mobile).*Safari/i.test(e);const n=/Mobi|iP(hone|od)|Opera Mini/i.test(e);return n&&!t};const d=async(e,t)=>{const n=Date.now();while(true){const o=document.querySelector(e);if(o){return o}const i=Date.now();if(i-n>=t){throw new Error(\"Timeout\")}await u(200)}};const u=async e=>new Promise((t=>{setTimeout(t,e)}));const m=async(e,t,n,i,r,c)=>{try{const o=await d(e,5e3);const s=c?document.querySelector(`.\${n}[data-config=\"\${c}\"]`):document.querySelector(`.\${n}`);if(o&&!s){const e=document.createElement(\"div\");e.style.minHeight=i+\"px\";e.style.margin=r;e.classList.add(n);e.classList.add(\"cls-inserted\");if(c){e.dataset.config=c}switch(t){case\"after selector\":o.insertAdjacentElement(\"afterend\",e);break;case\"before selector\":o.insertAdjacentElement(\"beforebegin\",e);break;case\"first child of selector\":o.insertAdjacentElement(\"afterbegin\",e);break;case\"last child of selector\":o.insertAdjacentElement(\"beforeend\",e);break}return e}}catch(t){console.log(\"plugin\",\"error\",o,`Failed to inject \${n} for selector \${e}`)}return false}})\n";
             echo "('" . addslashes($filmstripStr) . "','" . addslashes($dcmStr) . "','" . addslashes($emailCapStr) . "');" . "\n";
             echo "\n</script>\n";
@@ -144,24 +144,24 @@ class PageBootData extends OptionsManager
         }
 
         // If `delete-boot=1` is passed as a query param, delete the stored page boot data (and embed code)
-        $this->handleDeletePageBootData();
+        $pageBootDataDeleted = $this->handleDeletePageBootData();
 
         // If `slick-boot=1` is passed as a query param, force a re-fetch of the boot data from the server
         // If `slick-boot=0` is passed as a query param, skip fetching boot data from the server
         $slickBootParam = $this->utils->getQueryParamByName('slick-boot');
-        $forceFetchBootData = ($slickBootParam === '1');
-        $dontLoadBootData = ($slickBootParam === '0');
+        $forceFetchPageBootData = ($slickBootParam === '1');
+        $dontLoadPageBootData = ($slickBootParam === '0');
 
-        if ($forceFetchBootData) {
+        if ($forceFetchPageBootData || $pageBootDataDeleted) {
             $this->pageBootData = $this->fetchPageBootData();
-        } elseif ($dontLoadBootData) {
-            $this->utils->echoComment('Skipping Page Boot Data and CLS Data Output');
+        } elseif ($dontLoadPageBootData) {
+            $this->utils->echoComment('Skipping Page Boot Data and CLS Container Output');
             return;
         }
 
         if ($this->pageBootData) {
             $this->echoSlickBootJs();
-            $this->echoClsData();
+            $this->echoClsContainerScript(); // This is dependent on page boot data existing
         } else {
             $this->utils->echoComment('No Page Boot Data Available; Front-end will Fetch it Instead');
         }
@@ -233,6 +233,7 @@ class PageBootData extends OptionsManager
             const win = window;
             win.\$slickBoot = win.\$slickBoot || {};
             win.\$slickBoot.d = $pageBootDataJson;
+            win.\$slickBoot.rt = '$this->serverUrlBase';
             win.\$slickBoot.s = 'plugin';
             win.\$slickBoot._bd = performance.now();
         })();
@@ -249,13 +250,13 @@ class PageBootData extends OptionsManager
         return 'slick_page_group_' . md5($_SERVER['SERVER_NAME'] . $this->pageGroupId);
     }
 
-    private function handleDeletePageBootData(): void
+    private function handleDeletePageBootData(): bool
     {
         $deleteTransientParam = $this->utils->getQueryParamByName('delete-boot');
         $shouldDeleteTransientData = ($deleteTransientParam === '1');
 
         if (!$shouldDeleteTransientData) {
-            return;
+            return false;
         }
 
         $this->utils->echoComment("Deleting Page Boot Data From Cache With Key: $this->pageGroupTransientName", true, true, false);
@@ -272,5 +273,8 @@ class PageBootData extends OptionsManager
         $deleteComment = (false === delete_transient('slickstream_embed_code')) ?
             "Nothing to do--Embed Code Not Found in Cache" : "Embed Code Transient Deleted Successfully";
         $this->utils->echoComment($deleteComment);
+
+        $this->pageBootData = null;
+        return true;
     }
 }
