@@ -8,8 +8,8 @@ require_once 'SlickEngagement_OptionsManager.php';
 
 class InstallIndicator extends OptionsManager
 {
-    const OPTIONINSTALLED = '_installed';
-    const OPTIONVERSION = '_version';
+    private const OPTION_INSTALLED = '_installed';
+    private const OPTION_VERSION = '_version';
 
     public function __construct()
     {
@@ -21,7 +21,7 @@ class InstallIndicator extends OptionsManager
      */
     public function isInstalled(): bool
     {
-        return $this->getOption(self::OPTIONINSTALLED) == true;
+        return $this->getOption(self::OPTION_INSTALLED) == true;
     }
 
     /**
@@ -30,7 +30,7 @@ class InstallIndicator extends OptionsManager
      */
     protected function markAsInstalled(): ?bool
     {
-        return $this->updateOption(self::OPTIONINSTALLED, true);
+        return $this->updateOption(self::OPTION_INSTALLED, true);
     }
 
     /**
@@ -41,7 +41,7 @@ class InstallIndicator extends OptionsManager
      */
     protected function markAsUnInstalled(): bool
     {
-        return $this->deleteOption(self::OPTIONINSTALLED);
+        return $this->deleteOption(self::OPTION_INSTALLED);
     }
 
     /**
@@ -51,7 +51,7 @@ class InstallIndicator extends OptionsManager
      */
     protected function getVersionSaved(): ?string
     {
-        return $this->getOption(self::OPTIONVERSION);
+        return $this->getOption(self::OPTION_VERSION);
     }
 
     /**
@@ -61,7 +61,7 @@ class InstallIndicator extends OptionsManager
      */
     protected function setVersionSaved(string $version): ?bool
     {
-        return $this->updateOption(self::OPTIONVERSION, $version);
+        return $this->updateOption(self::OPTION_VERSION, $version);
     }
 
     /**

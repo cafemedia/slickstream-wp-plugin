@@ -41,4 +41,4 @@ function SlickstreamPluginInit(): void
     \SlickEngagement_init();
 }
 
-SlickstreamPluginInit();
+add_action('plugins_loaded', __NAMESPACE__ . '\\SlickstreamPluginInit');

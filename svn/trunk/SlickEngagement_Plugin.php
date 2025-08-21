@@ -14,15 +14,15 @@ require_once 'SlickEngagement_Utils.php';
 
 class SlickEngagement_Plugin extends OptionsManager
 {
-    private const PLUGIN_VERSION = '2.1.0a';
+    private const PLUGIN_VERSION = '2.1.0';
     private const DEFAULT_APP_SERVER = 'app.slickstream.com';
     private const CDN_SERVER = 'c.slickstream.com';
     private string $scriptClass = 'slickstream-script';
     private string $serverUrlBase;
     private string $siteCode;
     private Utils $utils;
-    private const CLIENT_CODE_BRANCH = 'SLICK-1783'; // Only needs to be populated when testing on feature branches
-    private const CLIENT_VERSION = '2.15.0a25-SLICK-1783'; // Update this when the embed code, bootloader, or CLS insertion scripts change
+    private const CLIENT_CODE_BRANCH = 'main';
+    private const CLIENT_VERSION = '2.15.0'; // Update this when the embed code, bootloader, or CLS insertion scripts change
 
     public function __construct()
     {
@@ -326,7 +326,7 @@ class SlickEngagement_Plugin extends OptionsManager
 
     // Check the transient cache for the embed code first
     // If not present, fetch it from the server
-    public function getEmbedCode(string $version, string $branch = 'app', string $overrideUrl = ''): string
+    public function getEmbedCode(string $version, string $branch = 'main', string $overrideUrl = ''): string
     {
         $embedCodeTransientName = 'slickstream_embed_code';
         $embedCode = get_transient($embedCodeTransientName);
@@ -353,9 +353,13 @@ class SlickEngagement_Plugin extends OptionsManager
 
     private function fetchRemoteEmbedCode(string $version, string $branch, string $overrideUrl = ''): ?object
     {
-        $remoteUrl = (!empty($overrideUrl)) ? 
-            $overrideUrl : 
-            "https://" . self::CDN_SERVER . "/$branch/$version/embed-code.js";
+        $codeBranchStr = (self::CLIENT_CODE_BRANCH === 'main') ?
+            'app' :
+            "app-branch/" . self::CLIENT_CODE_BRANCH;
+
+        $remoteUrl = (!empty($overrideUrl)) ?
+            $overrideUrl :
+            "https://" . self::CDN_SERVER . "/$codeBranchStr/$version/embed-code.js";
 
         $this->utils->echoComment("Fetching embed code from: $remoteUrl");
         $embedCodeObj = $this->utils->fetchRemote($remoteUrl, 2);
@@ -363,7 +367,8 @@ class SlickEngagement_Plugin extends OptionsManager
         if (
             $embedCodeObj &&
             $embedCodeObj->status === 'success' &&
-            $embedCodeObj->body
+            $embedCodeObj->body &&
+            strpos($embedCodeObj->body, "<Error>") === false
         ) {
             return $embedCodeObj;
         }
@@ -398,14 +403,10 @@ class SlickEngagement_Plugin extends OptionsManager
 
     public function echoEmbedCode(): void
     {
-        // FIXME: update the embed-code URL to point to the latest version (using a slug) and branch before broad production deployment!!
+        // TODO: update the embed-code URL to point to the latest version (using a permalink/slug)
         $overrideUrl = ''; // Set this to a specific URL if needed, otherwise it will use the default CDN URL
 
-        $codeBranchStr = (self::CLIENT_CODE_BRANCH === 'main') ? 
-            'app' : 
-            "app-branch/" . self::CLIENT_CODE_BRANCH;
-
-        $embedCode = $this->getEmbedCode(self::CLIENT_VERSION, $codeBranchStr, $overrideUrl);
+        $embedCode = $this->getEmbedCode(self::CLIENT_VERSION, self::CLIENT_CODE_BRANCH, $overrideUrl);
 
         if ($embedCode) {
             $this->utils->echoComment("Embed Code:  ", false, true, true);
