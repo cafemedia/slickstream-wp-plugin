@@ -37,7 +37,7 @@ function SlickstreamPluginInit(): void
         return;
     }
 
-    require_once 'SlickEngagement_Init.php';
+    require_once 'Init.php';
     \SlickEngagement_init();
 }
 

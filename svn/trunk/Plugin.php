@@ -9,7 +9,7 @@ namespace Slickstream;
 
 require_once 'SlickEngagement_Widgets.php';
 require_once 'SlickEngagement_OptionsManager.php';
-require_once 'SlickEngagement_PageBootData.php';
+require_once 'PageBootData.php';
 require_once 'SlickEngagement_Utils.php';
 
 class SlickEngagement_Plugin extends OptionsManager

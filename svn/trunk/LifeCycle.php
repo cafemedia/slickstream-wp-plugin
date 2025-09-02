@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Slickstream;
 
-require_once 'SlickEngagement_InstallIndicator.php';
+require_once 'InstallIndicator.php';
 
 class PluginLifecycle extends InstallIndicator
 {
