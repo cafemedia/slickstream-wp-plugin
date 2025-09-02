@@ -66,9 +66,7 @@ class Utils
 
     public function isDebugModeEnabled(): bool
     {
-        return $this->getQueryParamByName('slickdebug') === '1' ||
-            $this->getQueryParamByName('slickDebug') === '1' ||
-            $this->getQueryParamByName('slick-debug') === '1';
+        return $this->getQueryParamByName('slickdebug') === '1';
     }
 
     /**

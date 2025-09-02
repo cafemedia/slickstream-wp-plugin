@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Slickstream;
 
-require_once __DIR__ . '/SlickFilmStripWidget.php';
-require_once __DIR__ . '/SlickGridWidget.php';
-require_once __DIR__ . '/SlickStoryPlayerWidget.php';
-require_once __DIR__ . '/SlickStoryCarouselWidget.php';
-require_once __DIR__ . '/SlickStoryExplorerWidget.php';
+require_once __DIR__ . '/SlickEngagement_SlickFilmStripWidget.php';
+require_once __DIR__ . '/SlickEngagement_SlickGridWidget.php';
+require_once __DIR__ . '/SlickEngagement_SlickStoryPlayerWidget.php';
+require_once __DIR__ . '/SlickEngagement_SlickStoryCarouselWidget.php';
+require_once __DIR__ . '/SlickEngagement_SlickStoryExplorerWidget.php';
 
 function register_slick_widgets(): void
 {

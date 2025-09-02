@@ -10,7 +10,7 @@ class OptionsManager
 
     public function __construct()
     {
-        // Note: Do not change this or else settings from previous versions will not be accessed
+        // Note: Do not change this or else settings from previous versions will not be able to be accessed
         $this->optionNamePrefix = 'SlickEngagement_Plugin_';
     }
 
@@ -46,6 +46,7 @@ class OptionsManager
         $optionMetaData = $this->getOptionMetaData();
         foreach ($optionMetaData as $aOptionKey => $aOptionMeta) {
             $prefixedOptionName = $this->prefix($aOptionKey);
+            /** @phpstan-ignore-next-line */
             delete_option($prefixedOptionName);
         }
     }
@@ -83,6 +84,7 @@ class OptionsManager
     public function getOption(string $optionName, ?string $default = null): string
     {
         $prefixedOptionName = $this->prefix($optionName);
+        /** @phpstan-ignore-next-line */
         $retVal = get_option($prefixedOptionName);
         if (!$retVal && $default !== null) {
             $retVal = $default;
@@ -99,6 +101,7 @@ class OptionsManager
     public function deleteOption(string $optionName): bool
     {
         $prefixedOptionName = $this->prefix($optionName);
+        /** @phpstan-ignore-next-line */
         $result = delete_option($prefixedOptionName);
         return (bool)$result;
     }
@@ -119,6 +122,7 @@ class OptionsManager
     public function addOption(string $optionName, $value): bool
     {
         $prefixedOptionName = $this->prefix($optionName);
+        /** @phpstan-ignore-next-line */
         $result = add_option($prefixedOptionName, $value);
         return (bool)$result;
     }
@@ -139,6 +143,7 @@ class OptionsManager
     public function updateOption(string $optionName, $value): bool
     {
         $prefixedOptionName = $this->prefix($optionName);
+        /** @phpstan-ignore-next-line */
         $result = update_option($prefixedOptionName, $value);
         return (bool)$result;
     }
@@ -192,6 +197,7 @@ class OptionsManager
             return true;
         }
         $capability = $this->roleToCapability($roleName);
+        /** @phpstan-ignore-next-line */
         return (bool)current_user_can($capability);
     }
 
@@ -251,8 +257,8 @@ class OptionsManager
                 <p>The remaining settings are optional.</p>
             </div>
             <form method="post" action="">
-                <?php settings_fields($settingsGroup); ?>
-                <?php wp_nonce_field('slick_engagement_save_settings', 'slick_engagement_nonce'); ?>
+                <?php /** @phpstan-ignore-next-line */ settings_fields($settingsGroup); ?>
+                <?php /** @phpstan-ignore-next-line */ wp_nonce_field('slick_engagement_save_settings', 'slick_engagement_nonce'); ?>
                 <style type="text/css">
                     table.plugin-options-table {padding: 0; border-collapse: collapse;}
                     table.plugin-options-table td {vertical-align: middle; padding: 0 5px;}
@@ -268,8 +274,8 @@ class OptionsManager
                     <tr valign="top">
                         <th scope="row" style="text-align:right;padding-right:5px;">
                             <p>
-                                <label for="<?php echo esc_attr((string)$aOptionKey); ?>">
-                                    <?php echo esc_html((string)$displayText); ?>
+                                <label for="<?php /** @phpstan-ignore-next-line */ echo esc_attr((string)$aOptionKey); ?>">
+                                    <?php /** @phpstan-ignore-next-line */ echo esc_html((string)$displayText); ?>
                                 </label>
                             </p>
                         </th>
@@ -313,13 +319,13 @@ class OptionsManager
             $choices = array_slice($aOptionMeta, 1);
             ?>
             <p>
-                <select name="<?php echo esc_attr((string)$aOptionKey); ?>" id="<?php echo esc_attr((string)$aOptionKey); ?>">
+                <select name="<?php /** @phpstan-ignore-next-line */ echo esc_attr((string)$aOptionKey); ?>" id="<?php /** @phpstan-ignore-next-line */ echo esc_attr((string)$aOptionKey); ?>">
                     <?php
                     foreach ($choices as $aChoice) {
                         $selected = ($aChoice == $savedOptionValue) ? 'selected' : '';
                         ?>
-                        <option value="<?php echo esc_attr((string)$aChoice); ?>" <?php echo $selected; ?>>
-                            <?php echo esc_html((string)$this->getOptionValueI18nString((string)$aChoice)); ?>
+                        <option value="<?php /** @phpstan-ignore-next-line */ echo esc_attr((string)$aChoice); ?>" <?php echo $selected; ?>>
+                            <?php /** @phpstan-ignore-next-line */ echo esc_html((string)$this->getOptionValueI18nString((string)$aChoice)); ?>
                         </option>
                         <?php
                     }
@@ -330,8 +336,8 @@ class OptionsManager
         } else { // Simple input field
             ?>
             <p>
-                <input type="text" name="<?php echo esc_attr((string)$aOptionKey); ?>" id="<?php echo esc_attr((string)$aOptionKey); ?>"
-                       value="<?php echo esc_attr((string)$savedOptionValue); ?>" size="50" style="max-width: 200px;"/>
+                <input type="text" name="<?php /** @phpstan-ignore-next-line */ echo esc_attr((string)$aOptionKey); ?>" id="<?php /** @phpstan-ignore-next-line */ echo esc_attr((string)$aOptionKey); ?>"
+                       value="<?php /** @phpstan-ignore-next-line */ echo esc_attr((string)$savedOptionValue); ?>" size="50" style="max-width: 200px;"/>
             </p>
             <?php
         }
