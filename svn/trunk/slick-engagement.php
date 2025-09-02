@@ -26,7 +26,6 @@ function SlickstreamPluginInit(): void
     $minimumRequiredPhpVersion = '7.4.0';
 
     if (version_compare((string) phpversion(), $minimumRequiredPhpVersion) < 0) {
-        /** @phpstan-ignore-next-line */
         add_action('admin_notices', function () use ($minimumRequiredPhpVersion) {
             echo '<div class="updated fade">' .
             (string)__('Error: plugin "Slickstream Engagement" requires a newer version of PHP to run properly.', 'slick-engagement') .

@@ -110,13 +110,11 @@ class PluginLifecycle extends InstallIndicator
 
     protected function requireExtraPluginFiles(): void
     {
-        /** @phpstan-ignore-next-line */
         require_once ABSPATH . 'wp-includes/pluggable.php';
-        /** @phpstan-ignore-next-line */
         require_once ABSPATH . 'wp-admin/includes/plugin.php';
     }
 
-    
+
     /**
      * Returns the full prefixed table name for this plugin.
      *
@@ -133,7 +131,6 @@ class PluginLifecycle extends InstallIndicator
 
     public function getAjaxUrl(string $actionName): string
     {
-        /** @phpstan-ignore-next-line */
         $adminUrl = admin_url('admin-ajax.php');
         $adminUrlStr = is_string($adminUrl) ? $adminUrl : '';
         $actionNameStr = is_string($actionName) ? $actionName : '';

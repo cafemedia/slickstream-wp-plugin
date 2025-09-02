@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Slickstream;
 
+/**
+ * @extends \WP_Widget<array<string, mixed>>
+ */
 class SlickStoryCarouselWidget extends \WP_Widget
 {
     public function __construct()

@@ -25,7 +25,6 @@ class ActionsFilters extends PluginLifecycle
     public function addShortcodes(array $shortcodes): void
     {
         foreach ($shortcodes as $tag => $method) {
-            /** @phpstan-ignore-next-line */
             add_shortcode($tag, [$this, $method]);
         }
     }
@@ -181,7 +180,6 @@ class ActionsFilters extends PluginLifecycle
         ];
         $filmstripHook = $filmstripHooks[$insertFilmstrip] ?? null;
         if ($filmstripHook) {
-            /** @phpstan-ignore-next-line */
             add_action($filmstripHook, [$this, 'insertFilmStripMarkup'], 15);
         }
 
@@ -193,7 +191,6 @@ class ActionsFilters extends PluginLifecycle
         ];
         $searchPanelHook = $searchPanelHooks[$InsertSearchPanel] ?? null;
         if ($searchPanelHook) {
-            /** @phpstan-ignore-next-line */
             add_action($searchPanelHook, [$this, 'insertInlineSearchPanelMarkup'], 15);
         }
     }
@@ -201,7 +198,6 @@ class ActionsFilters extends PluginLifecycle
     // TODO: this is not device aware nor is it even aware if the filmstrip feature is turned on or not
     public function insertFilmStripMarkup(): void
     {
-        /** @phpstan-ignore-next-line */
         if (is_singular('post')) {
             echo '<div style="min-height:72px;margin:10px auto" class="slick-film-strip"></div>';
         }
@@ -209,7 +205,6 @@ class ActionsFilters extends PluginLifecycle
 
     public function insertInlineSearchPanelMarkup(): void
     {
-        /** @phpstan-ignore-next-line */
         if (is_singular('post')) {
             echo "\n<style>.slick-inline-search-panel { margin: 50px 15px; min-height: 428px; } @media (max-width: 600px) { .slick-inline-search-panel { min-height: 334px; } } </style>\n";
             echo "<div class=\"slick-inline-search-panel\" data-config=\"_default\"></div>\n";
@@ -222,7 +217,6 @@ class ActionsFilters extends PluginLifecycle
      */
     public function onActionLinks(array $links): array
     {
-        /** @phpstan-ignore-next-line */
         $settingsUrl = esc_url(admin_url('options-general.php?page=SlickstreamSettings'));
         $myLinks = ["<a href=\"" . (string)$settingsUrl . "\">Settings</a>"];
         return array_merge($links, $myLinks);
@@ -261,7 +255,6 @@ class ActionsFilters extends PluginLifecycle
      */
     public function getSlickStoryShortcode(array $attrs, ?string $content = null, ?string $tag = null): string
     {
-        /** @phpstan-ignore-next-line */
         extract(shortcode_atts(['src' => ''], $attrs));
 
         $src = isset($src) && is_scalar($src) ? (string)$src : '';

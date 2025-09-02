@@ -46,7 +46,6 @@ class OptionsManager
         $optionMetaData = $this->getOptionMetaData();
         foreach ($optionMetaData as $aOptionKey => $aOptionMeta) {
             $prefixedOptionName = $this->prefix($aOptionKey);
-            /** @phpstan-ignore-next-line */
             delete_option($prefixedOptionName);
         }
     }
@@ -84,7 +83,6 @@ class OptionsManager
     public function getOption(string $optionName, ?string $default = null): string
     {
         $prefixedOptionName = $this->prefix($optionName);
-        /** @phpstan-ignore-next-line */
         $retVal = get_option($prefixedOptionName);
         if (!$retVal && $default !== null) {
             $retVal = $default;
@@ -101,7 +99,6 @@ class OptionsManager
     public function deleteOption(string $optionName): bool
     {
         $prefixedOptionName = $this->prefix($optionName);
-        /** @phpstan-ignore-next-line */
         $result = delete_option($prefixedOptionName);
         return (bool)$result;
     }
@@ -122,7 +119,6 @@ class OptionsManager
     public function addOption(string $optionName, $value): bool
     {
         $prefixedOptionName = $this->prefix($optionName);
-        /** @phpstan-ignore-next-line */
         $result = add_option($prefixedOptionName, $value);
         return (bool)$result;
     }
@@ -143,7 +139,6 @@ class OptionsManager
     public function updateOption(string $optionName, $value): bool
     {
         $prefixedOptionName = $this->prefix($optionName);
-        /** @phpstan-ignore-next-line */
         $result = update_option($prefixedOptionName, $value);
         return (bool)$result;
     }
@@ -197,7 +192,6 @@ class OptionsManager
             return true;
         }
         $capability = $this->roleToCapability($roleName);
-        /** @phpstan-ignore-next-line */
         return (bool)current_user_can($capability);
     }
 
@@ -219,9 +213,7 @@ class OptionsManager
      */
     public function settingsPage(): void
     {
-        /** @phpstan-ignore-next-line */
         if (!current_user_can('manage_options')) {
-            /** @phpstan-ignore-next-line */
             wp_die(__('You do not have sufficient permissions to access this page.', 'slick-engagement'));
         }
 
@@ -229,9 +221,7 @@ class OptionsManager
 
         // Save Posted Options
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            /** @phpstan-ignore-next-line */
             if (!isset($_POST['slick_engagement_nonce']) || !wp_verify_nonce($_POST['slick_engagement_nonce'], 'slick_engagement_save_settings')) {
-                /** @phpstan-ignore-next-line */
                 wp_die(__('Security check failed', 'slick-engagement'));
             }
             if ($optionMetaData !== null) {
@@ -249,7 +239,6 @@ class OptionsManager
         <div class="wrap">
             <h2><?php echo $this->getPluginDisplayName();
             echo ' ';
-            /** @phpstan-ignore-next-line */
             _e('Settings', 'slick-engagement'); ?></h2>
             <div style="max-width: 600px;">
                 <p>This plugin adds the embed code needed to use <a href="https://www.slickstream.com">Slickstream</a>.
