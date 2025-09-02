@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Slickstream;
 
-require_once 'SlickEngagement_Utils.php';
+require_once 'Utils.php';
 
 class PageBootData extends OptionsManager
 {

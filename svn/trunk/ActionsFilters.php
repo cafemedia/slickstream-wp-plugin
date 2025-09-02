@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Slickstream;
 
-require_once 'SlickEngagement_LifeCycle.php';
+require_once 'LifeCycle.php';
 require_once 'Plugin.php';
 
 const GENESIS_AFTER_HEADER_POSTS = 'After header on posts (for Genesis themes)';

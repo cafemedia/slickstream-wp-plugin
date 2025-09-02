@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Slickstream;
 
-require_once 'SlickEngagement_OptionsManager.php';
+require_once 'OptionsManager.php';
 
 class InstallIndicator extends OptionsManager
 {
