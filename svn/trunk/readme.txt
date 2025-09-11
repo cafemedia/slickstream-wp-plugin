@@ -7,7 +7,7 @@ License URI: https://www.gnu.org/licenses/gpl-3.0.html
 Requires at least: 5.0
 Requires PHP: 7.4.0
 Tested up to: 6.8.2
-Stable tag: 2.1.0
+Stable tag: 3.0.0
 
 Use Slickstream to upgrade your site search. Get beautiful as-you-type search, relevant content recommendations, user favorites and more!
 
@@ -159,14 +159,13 @@ You can report security bugs through the Patchstack Vulnerability Disclosure Pro
 - Restored `SlickEngagement_init()` function
 - Tested to be compatible up to Wordpress 6.7.0
 
-== Upgrade Notice ==
-
 = 2.0.3 =
 - We recommend all Slickstream sites upgrade to this latest plugin version for the best Slickstream experience. This new version includes enhancements to page load speeds, better configuration data caching, and enhanced security. NOTE: Slickstream Plugins 2.0.0+ require at least PHP 7.4.0.
 
-= 2.0.4 =
+= 3.0.0 =
 - Tested compatibility up to WordPress 6.8.2
 - Fixed deprecated function warning for PHP 8.2.0+
 - Addressed CVE-2025-53273
 - Enhanced string escaping and input validation
 - Enhanced embed code retrieval
+- CLS improvements
