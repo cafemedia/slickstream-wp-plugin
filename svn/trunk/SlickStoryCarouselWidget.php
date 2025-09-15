@@ -49,7 +49,7 @@ class SlickStoryCarouselWidget extends \WP_Widget
         $instance = $old_instance;
         $instance['title'] = (string)wp_strip_all_tags($new_instance['title'] ?? '');
         return [
-            'title' => isset($instance['title']) ? (string)$instance['title'] : '',
+            'title' => (string)$instance['title'],
         ];
     }
 
@@ -60,7 +60,10 @@ class SlickStoryCarouselWidget extends \WP_Widget
      */
     public function widget($args, $instance): void
     {
-        $title = (string)apply_filters('widget_title', $instance['title']);
+        $title = '';
+        if (isset($instance['title']) && is_scalar($instance['title'])) {
+            $title = (string)apply_filters('widget_title', $instance['title']);
+        }
         echo (string)($args['before_widget'] ?? '');
         if ($title) {
             echo (string)($args['before_title'] ?? '') . esc_html((string)$title) . (string)($args['after_title'] ?? '');

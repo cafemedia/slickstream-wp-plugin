@@ -192,7 +192,7 @@ class OptionsManager
             return true;
         }
         $capability = $this->roleToCapability($roleName);
-        return (bool)current_user_can($capability);
+        return $capability !== '' && current_user_can($capability);
     }
 
     /**
@@ -224,7 +224,7 @@ class OptionsManager
             if (!isset($_POST['slick_engagement_nonce']) || !wp_verify_nonce($_POST['slick_engagement_nonce'], 'slick_engagement_save_settings')) {
                 wp_die(__('Security check failed', 'slick-engagement'));
             }
-            if ($optionMetaData !== null) {
+            if ($optionMetaData != null) {
                 foreach ($optionMetaData as $aOptionKey => $aOptionMeta) {
                     if (isset($_POST[$aOptionKey])) {
                         $this->updateOption($aOptionKey, $_POST[$aOptionKey]);
@@ -246,8 +246,8 @@ class OptionsManager
                 <p>The remaining settings are optional.</p>
             </div>
             <form method="post" action="">
-                <?php /** @phpstan-ignore-next-line */ settings_fields($settingsGroup); ?>
-                <?php /** @phpstan-ignore-next-line */ wp_nonce_field('slick_engagement_save_settings', 'slick_engagement_nonce'); ?>
+                <?php settings_fields($settingsGroup); ?>
+                <?php wp_nonce_field('slick_engagement_save_settings', 'slick_engagement_nonce'); ?>
                 <style type="text/css">
                     table.plugin-options-table {padding: 0; border-collapse: collapse;}
                     table.plugin-options-table td {vertical-align: middle; padding: 0 5px;}
@@ -263,8 +263,8 @@ class OptionsManager
                     <tr valign="top">
                         <th scope="row" style="text-align:right;padding-right:5px;">
                             <p>
-                                <label for="<?php /** @phpstan-ignore-next-line */ echo esc_attr((string)$aOptionKey); ?>">
-                                    <?php /** @phpstan-ignore-next-line */ echo esc_html((string)$displayText); ?>
+                                <label for="<?php echo esc_attr((string)$aOptionKey); ?>">
+                                    <?php echo esc_html((string)$displayText); ?>
                                 </label>
                             </p>
                         </th>
@@ -308,13 +308,13 @@ class OptionsManager
             $choices = array_slice($aOptionMeta, 1);
             ?>
             <p>
-                <select name="<?php /** @phpstan-ignore-next-line */ echo esc_attr((string)$aOptionKey); ?>" id="<?php /** @phpstan-ignore-next-line */ echo esc_attr((string)$aOptionKey); ?>">
+                <select name="<?php echo esc_attr((string)$aOptionKey); ?>" id="<?php echo esc_attr((string)$aOptionKey); ?>">
                     <?php
                     foreach ($choices as $aChoice) {
                         $selected = ($aChoice == $savedOptionValue) ? 'selected' : '';
                         ?>
-                        <option value="<?php /** @phpstan-ignore-next-line */ echo esc_attr((string)$aChoice); ?>" <?php echo $selected; ?>>
-                            <?php /** @phpstan-ignore-next-line */ echo esc_html((string)$this->getOptionValueI18nString((string)$aChoice)); ?>
+                        <option value="<?php echo esc_attr((string)$aChoice); ?>" <?php echo $selected; ?>>
+                            <?php echo esc_html((string)$this->getOptionValueI18nString((string)$aChoice)); ?>
                         </option>
                         <?php
                     }
@@ -325,8 +325,8 @@ class OptionsManager
         } else { // Simple input field
             ?>
             <p>
-                <input type="text" name="<?php /** @phpstan-ignore-next-line */ echo esc_attr((string)$aOptionKey); ?>" id="<?php /** @phpstan-ignore-next-line */ echo esc_attr((string)$aOptionKey); ?>"
-                       value="<?php /** @phpstan-ignore-next-line */ echo esc_attr((string)$savedOptionValue); ?>" size="50" style="max-width: 200px;"/>
+                <input type="text" name="<?php echo esc_attr((string)$aOptionKey); ?>" id="<?php echo esc_attr((string)$aOptionKey); ?>"
+                       value="<?php echo esc_attr((string)$savedOptionValue); ?>" size="50" style="max-width: 200px;"/>
             </p>
             <?php
         }

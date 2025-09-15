@@ -38,9 +38,9 @@ class SlickStoryPlayerWidget extends \WP_Widget
             $title = (string)$instance['title'];
         }
 
-        $webstoryurl = '';
+        $webStoryUrl = '';
         if (isset($instance['webstoryurl']) && is_scalar($instance['webstoryurl'])) {
-            $webstoryurl = (string)$instance['webstoryurl'];
+            $webStoryUrl = (string)$instance['webstoryurl'];
         }
         ?>
         <p>
@@ -53,7 +53,7 @@ class SlickStoryPlayerWidget extends \WP_Widget
             <label for="<?php echo esc_attr($this->get_field_id('webstoryurl')); ?>"><?php _e('Web Story URL', 'text_domain'); ?></label>
             <input class="widefat" id="<?php echo esc_attr($this->get_field_id('webstoryurl')); ?>"
                    name="<?php echo esc_attr($this->get_field_name('webstoryurl')); ?>" type="text"
-                   value="<?php echo esc_attr($webstoryurl); ?>" />
+                   value="<?php echo esc_attr($webStoryUrl); ?>" />
         </p>
         <?php
     }
@@ -70,12 +70,12 @@ class SlickStoryPlayerWidget extends \WP_Widget
         if (isset($new_instance['title']) && is_scalar($new_instance['title'])) {
             $title = wp_strip_all_tags((string)$new_instance['title']);
         }
-        $webstoryurl = '';
+        $webStoryUrl = '';
         if (isset($new_instance['webstoryurl']) && is_scalar($new_instance['webstoryurl'])) {
-            $webstoryurl = wp_strip_all_tags((string)$new_instance['webstoryurl']);
+            $webStoryUrl = wp_strip_all_tags((string)$new_instance['webstoryurl']);
         }
         $instance['title'] = $title;
-        $instance['webstoryurl'] = $webstoryurl;
+        $instance['webstoryurl'] = $webStoryUrl;
         return [
             'title' => $instance['title'],
             'webstoryurl' => $instance['webstoryurl'],
@@ -98,7 +98,7 @@ class SlickStoryPlayerWidget extends \WP_Widget
         }
 
         $webStoryUrl = '';
-        if (is_array($instance) && isset($instance['webstoryurl']) && is_scalar($instance['webstoryurl'])) {
+        if (isset($instance['webstoryurl']) && is_scalar($instance['webstoryurl'])) {
             $webStoryUrl = (string)$instance['webstoryurl'];
         }
 

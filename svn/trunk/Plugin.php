@@ -22,7 +22,7 @@ class SlickEngagement_Plugin extends OptionsManager
     private string $siteCode;
     private Utils $utils;
     private const CLIENT_CODE_BRANCH = 'main';
-    private const CLIENT_VERSION = '2.15.0'; // Update this when the embed code, bootloader, or CLS insertion scripts change
+    private const CLIENT_VERSION = '2.15.1'; // Update this when the embed code, bootloader, or CLS insertion scripts change
 
     public function __construct()
     {
@@ -73,7 +73,7 @@ class SlickEngagement_Plugin extends OptionsManager
         $this->utils->echoComment("END Debug CLS output", false, true);
     }
 
-    private function getCurrentTimestampByTimeZone($timezone): string
+    private function getCurrentTimestampByTimeZone(string $timezone): string
     {
         $timestamp = time();
         $dt = new \DateTime('now', new \DateTimeZone($timezone));
@@ -235,11 +235,11 @@ class SlickEngagement_Plugin extends OptionsManager
         while ($parentCatId && count($used) < 8 && !in_array($parentCatId, $used)) {
             $parentCat = get_category($parentCatId);
 
-            if ($parentCat instanceof WPError || $parentCat === null) {
+            if ($parentCat instanceof \WPError || $parentCat === null) {
                 continue;
             }
 
-            if ($parentCat && is_object($parentCat) && isset($parentCat->slug) && $parentCat->slug !== 'uncategorized') {
+            if (is_object($parentCat) && isset($parentCat->slug) && $parentCat->slug !== 'uncategorized') {
                 $parentCat = (object) $parentCat; //To placate WPError warnings
                 $this->addMeta(';', $parentCat->slug . ':' . $this->utils->removeSemicolons($parentCat->name));
                 $ldJsonParents[] = (object)[
@@ -259,7 +259,8 @@ class SlickEngagement_Plugin extends OptionsManager
         }
 
         return (object)[
-            '@id' => $category->cat_ID,
+            '@id' => $category->term_id,
+            'parent' => $category->parent,
             'slug' => $category->slug,
             'name' => $this->utils->removeSemicolons($category->name),
             'parents' => $ldJsonParents
@@ -353,9 +354,7 @@ class SlickEngagement_Plugin extends OptionsManager
 
     private function fetchRemoteEmbedCode(string $version, string $branch, string $overrideUrl = ''): ?object
     {
-        $codeBranchStr = (self::CLIENT_CODE_BRANCH === 'main') ?
-            'app' :
-            "app-branch/" . self::CLIENT_CODE_BRANCH;
+        $codeBranchStr = ($branch === self::CLIENT_CODE_BRANCH) ? 'app' : "app-branch/$branch";
 
         $remoteUrl = (!empty($overrideUrl)) ?
             $overrideUrl :

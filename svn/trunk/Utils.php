@@ -66,7 +66,9 @@ class Utils
 
     public function isDebugModeEnabled(): bool
     {
-        return $this->getQueryParamByName('slickdebug') === '1';
+        return $this->getQueryParamByName('slickdebug') === '1' ||
+            $this->getQueryParamByName('slickDebug') === '1' ||
+            $this->getQueryParamByName('slick-debug') === '1';
     }
 
     /**
@@ -75,8 +77,7 @@ class Utils
      */
     public function getQueryParamByName(string $paramName): ?string
     {
-        $result = filter_input(INPUT_GET, $paramName, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-        return $result !== null ? (string)$result : null;
+        return filter_input(INPUT_GET, $paramName, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
     }
 
     /**
@@ -124,6 +125,8 @@ class Utils
             return $errObj;
         }
 
+        $this->echoComment("Fetching from URL: $remoteUrl", true, true, false);
+
         $response = wp_remote_get($remoteUrl, [
             'timeout' => $timeout,
             'headers' => ['referer' => home_url()],
@@ -141,16 +144,22 @@ class Utils
         }
     }
 
-    // This logic matches the logic on the back-end to determine if the device is mobile
+    // This logic matches the logic on the client-side (v2.15.1+) to determine if the device is mobile
     public function isMobile(): bool
     {
-        if (isset($_SERVER['HTTP_USER_AGENT'])) {
-            $userAgentStr = $_SERVER['HTTP_USER_AGENT'];
-            $excluded = preg_match('/Tablet|iPad|Playbook|Nook|webOS|Kindle|Android (?!.*Mobile).*Safari/i', $userAgentStr);
-            $mobile = preg_match('/Mobi|iP(hone|od)|Opera Mini/i', $userAgentStr);
-            return $mobile && !$excluded;
-        }
-        return false;
+        $userAgent = $_SERVER['HTTP_USER_AGENT'];
+
+        $isTablet = preg_match(
+            '/Tablet|iPad|Playbook|Nook|webOS|Kindle|Silk|SM-T|GT-P|SCH-I800|Xoom|Transformer|Tab|Slate|Pixel C|Nexus 7|Nexus 9|Nexus 10|SHIELD Tablet|Lenovo Tab|Mi Pad|Android(?!.*Mobile)/i',
+            $userAgent
+        );
+
+        $isMobile = preg_match(
+            '/Mobi|iP(hone|od)|Android.*Mobile|Opera Mini|IEMobile|WPDesktop|BlackBerry|BB10|webOS|Fennec/i',
+            $userAgent
+        );
+
+        return $isMobile && !$isTablet;
     }
 
     /**

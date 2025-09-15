@@ -110,7 +110,7 @@ class PluginLifecycle extends InstallIndicator
 
     protected function requireExtraPluginFiles(): void
     {
-        require_once ABSPATH . 'wp-includes/pluggable.php';
+        require_once ABSPATH . WPINC . '/pluggable.php';
         require_once ABSPATH . 'wp-admin/includes/plugin.php';
     }
 
@@ -133,7 +133,7 @@ class PluginLifecycle extends InstallIndicator
     {
         $adminUrl = admin_url('admin-ajax.php');
         $adminUrlStr = is_string($adminUrl) ? $adminUrl : '';
-        $actionNameStr = is_string($actionName) ? $actionName : '';
+        $actionNameStr = strip_tags($actionName);
         return "$adminUrlStr?action=$actionNameStr";
     }
 }

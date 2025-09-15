@@ -14,7 +14,7 @@ class PageBootData extends OptionsManager
     private ?string $pageGroupId;
     private ?object $pageBootData;
     private ?string $pageGroupTransientName;
-    private ?string $pageGroupIdTransientName;
+    private string $pageGroupIdTransientName;
     private string $siteCode;
     private string $serverUrlBase;
     private string $urlPath;
@@ -32,6 +32,10 @@ class PageBootData extends OptionsManager
         $this->pageGroupId = $this->getPageGroupId();
         $this->pageGroupTransientName = $this->getPageGroupTransientName();
         $this->pageBootData = $this->getPageBootData();
+        // Ensure transient name is always initialized
+        if (empty($this->pageGroupIdTransientName)) {
+            $this->pageGroupIdTransientName = 'slick_page_group_id_default';
+        }
     }
 
 
@@ -56,23 +60,23 @@ class PageBootData extends OptionsManager
         $emailCapConfig = $deviceBootData->emailCapture ?? '';
 
         if (!empty($filmstripConfig) || !empty($dcmConfig) || !empty($emailCapConfig)) {
-            $filmstripStr = empty($filmstripConfig) ? '' : json_encode($filmstripConfig) ?? '';
-            $dcmStr = empty($dcmConfig) ? '' : json_encode($dcmConfig) ?? '';
-            $emailCapStr = empty($emailCapConfig) ? '' : json_encode($emailCapConfig) ?? '';
+            $filmstripStr = empty($filmstripConfig) ? '' : json_encode($filmstripConfig) || '';
+            $dcmStr = empty($dcmConfig) ? '' : json_encode($dcmConfig) || '';
+            $emailCapStr = empty($emailCapConfig) ? '' : json_encode($emailCapConfig) || '';
 
             $this->utils->echoComment('CLS Container Insertion:', false, false);
 
             // NOTE: The source of the minified JavaScript below is: slickstream-client/blob/main/src/plugin/cls-inject.ts
             // This script will insert the filmstrip, DCM, and email container elements into the page to eliminate CLS on those widgets.
             // TODO: This should be pulled in over HTTP and cached in Wordpress, not embedded directly like this.
-            echo "\n<script>\n";
-            echo "\"use strict\";(async(e,t,n)=>{const o=\"slickstream\";const i=e?JSON.parse(e):null;const r=t?JSON.parse(t):null;const c=n?JSON.parse(n):null;if(i||r||c){const e=async()=>{if(document.body){if(i){m(i.selector,i.position||\"after selector\",\"slick-film-strip\",i.minHeight||72,i.margin||i.marginLegacy||\"10px auto\")}if(r){r.forEach((e=>{if(e.selector){m(e.selector,e.position||\"after selector\",\"slick-inline-search-panel\",e.minHeight||350,e.margin||e.marginLegacy||\"50px 15px\",e.id)}}))}if(c){s(c)}return}window.requestAnimationFrame(e)};window.requestAnimationFrame(e)}const s=async e=>{const t=\"slick-on-page\";try{if(document.querySelector(`.\${t}`)){return}const n=l()?e.minHeightMobile||220:e.minHeight||200;if(e.cssSelector){m(e.cssSelector,\"before selector\",t,n,\"\",undefined)}else{a(e.pLocation||3,t,n)}}catch(e){console.log(\"plugin\",\"error\",o,`Failed to inject \${t}`)}};const a=async(e,t,n)=>{const o=document.createElement(\"div\");o.classList.add(t);o.classList.add(\"cls-inserted\");o.style.minHeight=n+\"px\";const i=document.querySelectorAll(\"article p\");if((i===null||i===void 0?void 0:i.length)>=e){const t=i[e-1];t.insertAdjacentElement(\"afterend\",o);return o}const r=document.querySelectorAll(\"section.wp-block-template-part div.entry-content p\");if((r===null||r===void 0?void 0:r.length)>=e){const t=r[e-1];t.insertAdjacentElement(\"afterend\",o);return o}return null};const l=()=>{const e=navigator.userAgent;const t=/Tablet|iPad|Playbook|Nook|webOS|Kindle|Android (?!.*Mobile).*Safari/i.test(e);const n=/Mobi|iP(hone|od)|Opera Mini/i.test(e);return n&&!t};const d=async(e,t)=>{const n=Date.now();while(true){const o=document.querySelector(e);if(o){return o}const i=Date.now();if(i-n>=t){throw new Error(\"Timeout\")}await u(200)}};const u=async e=>new Promise((t=>{setTimeout(t,e)}));const m=async(e,t,n,i,r,c)=>{try{const o=await d(e,5e3);const s=c?document.querySelector(`.\${n}[data-config=\"\${c}\"]`):document.querySelector(`.\${n}`);if(o&&!s){const e=document.createElement(\"div\");e.style.minHeight=i+\"px\";e.style.margin=r;e.classList.add(n);e.classList.add(\"cls-inserted\");if(c){e.dataset.config=c}switch(t){case\"after selector\":o.insertAdjacentElement(\"afterend\",e);break;case\"before selector\":o.insertAdjacentElement(\"beforebegin\",e);break;case\"first child of selector\":o.insertAdjacentElement(\"afterbegin\",e);break;case\"last child of selector\":o.insertAdjacentElement(\"beforeend\",e);break}return e}}catch(t){console.log(\"plugin\",\"error\",o,`Failed to inject \${n} for selector \${e}`)}return false}})\n";
-            echo "('" . addslashes($filmstripStr) . "','" .
+            echo "\n<script>//cls-inject.ts v2.15.1\n";
+            echo "\"use strict\";(async(e,t,n)=>{const o=\"[slickstream]\";const r=\"cls-inject\";const i=e=>{if(!e){return null}try{return JSON.parse(e)}catch(t){console.error(o,r,\"Failed to parse config:\",e,t);return null}};const c=i(e);const s=i(t);const a=i(n);if(!c&&!s&&!a){return}let l=0;const d=50;const u=()=>{if(!document.body){l++;if(l<d){window.requestAnimationFrame(u)}else{console.warn(o,r,\"inject: document.body not found after max retries\")}return}void y()};const f=async(e,t,n)=>{const o=document.createElement(\"div\");o.classList.add(t);o.classList.add(\"cls-inserted\");o.style.minHeight=n+\"px\";const r=[\"article p\",\"section.wp-block-template-part div.entry-content p\"];for(const t of r){const n=document.querySelectorAll(t);if((n===null||n===void 0?void 0:n.length)>=e){const t=n[e-1];t.insertAdjacentElement(\"afterend\",o);return o}}return null};const m=async e=>{const t=\"slick-on-page\";try{if(document.querySelector(`.\${t}`)){return}const n=g()?e.minHeightMobile||220:e.minHeight||200;if(e.cssSelector){await h(e.cssSelector,\"before selector\",t,n,\"\",undefined)}else{await f(e.pLocation||3,t,n)}}catch(e){console.error(o,r,`Failed to inject \${t} container`,e)}};const y=async()=>{if(c){await h(c.selector,c.position||\"after selector\",\"slick-film-strip\",c.minHeight||72,c.margin||c.marginLegacy||\"10px auto\")}if(s){const e=Array.isArray(s)?s:[s];for(const t of e){if(t.selector){await h(t.selector,t.position||\"after selector\",\"slick-inline-search-panel\",t.minHeight||350,t.margin||t.marginLegacy||\"50px 15px\",t.id)}}}if(a){await m(a)}};const g=()=>{const e=navigator.userAgent;const t=/Tablet|iPad|Playbook|Nook|webOS|Kindle|Silk|SM-T|GT-P|SCH-I800|Xoom|Transformer|Tab|Slate|Pixel C|Nexus 7|Nexus 9|Nexus 10|SHIELD Tablet|Lenovo Tab|Mi Pad|Android(?!.*Mobile)/i.test(e);const n=/Mobi|iP(hone|od)|Android.*Mobile|Opera Mini|IEMobile|WPDesktop|BlackBerry|BB10|webOS|Fennec/i.test(e);return n&&!t};const w=async e=>new Promise(t=>{setTimeout(t,e)});const p=async(e,t,n,o,r)=>{const i=document.querySelector(e);if(i){return i}const c=Date.now();if(c-n>=t){console.error(o,r,`Timeout waiting for selector: \${e}`);return null}await w(200);return p(e,t,n,o,r)};const b=async(e,t)=>{const n=Date.now();return p(e,t,n,o,r)};const h=async(e,t,n,i,c,s)=>{try{const a=await b(e,5e3);const l=s?document.querySelector(`.\${n}[data-config=\"\${s}\"]`):document.querySelector(`.\${n}`);if(l){console.warn(o,r,`Container element already exists for \${n} class with selector \${e}`);return null}if(!a){console.warn(o,r,`Target node not found for selector: \${e}`);return null}const d=document.createElement(\"div\");d.style.minHeight=i+\"px\";d.style.margin=c;d.classList.add(n,\"cls-inserted\");if(s){d.dataset.config=s}const u={\"after selector\":\"afterend\",\"before selector\":\"beforebegin\",\"first child of selector\":\"afterbegin\",\"last child of selector\":\"beforeend\"};a.insertAdjacentElement(u[t]||\"afterend\",d);return d}catch(t){console.warn(o,r,`Failed to inject \${n} for selector \${e}`);return null}};window.requestAnimationFrame(u)})";
+            echo "\n('" . addslashes($filmstripStr) . "','" .
                 addslashes($dcmStr) . "','" .
                 addslashes($emailCapStr) . "');" . "\n";
             echo "\n</script>\n";
 
-            $this->utils->echoComment('END CLS Container Insertion', false, false);
+            $this->utils->echoComment('END CLS Container Script Insertion', false, false);
         }
     }
 
@@ -86,8 +90,8 @@ class PageBootData extends OptionsManager
             $this->utils->echoComment('pageGroupId: ' . ($this->pageGroupId ?? 'null'));
             $this->utils->echoComment("siteCode: {$this->siteCode}");
             $this->utils->echoComment("urlPath: {$this->urlPath}");
-            $this->utils->echoComment('pageGroupIdTransientName: ' . ($this->pageGroupIdTransientName ?? 'null'));
-            $this->utils->echoComment('pageGroupTransientName: ' . ($this->pageGroupTransientName ?? 'null'));
+            $this->utils->echoComment('pageGroupIdTransientName: ' . ($this->pageGroupIdTransientName || 'null'));
+            $this->utils->echoComment('pageGroupTransientName: ' . ($this->pageGroupTransientName || 'null'));
             return null;
         }
 
@@ -100,7 +104,7 @@ class PageBootData extends OptionsManager
         if ($noTransientPageBootData) {
             $pageBootData = $this->fetchPageBootData();
             if ($pageBootData) {
-                $pageBootDataTtl = (int) $pageBootData->wpPluginTtl ?? self::PAGE_BOOT_DATA_DEFAULT_TTL;
+                $pageBootDataTtl = $pageBootData->wpPluginTtl ?? self::PAGE_BOOT_DATA_DEFAULT_TTL;
                 set_transient($this->pageGroupTransientName, $pageBootData, $pageBootDataTtl);
                 $this->utils->echoComment("Stored Page Boot Data in Transient Cache Using Key: $this->pageGroupTransientName for $pageBootDataTtl Seconds.");
             } else {
@@ -171,7 +175,7 @@ class PageBootData extends OptionsManager
 
     private function getCurrentUrlPath(): string
     {
-        $parsedUrl = parse_url('http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']);
+        $parsedUrl = parse_url('http://' . (string) $_SERVER['HTTP_HOST'] . (string) $_SERVER['REQUEST_URI']);
         $path = '';
 
         if (isset($parsedUrl['path'])) {
