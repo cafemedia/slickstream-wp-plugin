@@ -13,8 +13,8 @@ class PageBootData extends OptionsManager
     private string $scriptClass;
     private ?string $pageGroupId;
     private ?object $pageBootData;
-    private ?string $pageGroupTransientName;
-    private string $pageGroupIdTransientName;
+    private ?string $pageGroupTransientName = null;
+    private ?string $pageGroupIdTransientName = null;
     private string $siteCode;
     private string $serverUrlBase;
     private string $urlPath;
@@ -25,28 +25,22 @@ class PageBootData extends OptionsManager
         parent::__construct();
         $this->scriptClass = $scriptClass;
         $this->serverUrlBase = $serverUrlBase;
-        $this->siteCode = addslashes(substr($siteCode, 0, 9));
+        $this->siteCode = addslashes(substr($siteCode, 0, 10));
         $this->utils = Utils::getInstance();
         $this->urlPath = $this->getCurrentUrlPath();
-        $this->pageGroupIdTransientName = 'slick_page_group_id_' . md5($_SERVER['SERVER_NAME'] . $this->urlPath);
+        $this->pageGroupIdTransientName = $this->getPageGroupIdTransientName();
         $this->pageGroupId = $this->getPageGroupId();
         $this->pageGroupTransientName = $this->getPageGroupTransientName();
         $this->pageBootData = $this->getPageBootData();
-        // Ensure transient name is always initialized
-        if (empty($this->pageGroupIdTransientName)) {
-            $this->pageGroupIdTransientName = 'slick_page_group_id_default';
-        }
     }
-
-
 
     private function getPageBootDataForDevice(): object
     {
         if (isset($this->pageBootData->v2)) {
             if ($this->utils->isMobile() && isset($this->pageBootData->v2->phone)) {
-                return $this->pageBootData->v2->phone;
+                return $this->pageBootData->v2->phone ?? $this->pageBootData;
             }
-            return $this->pageBootData->v2->desktop;
+            return $this->pageBootData->v2->desktop ?? $this->pageBootData;
         }
         return $this->pageBootData;
     }
@@ -54,17 +48,21 @@ class PageBootData extends OptionsManager
     private function echoClsContainerScript(): void
     {
         $deviceBootData = $this->getPageBootDataForDevice();
-
         $filmstripConfig = $deviceBootData->filmstrip ?? '';
         $dcmConfig = $deviceBootData->inlineSearch ?? '';
         $emailCapConfig = $deviceBootData->emailCapture ?? '';
 
-        if (!empty($filmstripConfig) || !empty($dcmConfig) || !empty($emailCapConfig)) {
-            $filmstripStr = empty($filmstripConfig) ? '' : json_encode($filmstripConfig) || '';
-            $dcmStr = empty($dcmConfig) ? '' : json_encode($dcmConfig) || '';
-            $emailCapStr = empty($emailCapConfig) ? '' : json_encode($emailCapConfig) || '';
+        // Debugging output for CLS container script injection
+        $this->utils->echoComment("Filmstrip Config: " . json_encode($filmstripConfig), true, true, false);
+        $this->utils->echoComment("DCM Config: " . json_encode($dcmConfig), true, true, false);
+        $this->utils->echoComment("Email Capture Config: " . json_encode($emailCapConfig), true, true, false);
 
-            $this->utils->echoComment('CLS Container Insertion:', false, false);
+        if (!empty($filmstripConfig) || !empty($dcmConfig) || !empty($emailCapConfig)) {
+            $filmstripStr = empty($filmstripConfig) ? '' : json_encode($filmstripConfig);
+            $dcmStr = empty($dcmConfig) ? '' : json_encode($dcmConfig);
+            $emailCapStr = empty($emailCapConfig) ? '' : json_encode($emailCapConfig);
+
+            $this->utils->echoComment('CLS Container Script Injection:', false, false, true);
 
             // NOTE: The source of the minified JavaScript below is: slickstream-client/blob/main/src/plugin/cls-inject.ts
             // This script will insert the filmstrip, DCM, and email container elements into the page to eliminate CLS on those widgets.
@@ -76,50 +74,58 @@ class PageBootData extends OptionsManager
                 addslashes($emailCapStr) . "');" . "\n";
             echo "\n</script>\n";
 
-            $this->utils->echoComment('END CLS Container Script Insertion', false, false);
+            $this->utils->echoComment('END CLS Container Script Injection', false, false, true);
+        } else {
+            $this->utils->echoComment('CLS Script Injection: Filmstrip, DCM, and Email Capture configs all empty; CLS Script not injected');
         }
     }
 
     private function getPageBootData(): ?object
     {
         if (
-            !$this->pageGroupId || !$this->siteCode || !$this->urlPath ||
-            !$this->pageGroupIdTransientName || !$this->pageGroupTransientName
+            empty($this->pageGroupId) || empty($this->siteCode) || $this->urlPath === ''
         ) {
             $this->utils->echoComment('getPageBootData Error: Missing Required Data; Skipping Page Boot Data. Details:');
             $this->utils->echoComment('pageGroupId: ' . ($this->pageGroupId ?? 'null'));
             $this->utils->echoComment("siteCode: {$this->siteCode}");
             $this->utils->echoComment("urlPath: {$this->urlPath}");
-            $this->utils->echoComment('pageGroupIdTransientName: ' . ($this->pageGroupIdTransientName || 'null'));
-            $this->utils->echoComment('pageGroupTransientName: ' . ($this->pageGroupTransientName || 'null'));
+            $this->utils->echoComment('pageGroupIdTransientName: ' . ($this->pageGroupIdTransientName ?? 'null'));
+            $this->utils->echoComment('pageGroupTransientName: ' . ($this->pageGroupTransientName ?? 'null'));
             return null;
+        }
+
+        $transientKey = $this->getPageGroupTransientName();
+
+        if (empty($transientKey)) {
+            $this->utils->echoComment("getPageBootData Error: pageGroupTransientName is null or empty; cannot fetch transient.");
         }
 
         $noTransientPageBootData = (
             false === (
-                $pageBootData = get_transient($this->pageGroupTransientName)
+                $pageBootData = get_transient($transientKey)
             )
         );
 
+        // Fetch from server if we can't find page boot data in the transient cache
         if ($noTransientPageBootData) {
             $pageBootData = $this->fetchPageBootData();
             if ($pageBootData) {
                 $pageBootDataTtl = $pageBootData->wpPluginTtl ?? self::PAGE_BOOT_DATA_DEFAULT_TTL;
-                set_transient($this->pageGroupTransientName, $pageBootData, $pageBootDataTtl);
-                $this->utils->echoComment("Stored Page Boot Data in Transient Cache Using Key: $this->pageGroupTransientName for $pageBootDataTtl Seconds.");
+                set_transient($transientKey, $pageBootData, $pageBootDataTtl);
+                $this->utils->echoComment("Stored Page Boot Data in Transient Cache Using Key: $transientKey for $pageBootDataTtl Seconds.");
             } else {
                 $this->utils->echoComment("ERROR: Unable to Fetch Page Boot Data from Server");
                 return null;
             }
         }
-        $this->utils->echoComment("Retrieved Page Boot Data from from Transient Cache for Page Group ID: $this->pageGroupId from Key: $this->pageGroupTransientName");
+        $this->utils->echoComment("Retrieved Page Boot Data from from Transient Cache for Page Group ID: $this->pageGroupId from Key: $transientKey", true, true, false);
         return $pageBootData;
     }
 
     // Fetch the Page Boot Data Object by Site Code and Page Group ID from the server
     private function fetchPageBootData(): ?object
     {
-        $this->utils->echoComment("Fetching Page Boot Data From Server");
+        $this->utils->echoComment("Fetching Page Boot Data From Server", true, true, false);
 
         if (!$this->siteCode) {
             $this->utils->echoComment("fetchPageBootData Error: Missing Site Code");
@@ -131,7 +137,8 @@ class PageBootData extends OptionsManager
         }
 
         $protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? 'https' : 'http';
-        $pageUrl = $protocol . '://' . $_SERVER['SERVER_NAME'] . $this->urlPath;
+        $serverName = $_SERVER['SERVER_NAME'] ?? 'localhost';
+        $pageUrl = $protocol . '://' . $serverName . $this->urlPath;
         $pageBootDataUrl = $this->serverUrlBase . '/d/page-boot-data?site=' . rawurlencode($this->siteCode) . '&url=' . rawurlencode($pageUrl);
         try {
             $returnVal = $this->utils->fetchRemoteObject($pageBootDataUrl);
@@ -175,7 +182,9 @@ class PageBootData extends OptionsManager
 
     private function getCurrentUrlPath(): string
     {
-        $parsedUrl = parse_url('http://' . (string) $_SERVER['HTTP_HOST'] . (string) $_SERVER['REQUEST_URI']);
+        $httpHost = $_SERVER['HTTP_HOST'] ?? 'localhost';
+        $requestUri = $_SERVER['REQUEST_URI'] ?? '/';
+        $parsedUrl = parse_url('http://' . (string) $httpHost . (string) $requestUri);
         $path = '';
 
         if (isset($parsedUrl['path'])) {
@@ -218,7 +227,7 @@ class PageBootData extends OptionsManager
                 return null;
             }
         }
-        $this->utils->echoComment("Retrieved Page Group ID: '{$pageGroupId}' from Transient Cache from Key: $this->pageGroupIdTransientName");
+        $this->utils->echoComment("Retrieved Page Group ID: '{$pageGroupId}' from Transient Cache from Key: $this->pageGroupIdTransientName", true, true, false);
         return $pageGroupId;
     }
 
@@ -248,12 +257,27 @@ class PageBootData extends OptionsManager
         $this->utils->echoComment('END Page Boot Data', false, false);
     }
 
+    // Returns the Page Group Transient Name
     private function getPageGroupTransientName(): ?string
     {
-        if (!$this->pageGroupId) {
+        if (!empty($this->pageGroupTransientName)) {
+            return $this->pageGroupTransientName;
+        }
+
+        if (empty($this->pageGroupId)) {
             return null;
         }
-        return 'slick_page_group_' . md5($_SERVER['SERVER_NAME'] . $this->pageGroupId);
+
+        $serverName = $_SERVER['SERVER_NAME'] ?? 'localhost';
+        $this->pageGroupTransientName = 'slick_page_group_' . md5("{$serverName}{$this->pageGroupId}");
+        return $this->pageGroupTransientName;
+    }
+
+    // Returns the Page Group ID Transient Name
+    private function getPageGroupIdTransientName(): ?string
+    {
+        $serverName = $_SERVER['SERVER_NAME'] ?? 'localhost';
+        return 'slick_page_group_id_' . md5("{$serverName}{$this->urlPath}");
     }
 
     private function handleDeletePageBootData(): bool
@@ -268,17 +292,17 @@ class PageBootData extends OptionsManager
         $this->utils->echoComment("Deleting Page Boot Data From Cache With Key: $this->pageGroupTransientName", true, true, false);
         $deleteComment = (false === delete_transient($this->pageGroupTransientName)) ?
             "Nothing to do--Page Boot Data Not Found in Cache" : "Page Boot Data Transient Deleted Successfully";
-        $this->utils->echoComment($deleteComment);
+        $this->utils->echoComment($deleteComment, true, true, false);
 
         $this->utils->echoComment("Deleting Page Group ID From Cache With Key: $this->pageGroupIdTransientName", true, true, false);
         $deleteComment = (false === delete_transient($this->pageGroupIdTransientName)) ?
             "Nothing to do--Page Group ID Not Found in Cache" : "Page Group ID Transient Deleted Successfully";
-        $this->utils->echoComment($deleteComment);
+        $this->utils->echoComment($deleteComment, true, true, false);
 
         $this->utils->echoComment("Deleting Embed Code From Cache With Key: slickstream_embed_code", true, true, false);
         $deleteComment = (false === delete_transient('slickstream_embed_code')) ?
             "Nothing to do--Embed Code Not Found in Cache" : "Embed Code Transient Deleted Successfully";
-        $this->utils->echoComment($deleteComment);
+        $this->utils->echoComment($deleteComment, true, true, false);
 
         $this->pageBootData = null;
         return true;

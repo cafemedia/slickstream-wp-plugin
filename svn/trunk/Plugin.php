@@ -34,43 +34,13 @@ class SlickEngagement_Plugin extends OptionsManager
         $this->utils = Utils::getInstance();
     }
 
-    private function echoDebugCLS(): void
+    private function echoCLSDebugScript(): void
     {
-        $this->utils->echoComment("Debug CLS output", false, true);
+        $this->utils->echoComment("CLS Monitor Script", false, true);
         echo <<<JSDOC
-    <script id='slick-wp-plugin-debug-cls' class='\\$this->scriptClass'>
-    (function () {
-        const clsDataCallback = (clsData) => {
-            if (typeof clsData.value !== "number" || !clsData.attribution) {
-                console.info(`[Slickstream] Invalid CLS data object.`);
-                return;
-            }
-
-            console.info(`[slickstream] The CLS score on this page is: \${clsData.value.toFixed(3)}, which is considered \${clsData.rating}`);
-
-            if (clsData.value > 0.000) {
-                console.info(`[Slickstream] The element that contributed the most CLS is:`);
-                console.info(clsData.attribution?.largestShiftSource?.node || "No node information available.");
-                console.table(clsData.attribution);
-            }
-        };
-
-        console.info(`[Slickstream] Monitoring for CLS...`);
-
-        const script = document.createElement('script');
-        script.src = 'https://unpkg.com/web-vitals/dist/web-vitals.attribution.iife.js';
-        script.onload = function () {
-            if (typeof webVitals !== 'undefined' && webVitals.onCLS) {
-                webVitals.onCLS(clsDataCallback);
-            } else {
-                console.warn(`[Slickstream] webVitals library did not load correctly.`);
-            }
-        };
-        document.head.appendChild(script);
-    })();
-    </script>
-    JSDOC;
-        $this->utils->echoComment("END Debug CLS output", false, true);
+        <script id='slick-wp-plugin-debug-cls' class='\$this->scriptClass'>(function(){if(!window.chrome){return}const clsDataCallback=(clsData)=>{if(typeof clsData.value!=="number"||!clsData.attribution){console.info(`[slickstream] Invalid CLS data object.`);return}console.info(`[slickstream] The CLS score on this page is: \${clsData.value.toFixed(3)}, which is considered \${clsData.rating}`);if(clsData.value>0.000){console.info(`[slickstream] The element that contributed the most CLS is:`);console.info(clsData.attribution?.largestShiftSource?.node||"No node information available.");console.table(clsData.attribution)}};console.info(`[slickstream] Monitoring for CLS...`);const script=document.createElement('script');script.src='https://unpkg.com/web-vitals/dist/web-vitals.attribution.iife.js';script.onload=function(){if(typeof webVitals!=='undefined'&&webVitals.onCLS){webVitals.onCLS(clsDataCallback)}else{console.warn(`[slickstream] webVitals library did not load correctly.`)}};document.head.appendChild(script)})();</script>
+        JSDOC;
+        $this->utils->echoComment("END CLS Monitor Script", false, true);
     }
 
     private function getCurrentTimestampByTimeZone(string $timezone): string
@@ -114,7 +84,7 @@ class SlickEngagement_Plugin extends OptionsManager
 
     private function echoWpRocketDetection(): void
     {
-        $this->utils->echoComment("WP-Rocket Detection", false, true);
+        $this->utils->echoComment("WP-Rocket Detection", false, false);
         echo <<<JSBLOCK
         <script id="slick-wp-rocket-detect-script" class='$this->scriptClass'>
         (function() {
@@ -127,18 +97,18 @@ class SlickEngagement_Plugin extends OptionsManager
         })();
         </script>
         JSBLOCK;
-        $this->utils->echoComment("END WP-Rocket Detection", false, true);
+        $this->utils->echoComment("END WP-Rocket Detection", false, false);
     }
 
     private function consoleLogAbTestData(): void
     {
-        $this->utils->echoComment("Console Logging A/B Test Data", false, true);
+        $this->utils->echoComment("A/B Test Logging Script", false, true);
         echo <<<JSBLOCK
         <script id="slick-ab-test-script" class='$this->scriptClass'>
-        "use strict";(async()=>{var e,t;const o=window.\$slickBoot=window.\$slickBoot||{};const n="[slickstream] ";const s="color: red";const a="color: yellow";if(!o.d){console.warn(`%c\${n}Slickstream page boot data not found.`,a);return}const r=(e=o.d)===null||e===void 0?void 0:e.abTests;const i=(t=o.d)===null||t===void 0?void 0:t.siteCode;if(!o){console.warn(`%c\${n}Slickstream config data not found; Slickstream is likely not installed on this site.`,a);return}if(!i){console.warn(`%c\${n}Could not determine Slickstream siteCode for this page.`,a);return}if(o.d.bestBy<Date.now()){console.warn(`%c\${n}WARNING: Slicktream page config data is stale. Please reload the page to fetch up-to-date config data.`,a)}if(!r||Array.isArray(r)&&r.length===0){console.info(`%c\${n}There are no Slickstream A/B tests running currently.`,s)}else{console.info(`%c\${n}A/B TEST(S) FOR SLICKSTREAM ARE RUNNING. \\n\\nHere are the details:`,s);const e=e=>{var t;const o=localStorage.getItem("slick-ab");const n=o&&JSON.parse(o)||{value:false};return{"Feature being Tested":e.feature,"Is the A/B test running on this site?":!((t=e===null||e===void 0?void 0:e.excludeSites)===null||t===void 0?void 0:t.includes(i))?"yes":"no","Am I in the test group (feature disabled)?":n.value===true?"yes":"no","Percentage of Users this feature is ENABLED For":e.fraction,"Percentage of Users this feature is DISABLED For":100-e.fraction,"Start Date":new Date(e.startDate).toString(),"End Date":new Date(e.endDate).toString(),"Current Time":(new Date).toString()}};r.forEach((t=>{console.table(e(t))}))}})();
+        "use strict";(async()=>{var e,t;const o=window.\$slickBoot=window.\$slickBoot||{};const n="[slickstream] ";const s="color: red";const a="color: yellow";if(!o.d){console.warn(`%c\${n}Slickstream page boot data not found.`,a);return}const r=(e=o.d)===null||e===void 0?void 0:e.abTests;const i=(t=o.d)===null||t===void 0?void 0:t.siteCode;if(!o){console.warn(`%c\${n}Slickstream config data not found; Slickstream is likely not installed on this site.`,a);return}if(!i){console.warn(`%c\${n}Could not determine Slickstream siteCode for this page.`,a);return}if(o.d.bestBy<Date.now()){console.warn(`%c\${n}WARNING: Slickstream page config data is stale. Please reload the page to fetch up-to-date config data.`,a)}if(!r||Array.isArray(r)&&r.length===0){console.info(`%c\${n}[DEBUG] There are no Slickstream A/B tests running currently.`,a)}else{console.info(`%c\${n}A/B TEST(S) FOR SLICKSTREAM ARE RUNNING. \\n\\nHere are the details:`,s);const e=e=>{var t;const o=localStorage.getItem("slick-ab");const n=o&&JSON.parse(o)||{value:false};return{"Feature being Tested":e.feature,"Is the A/B test running on this site?":!((t=e===null||e===void 0?void 0:e.excludeSites)===null||t===void 0?void 0:t.includes(i))?"yes":"no","Am I in the test group (feature disabled)?":n.value===true?"yes":"no","Percentage of Users this feature is ENABLED For":e.fraction,"Percentage of Users this feature is DISABLED For":100-e.fraction,"Start Date":new Date(e.startDate).toString(),"End Date":new Date(e.endDate).toString(),"Current Time":(new Date).toString()}};r.forEach((t=>{console.table(e(t))}))}})();
         </script>
         JSBLOCK;
-        $this->utils->echoComment("END Console Logging A/B Test Data", false, true);
+        $this->utils->echoComment("END A/B Test Logging Script", false, true);
     }
 
     private function getPageType(): string
@@ -360,7 +330,7 @@ class SlickEngagement_Plugin extends OptionsManager
             $overrideUrl :
             "https://" . self::CDN_SERVER . "/$codeBranchStr/$version/embed-code.js";
 
-        $this->utils->echoComment("Fetching embed code from: $remoteUrl");
+        $this->utils->echoComment("Fetching Embed Code");
         $embedCodeObj = $this->utils->fetchRemote($remoteUrl, 2);
 
         if (
@@ -408,11 +378,11 @@ class SlickEngagement_Plugin extends OptionsManager
         $embedCode = $this->getEmbedCode(self::CLIENT_VERSION, self::CLIENT_CODE_BRANCH, $overrideUrl);
 
         if ($embedCode) {
-            $this->utils->echoComment("Embed Code:  ", false, true, true);
+            $this->utils->echoComment("Embed Code", false, false, true);
             echo "<script id=\"slick-embed-code-script\" class='$this->scriptClass'>\n$embedCode\n</script>\n";
-            $this->utils->echoComment("END Embed Code", false, true, true);
+            $this->utils->echoComment("END Embed Code", false, false, true);
         } else {
-            $this->utils->echoComment("Embed code missing; Slickstream services are disabled", true, false);
+            $this->utils->echoComment("Embed code missing; Slickstream services are disabled", true, false, true);
         }
 
         return;
@@ -420,42 +390,48 @@ class SlickEngagement_Plugin extends OptionsManager
 
     private function echoVersionMetaTag(): void
     {
-        echo "\n<meta property='slick:wpversion' content='" . self::PLUGIN_VERSION . "' />\n";
+        $this->utils->echoComment("Slickstream WordPress Plugin Version: " . self::PLUGIN_VERSION, true, true, false);
+
+        echo "<meta property='slick:wpversion' content='" . self::PLUGIN_VERSION . "' />\n";
     }
 
-    // Outputs debug info, meta tags, page boot data, and other page metadata into the page <head>
+    // Injects debug info, meta tags, page boot data, and other page metadata into the <head> tag
     public function addSlickPageHeader(): void
     {
         global $post;
 
+        echo "\n\n";
+        $this->utils->echoComment("[[[ START Slickstream Output ]]]", false, false, true);
         $this->echoPageGenerationTimestamp();
 
         if (!$this->siteCode) {
-            $this->utils->echoComment("ERROR: Site Code missing from Plugin Settings; Slickstream services are disabled", true, false);
+            $this->utils->echoComment("ERROR: Site Code missing from Plugin Settings; Slickstream services are disabled", true, false, true);
             return;
         }
 
         $pageBootData = new PageBootData($this->serverUrlBase, $this->siteCode, $this->scriptClass);
         $pageBootData->handlePageBootData();
-        $this->echoVersionMetaTag();
         $this->echoEmbedCode();
         // TODO: fetch, transient cache, and echo the contents of `boot-loader.js`
         $this->echoPageMetadata($post);
         $this->outputDebugInfo();
         $this->echoWpRocketDetection();
+        $this->utils->echoComment("[[[ END Slickstream Output ]]]", false, false, true);
+        echo "\n\n";
     }
 
     private function echoPageGenerationTimestamp(): void
     {
         $timezone = 'America/New_York';
         $shortTimezone = 'EST';
-        $this->utils->echoComment("Page Generated at: " . $this->getCurrentTimestampByTimeZone($timezone) . " $shortTimezone", true, false);
-        echo "\t\t<script>console.info(`[slickstream] Current timestamp: \${(new Date).toLocaleString('en-US', { timeZone: '$timezone' })} $shortTimezone`);</script>\n";
+        $this->utils->echoComment("Page Generated at: " . $this->getCurrentTimestampByTimeZone($timezone) . " $shortTimezone", true, false, false);
+        echo "<script>console.info(`[slickstream] Current timestamp: \${(new Date).toLocaleString('en-US', { timeZone: '$timezone' })} $shortTimezone`);</script>\n";
     }
 
     private function echoPageMetadata($post): void
     {
         $this->utils->echoComment("Page Metadata:", false, false);
+        $this->echoVersionMetaTag();
 
         $ldJsonElements = [];
         array_push($ldJsonElements, $this->getLdJsonPluginData(), $this->getLdJsonSiteData());
@@ -471,7 +447,7 @@ class SlickEngagement_Plugin extends OptionsManager
             '@graph' => $ldJsonElements,
         ];
         echo '<script type="application/x-slickstream+json">' . json_encode($ldJson, JSON_UNESCAPED_SLASHES) . "</script>\n";
-        $this->utils->echoComment("END Page Metadata", false, false);
+        $this->utils->echoComment("END Page Metadata", false, false, true);
     }
 
     private function getLdJsonPluginData(): object
@@ -539,6 +515,6 @@ class SlickEngagement_Plugin extends OptionsManager
             return;
         }
         $this->consoleLogAbTestData();
-        $this->echoDebugCLS();
+        $this->echoCLSDebugScript();
     }
 }

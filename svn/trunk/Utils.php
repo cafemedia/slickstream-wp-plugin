@@ -44,23 +44,26 @@ class Utils
             return;
         }
 
+        $debugIdentifier = $debugOnly ? '[DEBUG] ' : '';
+
         if ($isHtmlComment) {
-            echo "<!-- [slickstream] " . strip_tags($comment) . " -->\n";
+            echo "<!-- [slickstream] $debugIdentifier" . strip_tags($comment) . " -->\n";
         }
 
         if ($isBrowserConsoleComment) {
-            $this->echoConsoleOutput($comment);
+            $this->echoConsoleOutput($comment, $debugOnly);
         }
     }
 
     /**
      * @param string $output
      */
-    public function echoConsoleOutput(string $output): void
+    public function echoConsoleOutput(string $output, $isADebugMsg = false): void
     {
         if ($output !== '') {
             $safeOutput = addslashes(strip_tags($output));
-            echo "\t\t<script>console.info(`[slickstream] $safeOutput`);</script>\n";
+            $debugIdentifier = $isADebugMsg ? ' [DEBUG]' : '';
+            echo "<script>console.info(`[slickstream]$debugIdentifier $safeOutput`);</script>\n";
         }
     }
 
@@ -147,7 +150,7 @@ class Utils
     // This logic matches the logic on the client-side (v2.15.1+) to determine if the device is mobile
     public function isMobile(): bool
     {
-        $userAgent = $_SERVER['HTTP_USER_AGENT'];
+        $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? 'UNKNOWN';
 
         $isTablet = preg_match(
             '/Tablet|iPad|Playbook|Nook|webOS|Kindle|Silk|SM-T|GT-P|SCH-I800|Xoom|Transformer|Tab|Slate|Pixel C|Nexus 7|Nexus 9|Nexus 10|SHIELD Tablet|Lenovo Tab|Mi Pad|Android(?!.*Mobile)/i',
@@ -158,6 +161,12 @@ class Utils
             '/Mobi|iP(hone|od)|Android.*Mobile|Opera Mini|IEMobile|WPDesktop|BlackBerry|BB10|webOS|Fennec/i',
             $userAgent
         );
+
+        $isMobileStr = 'isMobile: ' . ($isMobile ? 'YES' : 'NO') .
+            '; isTablet: ' . ($isTablet ? 'YES' : 'NO') .
+            '; User Agent: ' . $userAgent;
+
+        $this->echoComment($isMobileStr, true, true, false);
 
         return $isMobile && !$isTablet;
     }
