@@ -409,6 +409,7 @@ class SlickEngagement_Plugin extends OptionsManager
             return;
         }
 
+        $this->utils->echoComment("Slickstream Site Code: {$this->siteCode}", true, true, false);
         $pageBootData = new PageBootData($this->serverUrlBase, $this->siteCode, $this->scriptClass);
         $pageBootData->handlePageBootData();
         $this->echoEmbedCode();
