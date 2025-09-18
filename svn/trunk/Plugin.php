@@ -88,10 +88,10 @@ class SlickEngagement_Plugin extends OptionsManager
         echo <<<JSBLOCK
         <script id="slick-wp-rocket-detect-script" class='$this->scriptClass'>
         (function() {
-            const slickstreamRocketPluginScripts = document.querySelectorAll('script.$this->scriptClass[type=rocketlazyloadscript]');
-            const slickstreamRocketExternalScripts = document.querySelectorAll('script[type=rocketlazyloadscript][src*="app.slickstream.com"]');
-            if (slickstreamRocketPluginScripts.length > 0 || slickstreamRocketExternalScripts.length > 0) {
-                console.warn('[slickstream]' + ['Slickstream scripts. This ', 
+            const slickScripts = document.querySelectorAll('script.$this->scriptClass[type=rocketlazyloadscript]');
+            const extScripts = document.querySelectorAll('script[type=rocketlazyloadscript][src*="app.slickstream.com"]');
+            if (slickScripts.length > 0 || extScripts.length > 0) {
+                console.warn('[slickstream]' + ['Slickstream scripts. This ',
                 'may cause undesirable behavior, ', 'such as increased CLS scores.',' WP-Rocket is deferring one or more '].sort().join(''));
             }
         })();
