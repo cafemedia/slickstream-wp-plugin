@@ -104,10 +104,12 @@ You can report security bugs through the Patchstack Vulnerability Disclosure Pro
 
 == Installation ==
 
-1. Visit [https://slickstream.com](https://slickstream.com) and tell us about your site.
-2. Install and activate this plugin.
-3. On the settings page ("Slick" under Settings), enter the site code we give you and click Save.
-4. Check with us if you'd like any customization of your widgets
+1. Visit [https://slickstream.com](https://www.slickstream.com/support/how-to-sign-up-to-slickstream) and register your site.
+2. Install and activate this plugin via WP-Admin.
+3. On the WP-Admin Settings page, find "Slickstream Engagement" and click on that.
+4. Enter the "Site Code" we gave you when you registered into the settings form, and click the Save button.
+5. If your site has already been on-boarded and indexed, you should see Slickstream widgets on your website immediately.
+6. Contact [Support](mailto:support@slickstream.com) if you'd like any customization of Slickstream widgets or settings.
 
 == Screenshots ==
 
@@ -116,29 +118,6 @@ You can report security bugs through the Patchstack Vulnerability Disclosure Pro
 3. Automatic categorization within the Slickstream panel. Here you can see results for "dessert" grouped by popularity, date, and a related subcategory ("baking").
 
 == Changelog ==
-
-= 1.2.5 =
-- Enhanced A/B testing
-
-= 1.3.0 =
-- Automatically reduces CLS without adjustments or setting changes from admin
-
-= 1.3.1 =
-- Security enhancements
-
-= 1.4.0 =
-- Performance improvements
-- CLS improvements
-
-= 1.4.1 =
-- Added support for custom margins for CLS
-
-= 1.4.2 =
-- Performance improvements
-
-= 1.4.3 =
-- Include options for Genesis-based container reservation
-- Additional performance enhancements
 
 = 1.4.4 =
 - Performance improvement for CLS
