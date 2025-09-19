@@ -1,31 +1,36 @@
-<?php 
+<?php
+
 declare(strict_types=1);
+
 namespace Slickstream;
 
-require_once 'SlickEngagement_OptionsManager.php';
+require_once 'OptionsManager.php';
 
-class InstallIndicator extends OptionsManager {
+class InstallIndicator extends OptionsManager
+{
+    private const OPTION_INSTALLED = '_installed';
+    private const OPTION_VERSION = '_version';
 
-    const optionInstalled = '_installed';
-    const optionVersion = '_version';
-
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct();
     }
 
     /**
      * @return bool indicating if the plugin is installed already
      */
-    public function isInstalled(): bool {
-        return $this->getOption(self::optionInstalled) == true;
+    public function isInstalled(): bool
+    {
+        return $this->getOption(self::OPTION_INSTALLED) == true;
     }
 
     /**
      * Note in DB that the plugin is installed
      * @return null
      */
-    protected function markAsInstalled(): ?bool {
-        return $this->updateOption(self::optionInstalled, true);
+    protected function markAsInstalled(): ?bool
+    {
+        return $this->updateOption(self::OPTION_INSTALLED, true);
     }
 
     /**
@@ -34,8 +39,9 @@ class InstallIndicator extends OptionsManager {
      * true implies the plugin was installed at the time of this call,
      * false implies it was not.
      */
-    protected function markAsUnInstalled(): bool {
-        return $this->deleteOption(self::optionInstalled);
+    protected function markAsUnInstalled(): bool
+    {
+        return $this->deleteOption(self::OPTION_INSTALLED);
     }
 
     /**
@@ -43,8 +49,9 @@ class InstallIndicator extends OptionsManager {
      * need to check if an older version was installed to see if you need to do certain
      * upgrade housekeeping (e.g. changes to DB schema).
      */
-    protected function getVersionSaved(): ?string {
-        return $this->getOption(self::optionVersion);
+    protected function getVersionSaved(): ?string
+    {
+        return $this->getOption(self::OPTION_VERSION);
     }
 
     /**
@@ -52,15 +59,17 @@ class InstallIndicator extends OptionsManager {
      * @param  $version string best practice: use a dot-delimited string like '1.2.3' so version strings can be easily
      * compared using version_compare (http://php.net/manual/en/function.version-compare.php)
      */
-    protected function setVersionSaved($version): ?bool {
-        return $this->updateOption(self::optionVersion, $version);
+    protected function setVersionSaved(string $version): ?bool
+    {
+        return $this->updateOption(self::OPTION_VERSION, $version);
     }
 
     /**
      * @return string name of the main plugin file that has the header section with
      * "Plugin Name", "Version", "Description", "Text Domain", etc.
      */
-    protected function getMainPluginFileName(): string {
+    protected function getMainPluginFileName(): string
+    {
         return basename(dirname(__FILE__)) . 'php';
     }
 
@@ -70,11 +79,20 @@ class InstallIndicator extends OptionsManager {
      * @param $key string plugin header key
      * @return string | null if found, otherwise null
      */
-    public function getPluginHeaderValue($key) {
+    /**
+     * @param string $key
+     * @return string|null
+     */
+    public function getPluginHeaderValue(string $key): ?string
+    {
         // Read the string from the comment header of the main plugin file
         $data = file_get_contents($this->getPluginDir() . DIRECTORY_SEPARATOR . 'readme.txt');
         $match = [];
-        preg_match("/$key:\\s*(\\S+)/", $data, $match);
+        if (!is_string($data)) {
+            return null;
+        }
+        $pattern = '/' . preg_quote($key, '/') . ':\s*(\S+)/';
+        preg_match($pattern, $data, $match);
         if (count($match) >= 1) {
             return $match[1];
         }
@@ -87,7 +105,8 @@ class InstallIndicator extends OptionsManager {
      * be different, you will then get the right dir returned.
      * @return string
      */
-    protected function getPluginDir(): string {
+    protected function getPluginDir(): string
+    {
         return dirname(__FILE__);
     }
 
@@ -97,8 +116,10 @@ class InstallIndicator extends OptionsManager {
      * NOTE: You should manually make this match the SVN tag for your main plugin file 'Version' release and 'Stable tag' in readme.txt
      * @return string
      */
-    public function getVersion(): string {
-        return $this->getPluginHeaderValue('Stable tag');
+    public function getVersion(): string
+    {
+        $version = $this->getPluginHeaderValue('Stable tag');
+        return $version !== null ? $version : '';
     }
 
 
@@ -110,7 +131,8 @@ class InstallIndicator extends OptionsManager {
      * true indicates that new code is installed and this is the first time it is activated, so upgrade actions
      * should be taken. Assumes that version string comparable by version_compare, examples: '1', '1.1', '1.1.1', '2.0', etc.
      */
-    public function isInstalledCodeAnUpgrade(): bool {
+    public function isInstalledCodeAnUpgrade(): bool
+    {
         return $this->isSavedVersionLessThan($this->getVersion());
     }
 
@@ -119,7 +141,8 @@ class InstallIndicator extends OptionsManager {
      * @param  $aVersion string
      * @return bool true if the saved version is earlier (by natural order) than the input version
      */
-    public function isSavedVersionLessThan($aVersion): bool {
+    public function isSavedVersionLessThan(string $aVersion): bool
+    {
         return $this->isVersionLessThan($this->getVersionSaved(), $aVersion);
     }
 
@@ -132,7 +155,8 @@ class InstallIndicator extends OptionsManager {
      * @param  $aVersion string
      * @return bool true if the saved version is earlier (by natural order) than the input version
      */
-    public function isSavedVersionLessThanEqual($aVersion): bool {
+    public function isSavedVersionLessThanEqual(string $aVersion): bool
+    {
         return $this->isVersionLessThanEqual($this->getVersionSaved(), $aVersion);
     }
 
@@ -141,8 +165,9 @@ class InstallIndicator extends OptionsManager {
      * @param  $version2 string a version string such as '1', '1.1', '1.1.1', '2.0', etc.
      * @return bool true if version_compare of $versions1 and $version2 shows $version1 as the same or earlier
      */
-    public function isVersionLessThanEqual($version1, $version2): bool {
-        return version_compare($version1, $version2) <= 0;
+    public function isVersionLessThanEqual(string $version1, string $version2): bool
+    {
+        return version_compare((string)$version1, (string)$version2) <= 0;
     }
 
     /**
@@ -150,8 +175,9 @@ class InstallIndicator extends OptionsManager {
      * @param  $version2 string a version string such as '1', '1.1', '1.1.1', '2.0', etc.
      * @return bool true if version_compare of $versions1 and $version2 shows $version1 as earlier
      */
-    public function isVersionLessThan($version1, $version2): bool {
-        return version_compare($version1, $version2) < 0;
+    public function isVersionLessThan(string $version1, string $version2): bool
+    {
+        return version_compare((string)$version1, (string)$version2) < 0;
     }
 
     /**
@@ -160,7 +186,8 @@ class InstallIndicator extends OptionsManager {
      * upgrading to record the new current version
      * @return void
      */
-    protected function saveInstalledVersion(): void {
+    protected function saveInstalledVersion(): void
+    {
         $this->setVersionSaved($this->getVersion());
     }
 }

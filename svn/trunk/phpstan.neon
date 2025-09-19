@@ -1,0 +1,7 @@
+parameters:
+  level: max
+  paths:
+    - .
+  ignoreErrors:
+    - '#Function .* not found\.#'
+
