@@ -19,8 +19,7 @@ class SlickEngagement_Plugin extends OptionsManager
     private string $siteCode;
     private Utils $utils;
     private const CLIENT_CODE_BRANCH = 'main';
-    private const CLIENT_VERSION = '2.15.1'; // Update this when the embed code, bootloader, or CLS insertion scripts change
-//TODO: UPDATE TO 2.15.3 after that is released and before this is merged ^^^^
+    private const CLIENT_VERSION = '2.15.3'; // Update this when the embed code, bootloader, or CLS insertion scripts change
     public function __construct()
     {
         parent::__construct();

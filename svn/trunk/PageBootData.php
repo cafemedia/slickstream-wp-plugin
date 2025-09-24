@@ -37,7 +37,7 @@ class PageBootData extends OptionsManager
     private function getPageBootDataForDevice(): object
     {
         if (isset($this->pageBootData->v2)) {
-            if ($this->utils->isMobile() && isset($this->pageBootData->v2->phone)) {
+            if ($this->utils->isPhone() && isset($this->pageBootData->v2->phone)) {
                 return $this->pageBootData->v2->phone ?? $this->pageBootData;
             }
             return $this->pageBootData->v2->desktop ?? $this->pageBootData;
