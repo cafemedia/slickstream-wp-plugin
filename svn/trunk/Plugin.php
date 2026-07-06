@@ -7,7 +7,7 @@ namespace Slickstream;
 // NOTE: All inline JS scripts embedded by the plugin need to have the string `slickstream` somewhere in them;
 // This allows the string `slickstream` to be used in WP-Rocket lazy load exclusions; ideally $scriptClass is added to each script
 
-require_once 'Widgets.php';
+require_once __DIR__ . '/Widgets.php';
 require_once 'OptionsManager.php';
 require_once 'PageBootData.php';
 require_once 'Utils.php';
@@ -388,6 +388,20 @@ class SlickEngagement_Plugin extends OptionsManager
         return;
     }
 
+    private function echoBundleUrlScript(): void
+    {
+        $bundleUrl = trim($this->getOption('BundleUrl', ''));
+
+        if ($bundleUrl === '') {
+            return;
+        }
+
+        $this->utils->echoComment("Bundle URL", false, false, true);
+        echo '<script id="slick-bundle-url-script" class="' . esc_attr($this->scriptClass) .
+            '" src="' . esc_url($bundleUrl) . '"></script>' . "\n";
+        $this->utils->echoComment("END Bundle URL", false, false, true);
+    }
+
     private function echoVersionMetaTag(): void
     {
         $this->utils->echoComment("Slickstream WordPress Plugin Version: " . self::PLUGIN_VERSION, true, true, false);
@@ -413,6 +427,7 @@ class SlickEngagement_Plugin extends OptionsManager
         $pageBootData = new PageBootData($this->serverUrlBase, $this->siteCode, $this->scriptClass);
         $pageBootData->handlePageBootData();
         $this->echoEmbedCode();
+        $this->echoBundleUrlScript();
         // TODO: fetch, transient cache, and echo the contents of `boot-loader.js`
         $this->echoPageMetadata($post);
         $this->outputDebugInfo();
