@@ -1,0 +1,8 @@
+{
+  "core": "WordPress/WordPress#6.8.2",
+  "phpVersion": "8.2",
+  "testsEnvironment": false,
+  "mappings": {
+    "wp-content/plugins/slick-engagement": "./svn/trunk"
+  }
+}

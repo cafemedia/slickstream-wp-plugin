@@ -42,6 +42,9 @@ class ActionsFilters extends PluginLifecycle
             'SlickServerUrl' => [
                 (string)__('Service URL (optional)', $domain)
             ],
+            'BundleUrl' => [
+                (string)__('Bundle URL', $domain)
+            ],
         ];
 
         if (function_exists('genesis')) {
