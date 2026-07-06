@@ -1,0 +1,29 @@
+.wp-env.json
+  s_68b43eae844895::t_aa82d83de7a8e1 4
+  s_68b43eae844895::t_02bc727badbdcd 1,3,5-8
+  s_68b43eae844895::t_e0c336097e26b8 2
+svn/trunk/ActionsFilters.php
+  s_68b43eae844895::t_e489ea93350dad 45-46
+  s_68b43eae844895::t_b7c1f5b71ead54 47
+svn/trunk/Plugin.php
+  s_68b43eae844895::t_52a6e5c3dea9f0 391-404,430
+  s_68b43eae844895::t_7a680df8eb7ebb 10
+README.md
+  s_68b43eae844895::t_2d5bc1251404ea 7-26
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "467e0d2d1c0c013225022d6a5357a42b28e07795",
+  "prompts": {},
+  "sessions": {
+    "s_68b43eae844895": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019f23d5-5cfe-7551-a6a2-2cde7e88da3f",
+        "model": "gpt-5.5"
+      },
+      "human_author": "Jared Foster <jfoster@raptive.com>"
+    }
+  }
+}
