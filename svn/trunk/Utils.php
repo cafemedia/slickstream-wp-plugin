@@ -155,30 +155,6 @@ class Utils
         }
     }
 
-    // This logic matches the logic on the client-side (v2.15.1+) to determine if the device is a phone
-    public function isPhone(): bool
-    {
-        $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? 'UNKNOWN';
-
-        $isATablet = preg_match(
-            '/Tablet|iPad|Playbook|Nook|webOS|Kindle|Silk|SM-T|GT-P|SCH-I800|Xoom|Transformer|Tab|Slate|Pixel C|Nexus 7|Nexus 9|Nexus 10|SHIELD Tablet|Lenovo Tab|Mi Pad|Android(?!.*Mobile)/i',
-            $userAgent
-        );
-
-        $isAPhone = preg_match(
-            '/Mobi|iP(hone|od)|Android.*Mobile|Opera Mini|IEMobile|WPDesktop|BlackBerry|BB10|webOS|Fennec/i',
-            $userAgent
-        );
-
-        $isMobileStr = 'isMobile: ' . ($isAPhone ? 'YES' : 'NO') .
-            '; isTablet: ' . ($isATablet ? 'YES' : 'NO') .
-            '; User Agent: ' . $userAgent;
-
-        $this->echoComment($isMobileStr, true, true, false);
-
-        return $isAPhone && !$isATablet;
-    }
-
     /**
      * @param  string $value
      * @return string

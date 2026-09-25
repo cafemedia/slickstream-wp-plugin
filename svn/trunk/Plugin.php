@@ -19,7 +19,7 @@ class SlickEngagement_Plugin extends OptionsManager
     private string $siteCode;
     private Utils $utils;
     private const CLIENT_CODE_BRANCH = 'main';
-    private const CLIENT_VERSION = '2.15.3'; // Update this when the embed code, bootloader, or CLS insertion scripts change
+    private const CLIENT_VERSION = '2.15.3'; // Selects the CDN build of embed-code.js only; the embedded cls-inject carries its own version in PageBootData.php
     public function __construct()
     {
         parent::__construct();
