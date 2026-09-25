@@ -34,10 +34,11 @@ class PageBootData extends OptionsManager
         $this->pageBootData = $this->getPageBootData();
     }
 
-    private function getPageBootDataForDevice(): object
+    // Same rule as the front-end's boot-loader.ts: phone config if there is one, desktop otherwise
+    private function getPageBootDataForDevice(bool $isPhone): object
     {
         if (isset($this->pageBootData->v2)) {
-            if ($this->utils->isPhone() && isset($this->pageBootData->v2->phone)) {
+            if ($isPhone && isset($this->pageBootData->v2->phone)) {
                 return $this->pageBootData->v2->phone ?? $this->pageBootData;
             }
             return $this->pageBootData->v2->desktop ?? $this->pageBootData;
@@ -45,38 +46,45 @@ class PageBootData extends OptionsManager
         return $this->pageBootData;
     }
 
+    // Filmstrip, DCM and email capture configs of one device, JSON-encoded, '' when absent
+    private function getClsConfigStrings(object $deviceBootData): array
+    {
+        return array_map(
+            fn($config) => empty($config) ? '' : json_encode($config),
+            [
+                $deviceBootData->filmstrip ?? '',
+                $deviceBootData->inlineSearch ?? '',
+                $deviceBootData->emailCapture ?? '',
+            ]
+        );
+    }
+
     private function echoClsContainerScript(): void
     {
-        $deviceBootData = $this->getPageBootDataForDevice();
-        $filmstripConfig = $deviceBootData->filmstrip ?? '';
-        $dcmConfig = $deviceBootData->inlineSearch ?? '';
-        $emailCapConfig = $deviceBootData->emailCapture ?? '';
+        // Full-page caches serve this HTML to whichever device asks next, so the configs of both
+        // devices are passed and cls-inject picks one in the browser
+        $desktopConfigStrs = $this->getClsConfigStrings($this->getPageBootDataForDevice(false));
+        $phoneConfigStrs = $this->getClsConfigStrings($this->getPageBootDataForDevice(true));
+        $clsConfigStrs = array_merge($desktopConfigStrs, $phoneConfigStrs);
 
         // Debugging output for CLS container script injection
-        $this->utils->echoComment("Filmstrip Config: " . json_encode($filmstripConfig), true, true, false);
-        $this->utils->echoComment("DCM Config: " . json_encode($dcmConfig), true, true, false);
-        $this->utils->echoComment("Email Capture Config: " . json_encode($emailCapConfig), true, true, false);
+        $this->utils->echoComment("Desktop Filmstrip, DCM, Email Capture Configs: " . json_encode($desktopConfigStrs), true, true, false);
+        $this->utils->echoComment("Phone Filmstrip, DCM, Email Capture Configs: " . json_encode($phoneConfigStrs), true, true, false);
 
-        if (!empty($filmstripConfig) || !empty($dcmConfig) || !empty($emailCapConfig)) {
-            $filmstripStr = empty($filmstripConfig) ? '' : json_encode($filmstripConfig);
-            $dcmStr = empty($dcmConfig) ? '' : json_encode($dcmConfig);
-            $emailCapStr = empty($emailCapConfig) ? '' : json_encode($emailCapConfig);
-
+        if (count(array_filter($clsConfigStrs)) > 0) {
             $this->utils->echoComment('CLS Container Script Injection:', false, false, true);
 
             // NOTE: The source of the minified JavaScript below is: slickstream-client/blob/main/src/plugin/cls-inject.ts
             // This script will insert the filmstrip, DCM, and email container elements into the page to eliminate CLS on those widgets.
             // TODO: This should be pulled in over HTTP and cached in Wordpress, not embedded directly like this.
             echo "\n<script>//cls-inject.ts v2.15.3\n";
-            echo "\"use strict\";(async(e,t,n)=>{const o=\"[slickstream]\";const r=\"cls-inject\";const s=200;const i=50;const c=6e3;const a={onPageEmailCapture:\"slick-on-page\",dcmInlineSearch:\"slick-inline-search-panel\",filmstrip:\"slick-film-strip\"};let l=0;const d=e=>{if(!e){return null}try{return JSON.parse(e)}catch(t){console.error(o,r,\"Failed to parse config:\",e,t);return null}};const f=d(e);const u=d(t);const m=d(n);if(!f&&!u&&!m){return}const y=()=>{if(!document.body){l++;if(l<i){window.requestAnimationFrame(y)}else{console.warn(o,r,\"inject: document.body not found after max retries\")}return}void h().catch(e=>{console.error(o,r,\"injectAllClsDivs failed\",e)})};const p=async(e,t,n)=>{const o=document.createElement(\"div\");o.classList.add(t);o.classList.add(\"cls-inserted\");o.style.minHeight=n+\"px\";const r=[\"article p\",\"section.wp-block-template-part div.entry-content p\"];for(const t of r){const n=document.querySelectorAll(t);if((n===null||n===void 0?void 0:n.length)>=e){const t=n[e-1];t.insertAdjacentElement(\"afterend\",o);return o}}return null};const g=async e=>{const t=a.onPageEmailCapture;try{if(document.querySelector(`.\${t}`)){console.warn(o,r,`Container element already exists for \${t} class`);return}const n=S()?e.minHeightMobile||220:e.minHeight||200;if(e.cssSelector){await k(e.cssSelector,\"before selector\",t,n,\"\",undefined)}else{await p(e.pLocation||3,t,n)}}catch(e){console.error(o,r,`Failed to inject \${t} container`,e)}};const w=async e=>{if(e.selector){await k(e.selector,e.position||\"after selector\",a.filmstrip,e.minHeight||72,e.margin||e.marginLegacy||\"10px auto\")}else{console.warn(o,r,\"Filmstrip config missing selector property\")}};const b=async e=>{const t=Array.isArray(e)?e:[e];for(const e of t){if(e.selector){await k(e.selector,e.position||\"after selector\",a.dcmInlineSearch,e.minHeight||350,e.margin||e.marginLegacy||\"50px 15px\",e.id)}else{console.warn(o,r,\"DCM config is missing selector property:\",e)}}};const h=async()=>{if(f){await w(f)}if(u){await b(u)}if(m){await g(m)}};const S=()=>{const e=navigator.userAgent;const t=/Mobi|iP(hone|od)|Android.*Mobile|Opera Mini|IEMobile|WPDesktop|BlackBerry|BB10|webOS|Fennec/i.test(e);const n=/Tablet|iPad|Playbook|Nook|webOS|Kindle|Silk|SM-T|GT-P|SCH-I800|Xoom|Transformer|Tab|Slate|Pixel C|Nexus 7|Nexus 9|Nexus 10|SHIELD Tablet|Lenovo Tab|Mi Pad|Android(?!.*Mobile)/i.test(e);return t&&!n};const \$=async e=>new Promise(t=>{setTimeout(t,e)});const x=async(e,t,n,o,r)=>{const i=document.querySelector(e);if(i){return i}const c=Date.now();if(c-n>=t){console.error(o,r,`Timeout waiting for selector: \${e}`);return null}await \$(s);return x(e,t,n,o,r)};const A=async(e,t)=>{const n=Date.now();return x(e,t,n,o,r)};const k=async(e,t,n,s,i,a)=>{try{if(!e||e===\"undefined\"){console.warn(o,r,`Selector is empty or \"undefined\" for \${n} class; nothing to do`);return null}const l=await A(e,c);const d=a?document.querySelector(`.\${n}[data-config=\"\${a}\"]`):document.querySelector(`.\${n}`);if(d){console.warn(o,r,`Container element already exists for \${n} class with selector \${e}`);return null}if(!l){console.warn(o,r,`Target node not found for selector: \${e}`);return null}const f=document.createElement(\"div\");f.style.minHeight=`\${s}px`;f.style.margin=i;f.classList.add(n,\"cls-inserted\");if(a){f.dataset.config=a}const u={\"after selector\":\"afterend\",\"before selector\":\"beforebegin\",\"first child of selector\":\"afterbegin\",\"last child of selector\":\"beforeend\"};l.insertAdjacentElement(u[t]||\"afterend\",f);return f}catch(t){console.error(o,r,`Failed to inject \${n} for selector \${e}`,t);return null}};const P=()=>{window.requestAnimationFrame(y)};P()})";
-            echo "\n('" . addslashes($filmstripStr) . "','" .
-                addslashes($dcmStr) . "','" .
-                addslashes($emailCapStr) . "');" . "\n";
+            echo "\"use strict\";(async(e,t,n,o,r,s)=>{const i=\"[slickstream]\";const c=\"cls-inject\";const a=200;const l=50;const d=6e3;const u={onPageEmailCapture:\"slick-on-page\",dcmInlineSearch:\"slick-inline-search-panel\",filmstrip:\"slick-film-strip\"};let f=0;const m=e=>{if(!e){return null}try{return JSON.parse(e)}catch(t){console.error(i,c,\"Failed to parse config:\",e,t);return null}};const p=()=>{const e=navigator.userAgent;const t=/Mobi|iP(hone|od)|Android.*Mobile|Opera Mini|IEMobile|WPDesktop|BlackBerry|BB10|webOS|Fennec/i.test(e);const n=/Tablet|iPad|Playbook|Nook|webOS|Kindle|Silk|SM-T|GT-P|SCH-I800|Xoom|Transformer|Tab|Slate|Pixel C|Nexus 7|Nexus 9|Nexus 10|SHIELD Tablet|Lenovo Tab|Mi Pad|Android(?!.*Mobile)/i.test(e);return t&&!n};const y=p();const g=m(y?o:e);const w=m(y?r:t);const h=m(y?s:n);if(!g&&!w&&!h){return}const b=()=>{if(!document.body){f++;if(f<l){window.requestAnimationFrame(b)}else{console.warn(i,c,\"inject: document.body not found after max retries\")}return}void A().catch(e=>{console.error(i,c,\"injectAllClsDivs failed\",e)})};const S=async(e,t,n)=>{const o=document.createElement(\"div\");o.classList.add(t);o.classList.add(\"cls-inserted\");o.style.minHeight=`\${n}px`;const r=[\"article p\",\"section.wp-block-template-part div.entry-content p\"];for(const t of r){const n=document.querySelectorAll(t);if(n?.length>=e){const t=n[e-1];t.insertAdjacentElement(\"afterend\",o);return o}}return null};const \$=async e=>{const t=u.onPageEmailCapture;try{if(document.querySelector(`.\${t}`)){console.warn(i,c,`Container element already exists for \${t} class`);return}const n=y?e.minHeightMobile||220:e.minHeight||200;if(e.cssSelector){await T(e.cssSelector,\"before selector\",t,n,\"\",undefined)}else{await S(e.pLocation||3,t,n)}}catch(e){console.error(i,c,`Failed to inject \${t} container`,e)}};const k=async e=>{if(e.selector){await T(e.selector,e.position||\"after selector\",u.filmstrip,e.minHeight||72,e.margin||e.marginLegacy||\"10px auto\")}else{console.warn(i,c,\"Filmstrip config missing selector property\")}};const x=async e=>{const t=Array.isArray(e)?e:[e];for(const e of t){if(e.selector){await T(e.selector,e.position||\"after selector\",u.dcmInlineSearch,e.minHeight||350,e.margin||e.marginLegacy||\"50px 15px\",e.id)}else{console.warn(i,c,\"DCM config is missing selector property:\",e)}}};const A=async()=>{if(g){await k(g)}if(w){await x(w)}if(h){await \$(h)}};const C=async e=>new Promise(t=>{setTimeout(t,e)});const E=async(e,t,n,o,r)=>{const s=document.querySelector(e);if(s){return s}const i=Date.now();if(i-n>=t){console.error(o,r,`Timeout waiting for selector: \${e}`);return null}await C(a);return E(e,t,n,o,r)};const P=async(e,t)=>{const n=Date.now();return E(e,t,n,i,c)};const T=async(e,t,n,o,r,s)=>{try{if(!e||e===\"undefined\"){console.warn(i,c,`Selector is empty or \"undefined\" for \${n} class; nothing to do`);return null}const a=await P(e,d);const l=s?document.querySelector(`.\${n}[data-config=\"\${s}\"]`):document.querySelector(`.\${n}`);if(l){console.warn(i,c,`Container element already exists for \${n} class with selector \${e}`);return null}if(!a){console.warn(i,c,`Target node not found for selector: \${e}`);return null}const u=document.createElement(\"div\");u.style.minHeight=`\${o}px`;u.style.margin=r;u.classList.add(n,\"cls-inserted\");if(s){u.dataset.config=s}const f={\"after selector\":\"afterend\",\"before selector\":\"beforebegin\",\"first child of selector\":\"afterbegin\",\"last child of selector\":\"beforeend\"};a.insertAdjacentElement(f[t]||\"afterend\",u);return u}catch(t){console.error(i,c,`Failed to inject \${n} for selector \${e}`,t);return null}};const F=()=>{window.requestAnimationFrame(b)};F()})";
+            echo "\n('" . implode("','", array_map('addslashes', $clsConfigStrs)) . "');" . "\n";
             echo "\n</script>\n";
 
             $this->utils->echoComment('END CLS Container Script Injection', false, false, true);
         } else {
-            $this->utils->echoComment('CLS Script Injection: Filmstrip, DCM, and Email Capture configs all empty; CLS Script not injected');
+            $this->utils->echoComment('CLS Script Injection: Filmstrip, DCM, and Email Capture configs all empty on every device; CLS Script not injected');
         }
     }
 
