@@ -6,7 +6,7 @@ namespace Slickstream;
  * Plugin Name:       Slickstream Search and Engagement
  * Plugin URI:        https://slickstream.com/
  * Description:       For use with Slickstream's cloud service and widgets to increase visitor engagement
- * Version:           3.0.1
+ * Version:           3.0.2
  * Requires at least: 5.2.0
  * Requires PHP:      7.4.0
  * Tested up to:      6.8.2

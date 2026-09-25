@@ -7,7 +7,7 @@ License URI: https://www.gnu.org/licenses/gpl-3.0.html
 Requires at least: 5.0
 Requires PHP: 7.4.0
 Tested up to: 6.8.2
-Stable tag: 3.0.1
+Stable tag: 3.0.2
 
 Use Slickstream to upgrade your site search. Get beautiful as-you-type search, relevant content recommendations, user favorites and more!
 
@@ -152,3 +152,6 @@ You can report security bugs through the Patchstack Vulnerability Disclosure Pro
 = 3.0.1 =
 - Fixed DCM double div rendering
 - Enhanced import paths
+
+= 3.0.2 =
+- Fixed layout shift when a page cache serves the same page to phones and desktops: phones no longer reserve space for desktop-only widgets, and desktops keep theirs

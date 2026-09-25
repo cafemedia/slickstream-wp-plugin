@@ -11,7 +11,7 @@ require_once PLUGIN_DIR_PATH(__FILE__) . 'Utils.php';
 
 class SlickEngagement_Plugin extends OptionsManager
 {
-    private const PLUGIN_VERSION = '3.0.1';
+    private const PLUGIN_VERSION = '3.0.2';
     private const DEFAULT_APP_SERVER = 'app.slickstream.com';
     private const CDN_SERVER = 'c.slickstream.com';
     private string $scriptClass = 'slickstream-script';
