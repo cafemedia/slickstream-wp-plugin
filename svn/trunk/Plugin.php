@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Slickstream;
 
+// NOTE: All inline JS scripts embedded by the plugin need to have the string `slickstream` somewhere in them;
+// This allows the string `slickstream` to be used in WP-Rocket lazy load exclusions; ideally $scriptClass is added to each script
+
 require_once PLUGIN_DIR_PATH(__FILE__) . 'SlickWidgets.php';
 require_once PLUGIN_DIR_PATH(__FILE__) . 'OptionsManager.php';
 require_once PLUGIN_DIR_PATH(__FILE__) . 'PageBootData.php';

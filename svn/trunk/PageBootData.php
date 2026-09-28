@@ -74,9 +74,12 @@ class PageBootData extends OptionsManager
         if (count(array_filter($clsConfigStrs)) > 0) {
             $this->utils->echoComment('CLS Container Script Injection:', false, false, true);
 
-            // NOTE: The source of the minified JavaScript below is: slickstream-client/blob/main/src/plugin/cls-inject.ts
+            // NOTE: The source of the minified JavaScript below is slickstream-client src/plugin/cls-inject.ts (3.1.12 = 1482a0b).
             // It is the client release named in the banner, published as https://c.slickstream.com/app/<version>/cls-inject.js
             // (minus the trailing placeholder call); rebuild from that release, not from an unreleased branch.
+            // The line below is a PHP double-quoted string: escape \, " and $ when pasting.
+            // An unescaped `${t}` silently becomes an empty string (PHP only warns).
+            // The script must keep the string `slickstream`; see the WP-Rocket NOTE in Plugin.php.
             // This script will insert the filmstrip, DCM, and email container elements into the page to eliminate CLS on those widgets.
             // TODO: This should be pulled in over HTTP and cached in Wordpress, not embedded directly like this.
             echo "\n<script>//cls-inject.ts v3.1.12\n";
